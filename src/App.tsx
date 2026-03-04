@@ -301,15 +301,26 @@ const SocialHub = () => {
               We're more than just a pharmacy. Follow us on TikTok and Instagram for daily health hacks, mental wellness advice, and product deep-dives from our experts.
             </p>
             
+            <p className="text-sm font-bold text-emerald-900/40 uppercase tracking-widest mb-4">Follow Our Journey</p>
             <div className="flex gap-4 mb-12">
-              <button className="flex items-center gap-3 px-6 py-3 bg-black text-white rounded-2xl font-bold hover:opacity-80 transition-opacity">
+              <a 
+                href="https://www.tiktok.com/@gitaridiana" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex items-center gap-3 px-6 py-3 bg-black text-white rounded-2xl font-bold hover:opacity-80 transition-opacity"
+              >
                 <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1.04-.1z"/></svg>
                 TikTok
-              </button>
-              <button className="flex items-center gap-3 px-6 py-3 bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-500 text-white rounded-2xl font-bold hover:opacity-90 transition-opacity">
+              </a>
+              <a 
+                href="https://www.instagram.com/harvianah_pharmacy" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex items-center gap-3 px-6 py-3 bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-500 text-white rounded-2xl font-bold hover:opacity-90 transition-opacity"
+              >
                 <Instagram size={20} />
                 Instagram
-              </button>
+              </a>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
@@ -379,9 +390,9 @@ const Footer = () => {
               Premium pharmaceuticals and holistic wellness products delivered with empathy and expertise. Located in Ruiru, Kenya.
             </p>
             <div className="flex gap-4">
-              <a href="#" className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-emerald-600 transition-colors"><Instagram size={18} /></a>
-              <a href="#" className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-emerald-600 transition-colors"><Video size={18} /></a>
-              <a href="#" className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-emerald-600 transition-colors"><Phone size={18} /></a>
+              <a href="https://www.instagram.com/harvianah_pharmacy" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-emerald-600 transition-colors"><Instagram size={18} /></a>
+              <a href="https://www.tiktok.com/@gitaridiana" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-emerald-600 transition-colors"><Video size={18} /></a>
+              <a href="tel:+254700000000" className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-emerald-600 transition-colors"><Phone size={18} /></a>
             </div>
           </div>
 
