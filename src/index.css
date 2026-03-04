@@ -7,6 +7,9 @@
 }
 
 @layer base {
+  html {
+    scroll-behavior: smooth;
+  }
   body {
     @apply bg-[#F9F8F6] text-emerald-950 antialiased;
   }

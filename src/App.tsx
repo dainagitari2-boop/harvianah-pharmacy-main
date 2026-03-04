@@ -51,10 +51,10 @@ const Navbar = ({ cartCount }: { cartCount: number }) => {
         </div>
 
         <div className="hidden md:flex items-center gap-8 text-sm font-medium text-emerald-900/80">
-          <a href="#" className="hover:text-emerald-600 transition-colors">Shop</a>
-          <a href="#" className="hover:text-emerald-600 transition-colors">Expertise</a>
-          <a href="#" className="hover:text-emerald-600 transition-colors">Consultations</a>
-          <a href="#" className="hover:text-emerald-600 transition-colors">Wellness Hub</a>
+          <a href="#shop" className="hover:text-emerald-600 transition-colors">Shop</a>
+          <a href="#expertise" className="hover:text-emerald-600 transition-colors">Expertise</a>
+          <a href="#consultations" className="hover:text-emerald-600 transition-colors">Consultations</a>
+          <a href="#wellness-hub" className="hover:text-emerald-600 transition-colors">Wellness Hub</a>
         </div>
 
         <div className="flex items-center gap-4">
@@ -87,12 +87,12 @@ const Navbar = ({ cartCount }: { cartCount: number }) => {
             exit={{ opacity: 0, y: -20 }}
             className="absolute top-full left-0 w-full bg-white border-t border-emerald-100 p-6 flex flex-col gap-4 md:hidden shadow-xl"
           >
-            <a href="#" className="text-lg font-medium text-emerald-900">Shop</a>
-            <a href="#" className="text-lg font-medium text-emerald-900">Expertise</a>
-            <a href="#" className="text-lg font-medium text-emerald-900">Consultations</a>
-            <a href="#" className="text-lg font-medium text-emerald-900">Wellness Hub</a>
+            <a href="#shop" onClick={() => setIsMobileMenuOpen(false)} className="text-lg font-medium text-emerald-900">Shop</a>
+            <a href="#expertise" onClick={() => setIsMobileMenuOpen(false)} className="text-lg font-medium text-emerald-900">Expertise</a>
+            <a href="#consultations" onClick={() => setIsMobileMenuOpen(false)} className="text-lg font-medium text-emerald-900">Consultations</a>
+            <a href="#wellness-hub" onClick={() => setIsMobileMenuOpen(false)} className="text-lg font-medium text-emerald-900">Wellness Hub</a>
             <hr className="border-emerald-50" />
-            <button className="w-full bg-emerald-600 text-white py-3 rounded-xl font-medium">Book Consultation</button>
+            <a href="#consultations" onClick={() => setIsMobileMenuOpen(false)} className="w-full bg-emerald-600 text-white py-3 rounded-xl font-medium text-center">Book Consultation</a>
           </motion.div>
         )}
       </AnimatePresence>
@@ -190,7 +190,7 @@ const Hero = () => {
 
 const CategorySection = () => {
   return (
-    <section className="py-24 bg-white">
+    <section id="shop" className="py-24 bg-white scroll-mt-20">
       <div className="max-w-7xl mx-auto px-6">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
           <div>
@@ -285,7 +285,7 @@ const FeaturedProducts = ({ onAddToCart }: { onAddToCart: (p: Product) => void }
 
 const SocialHub = () => {
   return (
-    <section className="py-24 bg-white overflow-hidden">
+    <section id="wellness-hub" className="py-24 bg-white overflow-hidden scroll-mt-20">
       <div className="max-w-7xl mx-auto px-6">
         <div className="grid lg:grid-cols-2 gap-16 items-center">
           <div>
@@ -481,7 +481,7 @@ export default function App() {
         <FeaturedProducts onAddToCart={addToCart} />
         
         {/* Expertise Section */}
-        <section className="py-24 bg-white">
+        <section id="expertise" className="py-24 bg-white scroll-mt-20">
           <div className="max-w-7xl mx-auto px-6">
             <div className="grid lg:grid-cols-2 gap-16 items-center">
               <div className="order-2 lg:order-1 relative">
@@ -568,7 +568,7 @@ export default function App() {
         </section>
 
         {/* Call to Action */}
-        <section className="py-24">
+        <section id="consultations" className="py-24 scroll-mt-20">
           <div className="max-w-7xl mx-auto px-6">
             <div className="bg-emerald-600 rounded-[3rem] p-12 md:p-20 text-center text-white relative overflow-hidden">
               <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
