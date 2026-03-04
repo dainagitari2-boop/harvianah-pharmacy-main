@@ -134,9 +134,14 @@ const Hero = () => {
 
           <div className="mt-12 flex items-center gap-8 border-t border-emerald-100 pt-8">
             <div className="flex -space-x-3">
-              {[1, 2, 3, 4].map(i => (
-                <div key={i} className="w-10 h-10 rounded-full border-2 border-white overflow-hidden">
-                  <img src={`https://i.pravatar.cc/100?img=${i + 10}`} alt="User" referrerPolicy="no-referrer" />
+              {[
+                "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&q=80&w=100",
+                "https://images.unsplash.com/photo-1523824921871-d6f1a15151f1?auto=format&fit=crop&q=80&w=100",
+                "https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?auto=format&fit=crop&q=80&w=100",
+                "https://images.unsplash.com/photo-1507152832244-10d45c7eda57?auto=format&fit=crop&q=80&w=100"
+              ].map((url, i) => (
+                <div key={i} className="w-10 h-10 rounded-full border-2 border-white overflow-hidden bg-emerald-100">
+                  <img src={url} alt="User" referrerPolicy="no-referrer" className="w-full h-full object-cover" />
                 </div>
               ))}
             </div>
@@ -238,7 +243,7 @@ const FeaturedProducts = ({ onAddToCart }: { onAddToCart: (p: Product) => void }
           <p className="text-emerald-900/60 max-w-2xl mx-auto">Our top-selling wellness products, hand-picked by our pharmaceutical and psychological experts for their efficacy and quality.</p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           {PRODUCTS.filter(p => p.isFeatured).map((product) => (
             <motion.div 
               key={product.id}
@@ -342,11 +347,17 @@ const SocialHub = () => {
                 transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
                 className="space-y-4"
               >
-                <div className="aspect-[9/16] rounded-3xl overflow-hidden shadow-lg">
-                  <img src="https://images.unsplash.com/photo-1559839734-2b71f1e3c770?auto=format&fit=crop&q=80&w=400" alt="TikTok 1" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                <div className="aspect-[9/16] rounded-3xl overflow-hidden shadow-lg relative group">
+                  <img src="https://images.unsplash.com/photo-1582750433449-648ed127bb54?auto=format&fit=crop&q=80&w=400" alt="Expert Pharmacist" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                  <div className="absolute top-4 left-4 bg-black/50 backdrop-blur-sm p-2 rounded-full text-white">
+                    <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1.04-.1z"/></svg>
+                  </div>
                 </div>
-                <div className="aspect-[9/16] rounded-3xl overflow-hidden shadow-lg">
-                  <img src="https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?auto=format&fit=crop&q=80&w=400" alt="TikTok 2" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                <div className="aspect-[9/16] rounded-3xl overflow-hidden shadow-lg relative group">
+                  <img src="https://images.unsplash.com/photo-1523824921871-d6f1a15151f1?auto=format&fit=crop&q=80&w=400" alt="Wellness Routine" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                  <div className="absolute top-4 left-4 bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-500 p-2 rounded-full text-white">
+                    <Instagram size={16} />
+                  </div>
                 </div>
               </motion.div>
               <motion.div 
@@ -354,17 +365,23 @@ const SocialHub = () => {
                 transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
                 className="space-y-4 pt-12"
               >
-                <div className="aspect-[9/16] rounded-3xl overflow-hidden shadow-lg">
-                  <img src="https://images.unsplash.com/photo-1512069772995-ec65ed45afd6?auto=format&fit=crop&q=80&w=400" alt="TikTok 3" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                <div className="aspect-[9/16] rounded-3xl overflow-hidden shadow-lg relative group">
+                  <img src="https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?auto=format&fit=crop&q=80&w=400" alt="Mindfulness Session" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                  <div className="absolute top-4 left-4 bg-black/50 backdrop-blur-sm p-2 rounded-full text-white">
+                    <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1.04-.1z"/></svg>
+                  </div>
                 </div>
-                <div className="aspect-[9/16] rounded-3xl overflow-hidden shadow-lg">
-                  <img src="https://images.unsplash.com/photo-1516534775068-ba3e84529519?auto=format&fit=crop&q=80&w=400" alt="TikTok 4" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                <div className="aspect-[9/16] rounded-3xl overflow-hidden shadow-lg relative group">
+                  <img src="https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&q=80&w=400" alt="Happy Wellness Client" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                  <div className="absolute top-4 left-4 bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-500 p-2 rounded-full text-white">
+                    <Instagram size={16} />
+                  </div>
                 </div>
               </motion.div>
             </div>
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-20 bg-white rounded-full flex items-center justify-center shadow-2xl z-20">
               <div className="w-16 h-16 bg-emerald-600 rounded-full flex items-center justify-center text-white animate-pulse">
-                <Video size={32} />
+                <svg className="w-8 h-8 fill-current" viewBox="0 0 24 24"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1.04-.1z"/></svg>
               </div>
             </div>
           </div>
@@ -498,10 +515,10 @@ export default function App() {
               <div className="order-2 lg:order-1 relative">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="aspect-square rounded-[2rem] overflow-hidden shadow-xl">
-                    <img src="https://images.unsplash.com/photo-1551601651-2a8555f1a136?auto=format&fit=crop&q=80&w=400" alt="Pharmacist" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                    <img src="https://images.unsplash.com/photo-1594824476967-48c8b964273f?auto=format&fit=crop&q=80&w=400" alt="Pharmaceutical Technologist" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                   </div>
                   <div className="aspect-square rounded-[2rem] overflow-hidden shadow-xl mt-12">
-                    <img src="https://images.unsplash.com/photo-1527137342181-19aab11a8ee1?auto=format&fit=crop&q=80&w=400" alt="Counseling" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                    <img src="https://images.unsplash.com/photo-1559839734-2b71f1536783?auto=format&fit=crop&q=80&w=400" alt="Counseling Psychologist" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                   </div>
                 </div>
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white p-8 rounded-[2.5rem] shadow-2xl border border-emerald-50 text-center max-w-[200px]">
