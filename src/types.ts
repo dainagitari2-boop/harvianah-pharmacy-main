@@ -186,5 +186,77 @@ export const PRODUCTS: Product[] = [
     image: 'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?auto=format&fit=crop&q=80&w=800',
     description: 'Protective barrier cream to prevent and treat diaper rash, keeping baby\'s skin soft and protected.',
     isFeatured: false
+  },
+  {
+    id: '19',
+    name: 'Advanced Cold & Flu Relief',
+    category: 'pharma',
+    price: 650,
+    image: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&q=80&w=800',
+    description: 'Effective relief from fever, aches, pains, and nasal congestion associated with cold and flu.',
+    isFeatured: false
+  },
+  {
+    id: '20',
+    name: 'Expert Cough Relief Syrup',
+    category: 'pharma',
+    price: 550,
+    image: 'https://images.unsplash.com/photo-1550573105-4584e7d7e674?auto=format&fit=crop&q=80&w=800',
+    description: 'Soothing relief for both dry and chesty coughs. Helps clear congestion and ease throat irritation.',
+    isFeatured: false
+  },
+  {
+    id: '21',
+    name: 'Seven Seas Omega-3 Syrup (200ml)',
+    category: 'pharma',
+    price: 1850,
+    image: 'https://images.unsplash.com/photo-1471864190281-a93a3072467a?auto=format&fit=crop&q=80&w=800',
+    description: 'Rich in Omega-3 and Vitamin D to support healthy brain function, vision, and heart health in children and adults.',
+    isFeatured: true
+  },
+  {
+    id: '22',
+    name: 'Seven Seas Omega-3 Capsules (60s)',
+    category: 'pharma',
+    price: 2200,
+    image: 'https://images.unsplash.com/photo-1579722820308-d74e571900a9?auto=format&fit=crop&q=80&w=800',
+    description: 'High-purity fish oil capsules providing essential EPA and DHA for heart, brain, and eye health.',
+    isFeatured: false
+  },
+  {
+    id: '23',
+    name: 'Comprehensive Multivitamin Syrup',
+    category: 'pharma',
+    price: 1250,
+    image: 'https://images.unsplash.com/photo-1596461404969-9ae70f2830c1?auto=format&fit=crop&q=80&w=800',
+    description: 'A balanced blend of essential vitamins to support growth, immunity, and overall well-being in children.',
+    isFeatured: false
+  },
+  {
+    id: '24',
+    name: 'Vitamin C 500mg Dispensible (30s)',
+    category: 'pharma',
+    price: 450,
+    image: 'https://images.unsplash.com/photo-1615485242231-82869a81d3ac?auto=format&fit=crop&q=80&w=800',
+    description: 'Easy-to-take dispensible Vitamin C tablets to boost immunity and support healthy skin and tissues.',
+    isFeatured: false
+  },
+  {
+    id: '25',
+    name: 'Gaviscon Double Action Liquid (200ml)',
+    category: 'pharma',
+    price: 1450,
+    image: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&q=80&w=800',
+    description: 'Dual-action relief from heartburn and indigestion by neutralizing acid and forming a protective barrier.',
+    isFeatured: true
+  },
+  {
+    id: '26',
+    name: 'Calpol Infant Suspension (100ml)',
+    category: 'pharma',
+    price: 850,
+    image: 'https://images.unsplash.com/photo-1596461404969-9ae70f2830c1?auto=format&fit=crop&q=80&w=800',
+    description: 'Gentle pain and fever relief for infants and children. Sugar-free and strawberry flavored.',
+    isFeatured: false
   }
 ];
