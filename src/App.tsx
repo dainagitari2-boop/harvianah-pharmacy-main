@@ -38,7 +38,8 @@ const Navbar = ({
   onSearch, 
   onHome, 
   onShop,
-  onConsult
+  onConsult,
+  onNavigate
 }: { 
   cartCount: number; 
   onOpenCart: () => void;
@@ -46,6 +47,7 @@ const Navbar = ({
   onHome: () => void;
   onShop: () => void;
   onConsult: () => void;
+  onNavigate: (sectionId: string) => void;
 }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -79,9 +81,9 @@ const Navbar = ({
 
         <div className="hidden md:flex items-center gap-8 text-sm font-medium text-emerald-900/80">
           <button onClick={onShop} className="hover:text-emerald-600 transition-colors">Shop</button>
-          <a href="#expertise" className="hover:text-emerald-600 transition-colors">Expertise</a>
+          <button onClick={() => onNavigate('expertise')} className="hover:text-emerald-600 transition-colors">Expertise</button>
           <button onClick={onConsult} className="hover:text-emerald-600 transition-colors">Consultations</button>
-          <a href="#wellness-hub" className="hover:text-emerald-600 transition-colors">Wellness Hub</a>
+          <button onClick={() => onNavigate('wellness-hub')} className="hover:text-emerald-600 transition-colors">Wellness Hub</button>
         </div>
 
         <div className="flex items-center gap-4">
@@ -143,9 +145,9 @@ const Navbar = ({
             className="absolute top-full left-0 w-full bg-white border-t border-emerald-100 p-6 flex flex-col gap-4 md:hidden shadow-xl"
           >
             <button onClick={() => { onShop(); setIsMobileMenuOpen(false); }} className="text-left text-lg font-medium text-emerald-900">Shop</button>
-            <a href="#expertise" onClick={() => setIsMobileMenuOpen(false)} className="text-lg font-medium text-emerald-900">Expertise</a>
+            <button onClick={() => { onNavigate('expertise'); setIsMobileMenuOpen(false); }} className="text-left text-lg font-medium text-emerald-900">Expertise</button>
             <button onClick={() => { onConsult(); setIsMobileMenuOpen(false); }} className="text-left text-lg font-medium text-emerald-900">Consultations</button>
-            <a href="#wellness-hub" onClick={() => setIsMobileMenuOpen(false)} className="text-lg font-medium text-emerald-900">Wellness Hub</a>
+            <button onClick={() => { onNavigate('wellness-hub'); setIsMobileMenuOpen(false); }} className="text-left text-lg font-medium text-emerald-900">Wellness Hub</button>
             <hr className="border-emerald-50" />
             <button onClick={() => { onConsult(); setIsMobileMenuOpen(false); }} className="w-full bg-emerald-600 text-white py-3 rounded-xl font-medium text-center">Book Consultation</button>
           </motion.div>
@@ -820,7 +822,17 @@ const SocialHub = () => {
   );
 };
 
-const Footer = ({ onShop, onConsult }: { onShop: () => void; onConsult: () => void }) => {
+const Footer = ({ 
+  onShop, 
+  onConsult, 
+  onNavigate,
+  onLegal
+}: { 
+  onShop: () => void; 
+  onConsult: () => void; 
+  onNavigate: (id: string) => void;
+  onLegal: (type: string) => void;
+}) => {
   return (
     <footer className="bg-emerald-950 text-white pt-24 pb-12">
       <div className="max-w-7xl mx-auto px-6">
@@ -846,9 +858,9 @@ const Footer = ({ onShop, onConsult }: { onShop: () => void; onConsult: () => vo
             <h4 className="font-bold text-lg mb-6">Quick Links</h4>
             <ul className="space-y-4 text-emerald-100/60">
               <li><button onClick={onShop} className="hover:text-white transition-colors text-left">Shop All Products</button></li>
-              <li><a href="#wellness-hub" className="hover:text-white transition-colors">Wellness Hub</a></li>
+              <li><button onClick={() => onNavigate('wellness-hub')} className="hover:text-white transition-colors text-left">Wellness Hub</button></li>
               <li><button onClick={onConsult} className="hover:text-white transition-colors text-left">Expert Consultations</button></li>
-              <li><a href="#expertise" className="hover:text-white transition-colors">About Our Team</a></li>
+              <li><button onClick={() => onNavigate('expertise')} className="hover:text-white transition-colors text-left">About Our Team</button></li>
               <li><a href="mailto:info@harvianah.com" className="hover:text-white transition-colors">Contact Us</a></li>
             </ul>
           </div>
@@ -867,25 +879,26 @@ const Footer = ({ onShop, onConsult }: { onShop: () => void; onConsult: () => vo
           <div>
             <h4 className="font-bold text-lg mb-6">Newsletter</h4>
             <p className="text-emerald-100/60 mb-6 text-sm">Subscribe for wellness tips and exclusive offers.</p>
-            <div className="flex gap-2">
+            <form onSubmit={(e) => { e.preventDefault(); onLegal('Newsletter'); }} className="flex gap-2">
               <input 
+                required
                 type="email" 
                 placeholder="Your email" 
                 className="bg-white/10 border border-white/20 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-emerald-500 w-full"
               />
-              <button className="bg-emerald-600 text-white px-4 py-2 rounded-xl hover:bg-emerald-700 transition-colors">
+              <button type="submit" className="bg-emerald-600 text-white px-4 py-2 rounded-xl hover:bg-emerald-700 transition-colors">
                 Join
               </button>
-            </div>
+            </form>
           </div>
         </div>
 
         <div className="pt-12 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-6 text-sm text-emerald-100/40">
           <p>© 2024 Harvianah Pharmacy. All rights reserved.</p>
           <div className="flex gap-8">
-            <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
-            <a href="#" className="hover:text-white transition-colors">Terms of Service</a>
-            <a href="#" className="hover:text-white transition-colors">Shipping Policy</a>
+            <button onClick={() => onLegal('Privacy Policy')} className="hover:text-white transition-colors">Privacy Policy</button>
+            <button onClick={() => onLegal('Terms of Service')} className="hover:text-white transition-colors">Terms of Service</button>
+            <button onClick={() => onLegal('Shipping Policy')} className="hover:text-white transition-colors">Shipping Policy</button>
           </div>
         </div>
       </div>
@@ -898,6 +911,7 @@ const Footer = ({ onShop, onConsult }: { onShop: () => void; onConsult: () => vo
 export default function App() {
   const [cart, setCart] = useState<{ product: Product; quantity: number }[]>([]);
   const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState('Item added to your cart!');
   const [isShopView, setIsShopView] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isConsultationOpen, setIsConsultationOpen] = useState(false);
@@ -915,6 +929,7 @@ export default function App() {
       }
       return [...prev, { product, quantity: 1 }];
     });
+    setToastMessage('Item added to your cart!');
     setShowToast(true);
     setTimeout(() => setShowToast(false), 3000);
   };
@@ -933,6 +948,22 @@ export default function App() {
     }));
   };
 
+  const navigateToSection = (sectionId: string) => {
+    setIsShopView(false);
+    setTimeout(() => {
+      const element = document.getElementById(sectionId);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
+    }, 100);
+  };
+
+  const handleLegal = (type: string) => {
+    setToastMessage(`${type} coming soon!`);
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 3000);
+  };
+
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
@@ -944,6 +975,7 @@ export default function App() {
         onHome={() => { setIsShopView(false); window.scrollTo(0, 0); }}
         onShop={() => setIsShopView(true)}
         onConsult={() => setIsConsultationOpen(true)}
+        onNavigate={navigateToSection}
       />
       
       <main>
@@ -1029,7 +1061,10 @@ export default function App() {
                         </div>
                       </div>
                     </div>
-                    <button className="mt-12 px-8 py-4 bg-emerald-950 text-white rounded-2xl font-semibold hover:bg-emerald-900 transition-all">
+                    <button 
+                      onClick={() => navigateToSection('expertise')}
+                      className="mt-12 px-8 py-4 bg-emerald-950 text-white rounded-2xl font-semibold hover:bg-emerald-900 transition-all"
+                    >
                       Learn About Our Story
                     </button>
                   </div>
@@ -1108,6 +1143,8 @@ export default function App() {
       <Footer 
         onShop={() => setIsShopView(true)} 
         onConsult={() => setIsConsultationOpen(true)} 
+        onNavigate={navigateToSection}
+        onLegal={handleLegal}
       />
 
       <CartModal 
@@ -1137,8 +1174,8 @@ export default function App() {
             <div className="w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center">
               <ShoppingBag size={16} />
             </div>
-            <p className="font-medium">Item added to your cart!</p>
-            <button className="text-emerald-400 font-bold text-sm ml-4">View Cart</button>
+            <p className="font-medium">{toastMessage}</p>
+            {toastMessage.includes('cart') && <button className="text-emerald-400 font-bold text-sm ml-4">View Cart</button>}
           </motion.div>
         )}
       </AnimatePresence>
