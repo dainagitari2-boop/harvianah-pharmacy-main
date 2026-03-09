@@ -914,13 +914,13 @@ const SocialHub = () => {
                 className="space-y-4"
               >
                 <div className="aspect-[9/16] rounded-3xl overflow-hidden shadow-lg relative group">
-                  <img src="https://images.unsplash.com/photo-1582750433449-648ed127bb54?auto=format&fit=crop&q=80&w=400" alt="Expert Pharmacist" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                  <img src="https://images.unsplash.com/photo-1631217816660-ad44c3e99b08?auto=format&fit=crop&q=80&w=400" alt="Our Friendly Pharmacist" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                   <div className="absolute top-4 left-4 bg-black/50 backdrop-blur-sm p-2 rounded-full text-white">
                     <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1.04-.1z"/></svg>
                   </div>
                 </div>
                 <div className="aspect-[9/16] rounded-3xl overflow-hidden shadow-lg relative group">
-                  <img src="https://images.unsplash.com/photo-1523824921871-d6f1a15151f1?auto=format&fit=crop&q=80&w=400" alt="Wellness Routine" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                  <img src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&q=80&w=400" alt="Vibrant Community" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                   <div className="absolute top-4 left-4 bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-500 p-2 rounded-full text-white">
                     <Instagram size={16} />
                   </div>
@@ -932,13 +932,13 @@ const SocialHub = () => {
                 className="space-y-4 pt-12"
               >
                 <div className="aspect-[9/16] rounded-3xl overflow-hidden shadow-lg relative group">
-                  <img src="https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?auto=format&fit=crop&q=80&w=400" alt="Mindfulness Session" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                  <img src="https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&q=80&w=400" alt="Healthy & Happy" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                   <div className="absolute top-4 left-4 bg-black/50 backdrop-blur-sm p-2 rounded-full text-white">
                     <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1.04-.1z"/></svg>
                   </div>
                 </div>
                 <div className="aspect-[9/16] rounded-3xl overflow-hidden shadow-lg relative group">
-                  <img src="https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&q=80&w=400" alt="Happy Wellness Client" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                  <img src="https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&q=80&w=400" alt="Wellness Together" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                   <div className="absolute top-4 left-4 bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-500 p-2 rounded-full text-white">
                     <Instagram size={16} />
                   </div>
@@ -954,6 +954,72 @@ const SocialHub = () => {
         </div>
       </div>
     </section>
+  );
+};
+
+const StoryModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={onClose}
+            className="absolute inset-0 bg-emerald-950/40 backdrop-blur-sm"
+          />
+          <motion.div 
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.9, opacity: 0 }}
+            className="relative w-full max-w-2xl bg-white rounded-[3rem] shadow-2xl overflow-hidden"
+          >
+            <div className="p-8 md:p-12">
+              <button onClick={onClose} className="absolute top-6 right-6 p-2 hover:bg-emerald-50 rounded-full transition-colors text-emerald-900">
+                <X size={24} />
+              </button>
+              
+              <div className="text-center">
+                <div className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-600 mx-auto mb-8">
+                  <Star size={40} fill="currentColor" />
+                </div>
+                <h2 className="text-4xl font-serif text-emerald-950 mb-6">The Harvianah Spark: <br /><span className="italic text-emerald-700">Where Science Got a Soul</span></h2>
+                
+                <div className="space-y-6 text-lg text-emerald-900/70 leading-relaxed">
+                  <p>
+                    Once upon a time in Ruiru, a lab coat met a listening ear. 🧪✨ 
+                  </p>
+                  <p>
+                    Our founders realized that while pills can fix a fever, they can't always fix the "feeling." 
+                    We saw people leaving pharmacies with bags of medicine but hearts still heavy with worry.
+                  </p>
+                  <p className="font-serif italic text-2xl text-emerald-800">
+                    "Why choose between body and mind when you can heal both?"
+                  </p>
+                  <p>
+                    So, we did something a little crazy. We combined pharmaceutical precision with psychological insight. 
+                    Think of us as your health's best friends—one who knows exactly what's in the bottle, 
+                    and another who knows exactly what's on your mind.
+                  </p>
+                  <p>
+                    We're here to make wellness feel less like a chore and more like a high-five for your body and soul! 
+                    Welcome to the family. 💚
+                  </p>
+                </div>
+
+                <button 
+                  onClick={onClose}
+                  className="mt-10 px-10 py-4 bg-emerald-600 text-white rounded-2xl font-bold hover:bg-emerald-700 transition-all shadow-xl"
+                >
+                  Let's Get Healthy Together!
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
+    </AnimatePresence>
   );
 };
 
@@ -1052,6 +1118,7 @@ export default function App() {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isWishlistOpen, setIsWishlistOpen] = useState(false);
   const [isConsultationOpen, setIsConsultationOpen] = useState(false);
+  const [isStoryOpen, setIsStoryOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
   const addToCart = (product: Product) => {
@@ -1199,8 +1266,8 @@ export default function App() {
                   
                   <div className="order-1 lg:order-2">
                     <h2 className="text-4xl md:text-5xl font-serif text-emerald-950 mb-8 leading-tight">
-                      Where Science Meets <br />
-                      <span className="italic text-emerald-700">Emotional Support.</span>
+                      Science with a Soul, <br />
+                      <span className="italic text-emerald-700">Care with a Smile.</span>
                     </h2>
                     <div className="space-y-8">
                       <div className="flex gap-6">
@@ -1208,8 +1275,8 @@ export default function App() {
                           <Pill size={28} />
                         </div>
                         <div>
-                          <h4 className="text-xl font-bold text-emerald-950 mb-2">Pharmaceutical Excellence</h4>
-                          <p className="text-emerald-900/60 leading-relaxed">Our lead Pharmaceutical Technologist ensures every product is safe, effective, and scientifically sound.</p>
+                          <h4 className="text-xl font-bold text-emerald-950 mb-2">The Science Squad</h4>
+                          <p className="text-emerald-900/60 leading-relaxed">Our lead Pharmaceutical Technologist ensures every product is safe, effective, and scientifically sound. No guesswork, just results!</p>
                         </div>
                       </div>
                       <div className="flex gap-6">
@@ -1217,16 +1284,16 @@ export default function App() {
                           <Brain size={28} />
                         </div>
                         <div>
-                          <h4 className="text-xl font-bold text-emerald-950 mb-2">Psychological Insight</h4>
-                          <p className="text-emerald-900/60 leading-relaxed">Our Counseling Psychologist provides the empathy and mental health support needed for true holistic healing.</p>
+                          <h4 className="text-xl font-bold text-emerald-950 mb-2">The Soul Support</h4>
+                          <p className="text-emerald-900/60 leading-relaxed">Our Counseling Psychologist provides the empathy and mental health support needed for true holistic healing. Because your mind matters too.</p>
                         </div>
                       </div>
                     </div>
                     <button 
-                      onClick={() => navigateToSection('expertise')}
+                      onClick={() => setIsStoryOpen(true)}
                       className="mt-12 px-8 py-4 bg-emerald-950 text-white rounded-2xl font-semibold hover:bg-emerald-900 transition-all"
                     >
-                      Learn About Our Story
+                      Read Our Fun Story! ✨
                     </button>
                   </div>
                 </div>
@@ -1328,6 +1395,11 @@ export default function App() {
       <ConsultationModal 
         isOpen={isConsultationOpen} 
         onClose={() => setIsConsultationOpen(false)} 
+      />
+
+      <StoryModal 
+        isOpen={isStoryOpen} 
+        onClose={() => setIsStoryOpen(false)} 
       />
 
       {/* Toast Notification */}
