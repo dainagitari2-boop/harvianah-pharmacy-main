@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { 
   ShoppingBag, 
   Search, 
@@ -21,16 +21,36 @@ import {
   Clock,
   ArrowRight,
   User,
-  Phone
+  Phone,
+  Trash2,
+  Plus,
+  Minus,
+  CheckCircle2
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { CATEGORIES, PRODUCTS, Product } from './types';
 
 // --- Components ---
 
-const Navbar = ({ cartCount }: { cartCount: number }) => {
+const Navbar = ({ 
+  cartCount, 
+  onOpenCart, 
+  onSearch, 
+  onHome, 
+  onShop,
+  onConsult
+}: { 
+  cartCount: number; 
+  onOpenCart: () => void;
+  onSearch: (q: string) => void;
+  onHome: () => void;
+  onShop: () => void;
+  onConsult: () => void;
+}) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchValue, setSearchValue] = useState('');
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 20);
@@ -38,10 +58,17 @@ const Navbar = ({ cartCount }: { cartCount: number }) => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSearch(searchValue);
+    onShop();
+    setIsSearchOpen(false);
+  };
+
   return (
     <nav className={`fixed top-0 w-full z-50 transition-all duration-300 ${isScrolled ? 'bg-white/90 backdrop-blur-md shadow-sm py-3' : 'bg-transparent py-6'}`}>
       <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 cursor-pointer" onClick={onHome}>
           <div className="w-10 h-10 bg-emerald-600 rounded-full flex items-center justify-center text-white">
             <Pill size={20} />
           </div>
@@ -51,17 +78,45 @@ const Navbar = ({ cartCount }: { cartCount: number }) => {
         </div>
 
         <div className="hidden md:flex items-center gap-8 text-sm font-medium text-emerald-900/80">
-          <a href="#shop" className="hover:text-emerald-600 transition-colors">Shop</a>
+          <button onClick={onShop} className="hover:text-emerald-600 transition-colors">Shop</button>
           <a href="#expertise" className="hover:text-emerald-600 transition-colors">Expertise</a>
-          <a href="#consultations" className="hover:text-emerald-600 transition-colors">Consultations</a>
+          <button onClick={onConsult} className="hover:text-emerald-600 transition-colors">Consultations</button>
           <a href="#wellness-hub" className="hover:text-emerald-600 transition-colors">Wellness Hub</a>
         </div>
 
         <div className="flex items-center gap-4">
-          <button className="p-2 text-emerald-900 hover:bg-emerald-50 rounded-full transition-colors">
-            <Search size={20} />
-          </button>
-          <button className="p-2 text-emerald-900 hover:bg-emerald-50 rounded-full transition-colors relative">
+          <div className="relative flex items-center">
+            <AnimatePresence>
+              {isSearchOpen && (
+                <motion.form 
+                  initial={{ width: 0, opacity: 0 }}
+                  animate={{ width: 200, opacity: 1 }}
+                  exit={{ width: 0, opacity: 0 }}
+                  onSubmit={handleSearchSubmit}
+                  className="absolute right-full mr-2"
+                >
+                  <input 
+                    autoFocus
+                    type="text" 
+                    placeholder="Search products..."
+                    value={searchValue}
+                    onChange={(e) => setSearchValue(e.target.value)}
+                    className="w-full bg-white border border-emerald-100 rounded-full px-4 py-1.5 text-sm focus:outline-none focus:border-emerald-500 shadow-sm"
+                  />
+                </motion.form>
+              )}
+            </AnimatePresence>
+            <button 
+              onClick={() => setIsSearchOpen(!isSearchOpen)}
+              className="p-2 text-emerald-900 hover:bg-emerald-50 rounded-full transition-colors"
+            >
+              <Search size={20} />
+            </button>
+          </div>
+          <button 
+            onClick={onOpenCart}
+            className="p-2 text-emerald-900 hover:bg-emerald-50 rounded-full transition-colors relative"
+          >
             <ShoppingBag size={20} />
             {cartCount > 0 && (
               <span className="absolute top-0 right-0 w-4 h-4 bg-orange-500 text-white text-[10px] flex items-center justify-center rounded-full">
@@ -87,12 +142,12 @@ const Navbar = ({ cartCount }: { cartCount: number }) => {
             exit={{ opacity: 0, y: -20 }}
             className="absolute top-full left-0 w-full bg-white border-t border-emerald-100 p-6 flex flex-col gap-4 md:hidden shadow-xl"
           >
-            <a href="#shop" onClick={() => setIsMobileMenuOpen(false)} className="text-lg font-medium text-emerald-900">Shop</a>
+            <button onClick={() => { onShop(); setIsMobileMenuOpen(false); }} className="text-left text-lg font-medium text-emerald-900">Shop</button>
             <a href="#expertise" onClick={() => setIsMobileMenuOpen(false)} className="text-lg font-medium text-emerald-900">Expertise</a>
-            <a href="#consultations" onClick={() => setIsMobileMenuOpen(false)} className="text-lg font-medium text-emerald-900">Consultations</a>
+            <button onClick={() => { onConsult(); setIsMobileMenuOpen(false); }} className="text-left text-lg font-medium text-emerald-900">Consultations</button>
             <a href="#wellness-hub" onClick={() => setIsMobileMenuOpen(false)} className="text-lg font-medium text-emerald-900">Wellness Hub</a>
             <hr className="border-emerald-50" />
-            <a href="#consultations" onClick={() => setIsMobileMenuOpen(false)} className="w-full bg-emerald-600 text-white py-3 rounded-xl font-medium text-center">Book Consultation</a>
+            <button onClick={() => { onConsult(); setIsMobileMenuOpen(false); }} className="w-full bg-emerald-600 text-white py-3 rounded-xl font-medium text-center">Book Consultation</button>
           </motion.div>
         )}
       </AnimatePresence>
@@ -100,7 +155,7 @@ const Navbar = ({ cartCount }: { cartCount: number }) => {
   );
 };
 
-const Hero = () => {
+const Hero = ({ onShop, onConsult }: { onShop: () => void; onConsult: () => void }) => {
   return (
     <section className="relative min-h-screen flex items-center pt-20 overflow-hidden bg-[#F9F8F6]">
       <div className="absolute top-0 right-0 w-1/2 h-full bg-emerald-50/50 -skew-x-12 translate-x-1/4 hidden lg:block" />
@@ -123,11 +178,17 @@ const Hero = () => {
             Harvianah Pharmacy combines pharmaceutical precision with psychological insight to provide holistic care that heals both body and mind.
           </p>
           <div className="flex flex-wrap gap-4">
-            <button className="px-8 py-4 bg-emerald-600 text-white rounded-2xl font-semibold hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-200 flex items-center gap-2 group">
+            <button 
+              onClick={onShop}
+              className="px-8 py-4 bg-emerald-600 text-white rounded-2xl font-semibold hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-200 flex items-center gap-2 group"
+            >
               Shop All Products
               <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
             </button>
-            <button className="px-8 py-4 bg-white text-emerald-900 border border-emerald-100 rounded-2xl font-semibold hover:bg-emerald-50 transition-all">
+            <button 
+              onClick={onConsult}
+              className="px-8 py-4 bg-white text-emerald-900 border border-emerald-100 rounded-2xl font-semibold hover:bg-emerald-50 transition-all"
+            >
               Book a Consultation
             </button>
           </div>
@@ -193,7 +254,371 @@ const Hero = () => {
   );
 };
 
-const CategorySection = () => {
+const CartModal = ({ 
+  isOpen, 
+  onClose, 
+  cart, 
+  onRemove, 
+  onUpdateQuantity,
+  onClearCart
+}: { 
+  isOpen: boolean; 
+  onClose: () => void; 
+  cart: { product: Product; quantity: number }[]; 
+  onRemove: (id: string) => void;
+  onUpdateQuantity: (id: string, delta: number) => void;
+  onClearCart: () => void;
+}) => {
+  const [isCheckingOut, setIsCheckingOut] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+
+  const total = cart.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
+
+  const handleCheckout = () => {
+    setIsCheckingOut(true);
+    setTimeout(() => {
+      setIsCheckingOut(false);
+      setIsSuccess(true);
+      onClearCart();
+      setTimeout(() => {
+        setIsSuccess(false);
+        onClose();
+      }, 3000);
+    }, 2000);
+  };
+
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-end">
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={onClose}
+            className="absolute inset-0 bg-emerald-950/40 backdrop-blur-sm"
+          />
+          <motion.div 
+            initial={{ x: '100%' }}
+            animate={{ x: 0 }}
+            exit={{ x: '100%' }}
+            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+            className="relative w-full max-w-md h-full bg-white shadow-2xl flex flex-col"
+          >
+            <div className="p-6 border-b border-emerald-50 flex items-center justify-between">
+              <h2 className="text-2xl font-serif text-emerald-950">Your Cart</h2>
+              <button onClick={onClose} className="p-2 hover:bg-emerald-50 rounded-full transition-colors">
+                <X size={24} />
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-6 space-y-6">
+              {cart.length === 0 ? (
+                <div className="h-full flex flex-col items-center justify-center text-center">
+                  <div className="w-20 h-20 bg-emerald-50 rounded-full flex items-center justify-center text-emerald-300 mb-4">
+                    <ShoppingBag size={40} />
+                  </div>
+                  <h3 className="text-xl font-bold text-emerald-950 mb-2">Your cart is empty</h3>
+                  <p className="text-emerald-900/60 mb-8">Looks like you haven't added anything yet.</p>
+                  <button onClick={onClose} className="px-8 py-3 bg-emerald-600 text-white rounded-xl font-bold">Start Shopping</button>
+                </div>
+              ) : (
+                cart.map((item) => (
+                  <div key={item.product.id} className="flex gap-4">
+                    <div className="w-20 h-24 rounded-xl overflow-hidden bg-emerald-50 shrink-0">
+                      <img src={item.product.image} alt={item.product.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex justify-between mb-1">
+                        <h4 className="font-bold text-emerald-950 line-clamp-1">{item.product.name}</h4>
+                        <button onClick={() => onRemove(item.product.id)} className="text-emerald-300 hover:text-red-500 transition-colors">
+                          <Trash2 size={18} />
+                        </button>
+                      </div>
+                      <p className="text-sm text-emerald-900/60 mb-3">KES {item.product.price.toLocaleString()}</p>
+                      <div className="flex items-center gap-3">
+                        <div className="flex items-center border border-emerald-100 rounded-lg">
+                          <button 
+                            onClick={() => onUpdateQuantity(item.product.id, -1)}
+                            className="p-1 hover:bg-emerald-50 text-emerald-600"
+                          >
+                            <Minus size={14} />
+                          </button>
+                          <span className="w-8 text-center text-sm font-bold">{item.quantity}</span>
+                          <button 
+                            onClick={() => onUpdateQuantity(item.product.id, 1)}
+                            className="p-1 hover:bg-emerald-50 text-emerald-600"
+                          >
+                            <Plus size={14} />
+                          </button>
+                        </div>
+                        <span className="text-sm font-bold text-emerald-950 ml-auto">
+                          KES {(item.product.price * item.quantity).toLocaleString()}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+
+            {cart.length > 0 && (
+              <div className="p-6 border-t border-emerald-50 bg-emerald-50/30">
+                <div className="flex justify-between mb-6">
+                  <span className="text-emerald-900/60 font-medium">Subtotal</span>
+                  <span className="text-2xl font-bold text-emerald-950">KES {total.toLocaleString()}</span>
+                </div>
+                <button 
+                  onClick={handleCheckout}
+                  disabled={isCheckingOut || isSuccess}
+                  className={`w-full py-4 rounded-2xl font-bold text-white transition-all flex items-center justify-center gap-2 ${
+                    isSuccess ? 'bg-emerald-500' : 'bg-emerald-600 hover:bg-emerald-700'
+                  }`}
+                >
+                  {isCheckingOut ? (
+                    <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  ) : isSuccess ? (
+                    <>
+                      <CheckCircle2 size={20} />
+                      Order Placed!
+                    </>
+                  ) : (
+                    'Buy Now'
+                  )}
+                </button>
+              </div>
+            )}
+          </motion.div>
+        </div>
+      )}
+    </AnimatePresence>
+  );
+};
+
+const ConsultationModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setTimeout(() => {
+      setIsSubmitting(false);
+      setIsSuccess(true);
+      setTimeout(() => {
+        setIsSuccess(false);
+        onClose();
+      }, 3000);
+    }, 1500);
+  };
+
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={onClose}
+            className="absolute inset-0 bg-emerald-950/40 backdrop-blur-sm"
+          />
+          <motion.div 
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.9, opacity: 0 }}
+            className="relative w-full max-w-2xl bg-white rounded-[3rem] shadow-2xl overflow-hidden"
+          >
+            <div className="grid md:grid-cols-2">
+              <div className="bg-emerald-600 p-12 text-white hidden md:block">
+                <h2 className="text-3xl font-serif mb-6">Expert <br /> Consultation</h2>
+                <p className="text-emerald-50 mb-8 leading-relaxed">Book a session with our Pharmaceutical Technologist or Counseling Psychologist for personalized care.</p>
+                <div className="space-y-6">
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center"><Clock size={20} /></div>
+                    <p className="text-sm font-medium">30-60 Minute Sessions</p>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center"><ShieldCheck size={20} /></div>
+                    <p className="text-sm font-medium">Confidential & Private</p>
+                  </div>
+                </div>
+              </div>
+              <div className="p-8 md:p-12">
+                <button onClick={onClose} className="absolute top-6 right-6 p-2 hover:bg-emerald-50 rounded-full transition-colors text-emerald-900">
+                  <X size={24} />
+                </button>
+                
+                {isSuccess ? (
+                  <div className="h-full flex flex-col items-center justify-center text-center">
+                    <div className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-600 mb-6">
+                      <CheckCircle2 size={40} />
+                    </div>
+                    <h3 className="text-2xl font-serif text-emerald-950 mb-2">Request Received!</h3>
+                    <p className="text-emerald-900/60">We'll contact you within 24 hours to confirm your appointment.</p>
+                  </div>
+                ) : (
+                  <form onSubmit={handleSubmit} className="space-y-4">
+                    <h3 className="text-2xl font-serif text-emerald-950 mb-6">Book Your Session</h3>
+                    <div>
+                      <label className="block text-xs font-bold uppercase tracking-widest text-emerald-900/40 mb-2">Full Name</label>
+                      <input required type="text" className="w-full bg-emerald-50 border border-emerald-100 rounded-xl px-4 py-3 focus:outline-none focus:border-emerald-500" placeholder="Jane Doe" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold uppercase tracking-widest text-emerald-900/40 mb-2">Email Address</label>
+                      <input required type="email" className="w-full bg-emerald-50 border border-emerald-100 rounded-xl px-4 py-3 focus:outline-none focus:border-emerald-500" placeholder="jane@example.com" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold uppercase tracking-widest text-emerald-900/40 mb-2">Consultation Type</label>
+                      <select className="w-full bg-emerald-50 border border-emerald-100 rounded-xl px-4 py-3 focus:outline-none focus:border-emerald-500">
+                        <option>Pharmaceutical Advice</option>
+                        <option>Mental Wellness Counseling</option>
+                        <option>Holistic Health Plan</option>
+                      </select>
+                    </div>
+                    <div className="pt-4">
+                      <button 
+                        disabled={isSubmitting}
+                        className="w-full py-4 bg-emerald-600 text-white rounded-2xl font-bold hover:bg-emerald-700 transition-all flex items-center justify-center gap-2"
+                      >
+                        {isSubmitting ? (
+                          <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        ) : (
+                          'Confirm Booking'
+                        )}
+                      </button>
+                    </div>
+                  </form>
+                )}
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
+    </AnimatePresence>
+  );
+};
+
+const ShopView = ({ 
+  onAddToCart, 
+  searchQuery, 
+  onSearch 
+}: { 
+  onAddToCart: (p: Product) => void; 
+  searchQuery: string;
+  onSearch: (q: string) => void;
+}) => {
+  const [selectedCategory, setSelectedCategory] = useState('all');
+
+  const filteredProducts = useMemo(() => {
+    return PRODUCTS.filter(p => {
+      const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                           p.description.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesCategory = selectedCategory === 'all' || p.category === selectedCategory;
+      return matchesSearch && matchesCategory;
+    });
+  }, [searchQuery, selectedCategory]);
+
+  return (
+    <div className="pt-32 pb-24 bg-[#F9F8F6] min-h-screen">
+      <div className="max-w-7xl mx-auto px-6">
+        <div className="mb-12">
+          <h1 className="text-5xl font-serif text-emerald-950 mb-4">Our Pharmacy</h1>
+          <p className="text-emerald-900/60 max-w-2xl">Browse our complete collection of expert-backed pharmaceuticals, supplements, and wellness essentials.</p>
+        </div>
+
+        <div className="flex flex-col md:flex-row gap-8 mb-12">
+          <div className="flex-1 flex flex-wrap gap-2">
+            <button 
+              onClick={() => setSelectedCategory('all')}
+              className={`px-6 py-2 rounded-full text-sm font-bold transition-all ${selectedCategory === 'all' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-200' : 'bg-white text-emerald-900 border border-emerald-100'}`}
+            >
+              All Products
+            </button>
+            {CATEGORIES.map(cat => (
+              <button 
+                key={cat.id}
+                onClick={() => setSelectedCategory(cat.id)}
+                className={`px-6 py-2 rounded-full text-sm font-bold transition-all ${selectedCategory === cat.id ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-200' : 'bg-white text-emerald-900 border border-emerald-100'}`}
+              >
+                {cat.name}
+              </button>
+            ))}
+          </div>
+          <div className="relative w-full md:w-80">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-300" size={20} />
+            <input 
+              type="text" 
+              placeholder="Search products..."
+              value={searchQuery}
+              onChange={(e) => onSearch(e.target.value)}
+              className="w-full bg-white border border-emerald-100 rounded-2xl pl-12 pr-4 py-3 focus:outline-none focus:border-emerald-500 shadow-sm"
+            />
+          </div>
+        </div>
+
+        {filteredProducts.length === 0 ? (
+          <div className="py-24 text-center">
+            <div className="w-20 h-20 bg-emerald-50 rounded-full flex items-center justify-center text-emerald-300 mx-auto mb-6">
+              <Search size={40} />
+            </div>
+            <h3 className="text-2xl font-serif text-emerald-950 mb-2">No products found</h3>
+            <p className="text-emerald-900/60">Try adjusting your search or category filters.</p>
+            <button 
+              onClick={() => { onSearch(''); setSelectedCategory('all'); }}
+              className="mt-8 text-emerald-600 font-bold underline"
+            >
+              Clear all filters
+            </button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            {filteredProducts.map((product) => (
+              <motion.div 
+                key={product.id}
+                layout
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="bg-white rounded-[2.5rem] overflow-hidden border border-emerald-50 group"
+              >
+                <div className="relative aspect-[4/5] overflow-hidden">
+                  <img 
+                    src={product.image} 
+                    alt={product.name} 
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                    referrerPolicy="no-referrer"
+                  />
+                  <button 
+                    onClick={() => onAddToCart(product)}
+                    className="absolute bottom-6 right-6 w-14 h-14 bg-emerald-600 text-white rounded-2xl flex items-center justify-center shadow-xl translate-y-20 group-hover:translate-y-0 transition-transform duration-500 hover:bg-emerald-700"
+                  >
+                    <ShoppingBag size={24} />
+                  </button>
+                  <div className="absolute top-6 left-6 px-3 py-1 bg-white/90 backdrop-blur-sm rounded-full text-[10px] font-bold uppercase tracking-widest text-emerald-900">
+                    {product.category}
+                  </div>
+                </div>
+                <div className="p-8">
+                  <div className="flex justify-between items-start mb-2">
+                    <h3 className="text-xl font-bold text-emerald-950">{product.name}</h3>
+                    <span className="text-emerald-600 font-bold">KES {product.price.toLocaleString()}</span>
+                  </div>
+                  <p className="text-sm text-emerald-900/60 mb-6 line-clamp-2">{product.description}</p>
+                  <div className="flex items-center gap-1 text-orange-400">
+                    {[1, 2, 3, 4, 5].map(i => <Star key={i} size={14} fill="currentColor" />)}
+                    <span className="text-xs text-emerald-900/40 ml-2">(48 reviews)</span>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+const CategorySection = ({ onShop }: { onShop: () => void }) => {
   return (
     <section id="shop" className="py-24 bg-white scroll-mt-20">
       <div className="max-w-7xl mx-auto px-6">
@@ -202,7 +627,10 @@ const CategorySection = () => {
             <h2 className="text-4xl font-serif text-emerald-950 mb-4">Shop by Category</h2>
             <p className="text-emerald-900/60 max-w-md">Find exactly what you need from our curated selection of medical and wellness essentials.</p>
           </div>
-          <button className="text-emerald-600 font-bold flex items-center gap-2 hover:gap-3 transition-all">
+          <button 
+            onClick={onShop}
+            className="text-emerald-600 font-bold flex items-center gap-2 hover:gap-3 transition-all"
+          >
             View All Categories <ChevronRight size={20} />
           </button>
         </div>
@@ -212,6 +640,7 @@ const CategorySection = () => {
             <motion.div 
               key={cat.id}
               whileHover={{ y: -8 }}
+              onClick={onShop}
               className="group p-8 rounded-[2rem] bg-emerald-50/50 border border-emerald-100/50 hover:bg-white hover:shadow-xl hover:shadow-emerald-100 transition-all cursor-pointer"
             >
               <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-emerald-600 mb-6 shadow-sm group-hover:bg-emerald-600 group-hover:text-white transition-colors">
@@ -391,7 +820,7 @@ const SocialHub = () => {
   );
 };
 
-const Footer = () => {
+const Footer = ({ onShop, onConsult }: { onShop: () => void; onConsult: () => void }) => {
   return (
     <footer className="bg-emerald-950 text-white pt-24 pb-12">
       <div className="max-w-7xl mx-auto px-6">
@@ -416,22 +845,22 @@ const Footer = () => {
           <div>
             <h4 className="font-bold text-lg mb-6">Quick Links</h4>
             <ul className="space-y-4 text-emerald-100/60">
-              <li><a href="#" className="hover:text-white transition-colors">Shop All Products</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Wellness Hub</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Expert Consultations</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">About Our Team</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Contact Us</a></li>
+              <li><button onClick={onShop} className="hover:text-white transition-colors text-left">Shop All Products</button></li>
+              <li><a href="#wellness-hub" className="hover:text-white transition-colors">Wellness Hub</a></li>
+              <li><button onClick={onConsult} className="hover:text-white transition-colors text-left">Expert Consultations</button></li>
+              <li><a href="#expertise" className="hover:text-white transition-colors">About Our Team</a></li>
+              <li><a href="mailto:info@harvianah.com" className="hover:text-white transition-colors">Contact Us</a></li>
             </ul>
           </div>
 
           <div>
             <h4 className="font-bold text-lg mb-6">Categories</h4>
             <ul className="space-y-4 text-emerald-100/60">
-              <li><a href="#" className="hover:text-white transition-colors">Pharmaceuticals</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Supplements</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Mother & Baby</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Personal Care</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Holistic Wellness</a></li>
+              <li><button onClick={onShop} className="hover:text-white transition-colors text-left">Pharmaceuticals</button></li>
+              <li><button onClick={onShop} className="hover:text-white transition-colors text-left">Supplements</button></li>
+              <li><button onClick={onShop} className="hover:text-white transition-colors text-left">Mother & Baby</button></li>
+              <li><button onClick={onShop} className="hover:text-white transition-colors text-left">Personal Care</button></li>
+              <li><button onClick={onShop} className="hover:text-white transition-colors text-left">Holistic Wellness</button></li>
             </ul>
           </div>
 
@@ -467,160 +896,233 @@ const Footer = () => {
 // --- Main App ---
 
 export default function App() {
-  const [cart, setCart] = useState<Product[]>([]);
+  const [cart, setCart] = useState<{ product: Product; quantity: number }[]>([]);
   const [showToast, setShowToast] = useState(false);
+  const [isShopView, setIsShopView] = useState(false);
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isConsultationOpen, setIsConsultationOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const addToCart = (product: Product) => {
-    setCart([...cart, product]);
+    setCart(prev => {
+      const existing = prev.find(item => item.product.id === product.id);
+      if (existing) {
+        return prev.map(item => 
+          item.product.id === product.id 
+            ? { ...item, quantity: item.quantity + 1 } 
+            : item
+        );
+      }
+      return [...prev, { product, quantity: 1 }];
+    });
     setShowToast(true);
     setTimeout(() => setShowToast(false), 3000);
   };
 
+  const removeFromCart = (id: string) => {
+    setCart(prev => prev.filter(item => item.product.id !== id));
+  };
+
+  const updateQuantity = (id: string, delta: number) => {
+    setCart(prev => prev.map(item => {
+      if (item.product.id === id) {
+        const newQty = Math.max(1, item.quantity + delta);
+        return { ...item, quantity: newQty };
+      }
+      return item;
+    }));
+  };
+
+  const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+
   return (
     <div className="min-h-screen font-sans selection:bg-emerald-100 selection:text-emerald-900">
-      <Navbar cartCount={cart.length} />
+      <Navbar 
+        cartCount={cartCount} 
+        onOpenCart={() => setIsCartOpen(true)}
+        onSearch={setSearchQuery}
+        onHome={() => { setIsShopView(false); window.scrollTo(0, 0); }}
+        onShop={() => setIsShopView(true)}
+        onConsult={() => setIsConsultationOpen(true)}
+      />
       
       <main>
-        <Hero />
-        
-        {/* Trust Bar */}
-        <div className="bg-emerald-900 py-10">
-          <div className="max-w-7xl mx-auto px-6 grid grid-cols-2 lg:grid-cols-4 gap-8 text-white/80 text-sm font-medium">
-            <div className="flex items-center gap-3">
-              <Truck className="text-emerald-400" size={24} />
-              <span>Fast Delivery in Ruiru & Beyond</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <ShieldCheck className="text-emerald-400" size={24} />
-              <span>100% Authentic Products</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <Clock className="text-emerald-400" size={24} />
-              <span>Expert Advice Available 24/7</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <Heart className="text-emerald-400" size={24} />
-              <span>Compassionate Holistic Care</span>
-            </div>
-          </div>
-        </div>
-
-        <CategorySection />
-        <FeaturedProducts onAddToCart={addToCart} />
-        
-        {/* Expertise Section */}
-        <section id="expertise" className="py-24 bg-white scroll-mt-20">
-          <div className="max-w-7xl mx-auto px-6">
-            <div className="grid lg:grid-cols-2 gap-16 items-center">
-              <div className="order-2 lg:order-1 relative">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="aspect-square rounded-[2rem] overflow-hidden shadow-xl">
-                    <img src="https://images.unsplash.com/photo-1594824476967-48c8b964273f?auto=format&fit=crop&q=80&w=400" alt="Pharmaceutical Technologist" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
-                  </div>
-                  <div className="aspect-square rounded-[2rem] overflow-hidden shadow-xl mt-12">
-                    <img src="https://images.unsplash.com/photo-1559839734-2b71f1536783?auto=format&fit=crop&q=80&w=400" alt="Counseling Psychologist" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
-                  </div>
+        {isShopView ? (
+          <ShopView 
+            onAddToCart={addToCart} 
+            searchQuery={searchQuery}
+            onSearch={setSearchQuery}
+          />
+        ) : (
+          <>
+            <Hero 
+              onShop={() => setIsShopView(true)} 
+              onConsult={() => setIsConsultationOpen(true)} 
+            />
+            
+            {/* Trust Bar */}
+            <div className="bg-emerald-900 py-10">
+              <div className="max-w-7xl mx-auto px-6 grid grid-cols-2 lg:grid-cols-4 gap-8 text-white/80 text-sm font-medium">
+                <div className="flex items-center gap-3">
+                  <Truck className="text-emerald-400" size={24} />
+                  <span>Fast Delivery in Ruiru & Beyond</span>
                 </div>
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white p-8 rounded-[2.5rem] shadow-2xl border border-emerald-50 text-center max-w-[200px]">
-                  <h4 className="text-3xl font-serif text-emerald-950 mb-1">Dual</h4>
-                  <p className="text-xs text-emerald-900/60 uppercase tracking-widest font-bold">Expertise Model</p>
+                <div className="flex items-center gap-3">
+                  <ShieldCheck className="text-emerald-400" size={24} />
+                  <span>100% Authentic Products</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Clock className="text-emerald-400" size={24} />
+                  <span>Expert Advice Available 24/7</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Heart className="text-emerald-400" size={24} />
+                  <span>Compassionate Holistic Care</span>
                 </div>
               </div>
-              
-              <div className="order-1 lg:order-2">
-                <h2 className="text-4xl md:text-5xl font-serif text-emerald-950 mb-8 leading-tight">
-                  Where Science Meets <br />
-                  <span className="italic text-emerald-700">Emotional Support.</span>
-                </h2>
-                <div className="space-y-8">
-                  <div className="flex gap-6">
-                    <div className="w-14 h-14 shrink-0 bg-emerald-100 rounded-2xl flex items-center justify-center text-emerald-700">
-                      <Pill size={28} />
+            </div>
+
+            <CategorySection onShop={() => setIsShopView(true)} />
+            <FeaturedProducts onAddToCart={addToCart} />
+            
+            {/* Expertise Section */}
+            <section id="expertise" className="py-24 bg-white scroll-mt-20">
+              <div className="max-w-7xl mx-auto px-6">
+                <div className="grid lg:grid-cols-2 gap-16 items-center">
+                  <div className="order-2 lg:order-1 relative">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="aspect-square rounded-[2rem] overflow-hidden shadow-xl">
+                        <img src="https://images.unsplash.com/photo-1594824476967-48c8b964273f?auto=format&fit=crop&q=80&w=400" alt="Pharmaceutical Technologist" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                      </div>
+                      <div className="aspect-square rounded-[2rem] overflow-hidden shadow-xl mt-12">
+                        <img src="https://images.unsplash.com/photo-1559839734-2b71f1536783?auto=format&fit=crop&q=80&w=400" alt="Counseling Psychologist" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                      </div>
                     </div>
-                    <div>
-                      <h4 className="text-xl font-bold text-emerald-950 mb-2">Pharmaceutical Excellence</h4>
-                      <p className="text-emerald-900/60 leading-relaxed">Our lead Pharmaceutical Technologist ensures every product is safe, effective, and scientifically sound.</p>
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white p-8 rounded-[2.5rem] shadow-2xl border border-emerald-50 text-center max-w-[200px]">
+                      <h4 className="text-3xl font-serif text-emerald-950 mb-1">Dual</h4>
+                      <p className="text-xs text-emerald-900/60 uppercase tracking-widest font-bold">Expertise Model</p>
                     </div>
                   </div>
-                  <div className="flex gap-6">
-                    <div className="w-14 h-14 shrink-0 bg-orange-100 rounded-2xl flex items-center justify-center text-orange-700">
-                      <Brain size={28} />
+                  
+                  <div className="order-1 lg:order-2">
+                    <h2 className="text-4xl md:text-5xl font-serif text-emerald-950 mb-8 leading-tight">
+                      Where Science Meets <br />
+                      <span className="italic text-emerald-700">Emotional Support.</span>
+                    </h2>
+                    <div className="space-y-8">
+                      <div className="flex gap-6">
+                        <div className="w-14 h-14 shrink-0 bg-emerald-100 rounded-2xl flex items-center justify-center text-emerald-700">
+                          <Pill size={28} />
+                        </div>
+                        <div>
+                          <h4 className="text-xl font-bold text-emerald-950 mb-2">Pharmaceutical Excellence</h4>
+                          <p className="text-emerald-900/60 leading-relaxed">Our lead Pharmaceutical Technologist ensures every product is safe, effective, and scientifically sound.</p>
+                        </div>
+                      </div>
+                      <div className="flex gap-6">
+                        <div className="w-14 h-14 shrink-0 bg-orange-100 rounded-2xl flex items-center justify-center text-orange-700">
+                          <Brain size={28} />
+                        </div>
+                        <div>
+                          <h4 className="text-xl font-bold text-emerald-950 mb-2">Psychological Insight</h4>
+                          <p className="text-emerald-900/60 leading-relaxed">Our Counseling Psychologist provides the empathy and mental health support needed for true holistic healing.</p>
+                        </div>
+                      </div>
                     </div>
-                    <div>
-                      <h4 className="text-xl font-bold text-emerald-950 mb-2">Psychological Insight</h4>
-                      <p className="text-emerald-900/60 leading-relaxed">Our Counseling Psychologist provides the empathy and mental health support needed for true holistic healing.</p>
-                    </div>
+                    <button className="mt-12 px-8 py-4 bg-emerald-950 text-white rounded-2xl font-semibold hover:bg-emerald-900 transition-all">
+                      Learn About Our Story
+                    </button>
                   </div>
                 </div>
-                <button className="mt-12 px-8 py-4 bg-emerald-950 text-white rounded-2xl font-semibold hover:bg-emerald-900 transition-all">
-                  Learn About Our Story
-                </button>
               </div>
-            </div>
-          </div>
-        </section>
+            </section>
 
-        <SocialHub />
+            <SocialHub />
 
-        {/* Testimonials */}
-        <section className="py-24 bg-emerald-50">
-          <div className="max-w-7xl mx-auto px-6">
-            <div className="text-center mb-16">
-              <h2 className="text-4xl font-serif text-emerald-950 mb-4">What Our Clients Say</h2>
-              <p className="text-emerald-900/60">Real stories from the Harvianah community.</p>
-            </div>
-            <div className="grid md:grid-cols-3 gap-8">
-              {[
-                { name: "Sarah W.", role: "Mother", text: "The advice I got for my baby's skin condition was life-changing. They truly care." },
-                { name: "David K.", role: "Fitness Enthusiast", text: "Best supplements in Ruiru. The quality is unmatched and the delivery is always on time." },
-                { name: "Mercy A.", role: "Wellness Client", text: "I love the holistic approach. They helped me manage my anxiety alongside my physical health." }
-              ].map((t, i) => (
-                <div key={i} className="bg-white p-10 rounded-[2.5rem] shadow-sm border border-emerald-100">
-                  <div className="flex text-orange-400 mb-6">
-                    {[1, 2, 3, 4, 5].map(j => <Star key={j} size={16} fill="currentColor" />)}
+            {/* Testimonials */}
+            <section className="py-24 bg-emerald-50">
+              <div className="max-w-7xl mx-auto px-6">
+                <div className="text-center mb-16">
+                  <h2 className="text-4xl font-serif text-emerald-950 mb-4">What Our Clients Say</h2>
+                  <p className="text-emerald-900/60">Real stories from the Harvianah community.</p>
+                </div>
+                <div className="grid md:grid-cols-3 gap-8">
+                  {[
+                    { name: "Sarah W.", role: "Mother", text: "The advice I got for my baby's skin condition was life-changing. They truly care." },
+                    { name: "David K.", role: "Fitness Enthusiast", text: "Best supplements in Ruiru. The quality is unmatched and the delivery is always on time." },
+                    { name: "Mercy A.", role: "Wellness Client", text: "I love the holistic approach. They helped me manage my anxiety alongside my physical health." }
+                  ].map((t, i) => (
+                    <div key={i} className="bg-white p-10 rounded-[2.5rem] shadow-sm border border-emerald-100">
+                      <div className="flex text-orange-400 mb-6">
+                        {[1, 2, 3, 4, 5].map(j => <Star key={j} size={16} fill="currentColor" />)}
+                      </div>
+                      <p className="text-emerald-900/70 italic mb-8 leading-relaxed">"{t.text}"</p>
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 font-bold">
+                          {t.name[0]}
+                        </div>
+                        <div>
+                          <h5 className="font-bold text-emerald-950">{t.name}</h5>
+                          <p className="text-xs text-emerald-900/40 uppercase tracking-widest font-bold">{t.role}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </section>
+
+            {/* Call to Action */}
+            <section id="consultations" className="py-24 scroll-mt-20">
+              <div className="max-w-7xl mx-auto px-6">
+                <div className="bg-emerald-600 rounded-[3rem] p-12 md:p-20 text-center text-white relative overflow-hidden">
+                  <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
+                    <div className="absolute top-10 left-10 w-64 h-64 bg-white rounded-full blur-3xl" />
+                    <div className="absolute bottom-10 right-10 w-64 h-64 bg-white rounded-full blur-3xl" />
                   </div>
-                  <p className="text-emerald-900/70 italic mb-8 leading-relaxed">"{t.text}"</p>
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 font-bold">
-                      {t.name[0]}
-                    </div>
-                    <div>
-                      <h5 className="font-bold text-emerald-950">{t.name}</h5>
-                      <p className="text-xs text-emerald-900/40 uppercase tracking-widest font-bold">{t.role}</p>
-                    </div>
+                  <h2 className="text-4xl md:text-6xl font-serif mb-8 relative z-10">Start Your Wellness <br /> Journey Today.</h2>
+                  <p className="text-emerald-50 text-lg mb-12 max-w-2xl mx-auto relative z-10">
+                    Whether you need a prescription filled or a holistic wellness plan, we're here to support you every step of the way.
+                  </p>
+                  <div className="flex flex-wrap justify-center gap-4 relative z-10">
+                    <button 
+                      onClick={() => setIsShopView(true)}
+                      className="px-10 py-5 bg-white text-emerald-600 rounded-2xl font-bold hover:bg-emerald-50 transition-all shadow-xl"
+                    >
+                      Shop Now
+                    </button>
+                    <button 
+                      onClick={() => setIsConsultationOpen(true)}
+                      className="px-10 py-5 bg-emerald-700 text-white rounded-2xl font-bold hover:bg-emerald-800 transition-all border border-emerald-500/30"
+                    >
+                      Book Consultation
+                    </button>
                   </div>
                 </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Call to Action */}
-        <section id="consultations" className="py-24 scroll-mt-20">
-          <div className="max-w-7xl mx-auto px-6">
-            <div className="bg-emerald-600 rounded-[3rem] p-12 md:p-20 text-center text-white relative overflow-hidden">
-              <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
-                <div className="absolute top-10 left-10 w-64 h-64 bg-white rounded-full blur-3xl" />
-                <div className="absolute bottom-10 right-10 w-64 h-64 bg-white rounded-full blur-3xl" />
               </div>
-              <h2 className="text-4xl md:text-6xl font-serif mb-8 relative z-10">Start Your Wellness <br /> Journey Today.</h2>
-              <p className="text-emerald-50 text-lg mb-12 max-w-2xl mx-auto relative z-10">
-                Whether you need a prescription filled or a holistic wellness plan, we're here to support you every step of the way.
-              </p>
-              <div className="flex flex-wrap justify-center gap-4 relative z-10">
-                <button className="px-10 py-5 bg-white text-emerald-600 rounded-2xl font-bold hover:bg-emerald-50 transition-all shadow-xl">
-                  Shop Now
-                </button>
-                <button className="px-10 py-5 bg-emerald-700 text-white rounded-2xl font-bold hover:bg-emerald-800 transition-all border border-emerald-500/30">
-                  Book Consultation
-                </button>
-              </div>
-            </div>
-          </div>
-        </section>
+            </section>
+          </>
+        )}
       </main>
 
-      <Footer />
+      <Footer 
+        onShop={() => setIsShopView(true)} 
+        onConsult={() => setIsConsultationOpen(true)} 
+      />
+
+      <CartModal 
+        isOpen={isCartOpen} 
+        onClose={() => setIsCartOpen(false)} 
+        cart={cart}
+        onRemove={removeFromCart}
+        onUpdateQuantity={updateQuantity}
+        onClearCart={() => setCart([])}
+      />
+
+      <ConsultationModal 
+        isOpen={isConsultationOpen} 
+        onClose={() => setIsConsultationOpen(false)} 
+      />
 
       {/* Toast Notification */}
       <AnimatePresence>
@@ -629,7 +1131,8 @@ export default function App() {
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 50 }}
-            className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[100] bg-emerald-950 text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-4"
+            onClick={() => setIsCartOpen(true)}
+            className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[100] bg-emerald-950 text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-4 cursor-pointer"
           >
             <div className="w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center">
               <ShoppingBag size={16} />
