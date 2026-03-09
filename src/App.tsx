@@ -34,7 +34,9 @@ import { CATEGORIES, PRODUCTS, Product } from './types';
 
 const Navbar = ({ 
   cartCount, 
+  wishlistCount,
   onOpenCart, 
+  onOpenWishlist,
   onSearch, 
   onHome, 
   onShop,
@@ -42,7 +44,9 @@ const Navbar = ({
   onNavigate
 }: { 
   cartCount: number; 
+  wishlistCount: number;
   onOpenCart: () => void;
+  onOpenWishlist: () => void;
   onSearch: (q: string) => void;
   onHome: () => void;
   onShop: () => void;
@@ -115,6 +119,17 @@ const Navbar = ({
               <Search size={20} />
             </button>
           </div>
+          <button 
+            onClick={onOpenWishlist}
+            className="p-2 text-emerald-900 hover:bg-emerald-50 rounded-full transition-colors relative"
+          >
+            <Heart size={20} />
+            {wishlistCount > 0 && (
+              <span className="absolute top-0 right-0 w-4 h-4 bg-emerald-500 text-white text-[10px] flex items-center justify-center rounded-full">
+                {wishlistCount}
+              </span>
+            )}
+          </button>
           <button 
             onClick={onOpenCart}
             className="p-2 text-emerald-900 hover:bg-emerald-50 rounded-full transition-colors relative"
@@ -501,14 +516,101 @@ const ConsultationModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () =
   );
 };
 
+const WishlistModal = ({ 
+  isOpen, 
+  onClose, 
+  wishlist, 
+  onRemove, 
+  onAddToCart 
+}: { 
+  isOpen: boolean; 
+  onClose: () => void; 
+  wishlist: Product[]; 
+  onRemove: (id: string) => void;
+  onAddToCart: (p: Product) => void;
+}) => {
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-end">
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={onClose}
+            className="absolute inset-0 bg-emerald-950/40 backdrop-blur-sm"
+          />
+          <motion.div 
+            initial={{ x: '100%' }}
+            animate={{ x: 0 }}
+            exit={{ x: '100%' }}
+            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+            className="relative w-full max-w-md h-full bg-white shadow-2xl flex flex-col"
+          >
+            <div className="p-6 border-b border-emerald-50 flex items-center justify-between">
+              <h2 className="text-2xl font-serif text-emerald-950">Your Wishlist</h2>
+              <button onClick={onClose} className="p-2 hover:bg-emerald-50 rounded-full transition-colors">
+                <X size={24} />
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-6 space-y-6">
+              {wishlist.length === 0 ? (
+                <div className="h-full flex flex-col items-center justify-center text-center">
+                  <div className="w-20 h-20 bg-emerald-50 rounded-full flex items-center justify-center text-emerald-300 mb-4">
+                    <Heart size={40} />
+                  </div>
+                  <h3 className="text-xl font-bold text-emerald-950 mb-2">Your wishlist is empty</h3>
+                  <p className="text-emerald-900/60 mb-8">Save items you love for later!</p>
+                  <button onClick={onClose} className="px-8 py-3 bg-emerald-600 text-white rounded-xl font-bold">Start Browsing</button>
+                </div>
+              ) : (
+                wishlist.map((product) => (
+                  <div key={product.id} className="flex gap-4">
+                    <div className="w-20 h-24 rounded-xl overflow-hidden bg-emerald-50 shrink-0">
+                      <img src={product.image} alt={product.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex justify-between mb-1">
+                        <h4 className="font-bold text-emerald-950 line-clamp-1">{product.name}</h4>
+                        <button onClick={() => onRemove(product.id)} className="text-emerald-300 hover:text-red-500 transition-colors">
+                          <Trash2 size={18} />
+                        </button>
+                      </div>
+                      <p className="text-sm text-emerald-900/60 mb-4">KES {product.price.toLocaleString()}</p>
+                      <button 
+                        onClick={() => { onAddToCart(product); onRemove(product.id); }}
+                        className="w-full py-2 bg-emerald-600 text-white rounded-lg text-sm font-bold hover:bg-emerald-700 transition-colors flex items-center justify-center gap-2"
+                      >
+                        <ShoppingBag size={16} />
+                        Add to Cart
+                      </button>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </motion.div>
+        </div>
+      )}
+    </AnimatePresence>
+  );
+};
+
 const ShopView = ({ 
   onAddToCart, 
+  onToggleWishlist,
+  wishlist,
   searchQuery, 
-  onSearch 
+  onSearch,
+  onBack
 }: { 
   onAddToCart: (p: Product) => void; 
+  onToggleWishlist: (p: Product) => void;
+  wishlist: string[];
   searchQuery: string;
   onSearch: (q: string) => void;
+  onBack: () => void;
 }) => {
   const [selectedCategory, setSelectedCategory] = useState('all');
 
@@ -524,9 +626,18 @@ const ShopView = ({
   return (
     <div className="pt-32 pb-24 bg-[#F9F8F6] min-h-screen">
       <div className="max-w-7xl mx-auto px-6">
-        <div className="mb-12">
-          <h1 className="text-5xl font-serif text-emerald-950 mb-4">Our Pharmacy</h1>
-          <p className="text-emerald-900/60 max-w-2xl">Browse our complete collection of expert-backed pharmaceuticals, supplements, and wellness essentials.</p>
+        <div className="mb-12 flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div>
+            <button 
+              onClick={onBack}
+              className="flex items-center gap-2 text-emerald-600 font-bold mb-4 hover:gap-3 transition-all"
+            >
+              <ArrowRight size={18} className="rotate-180" />
+              Back to Home
+            </button>
+            <h1 className="text-5xl font-serif text-emerald-950 mb-4">Our Pharmacy</h1>
+            <p className="text-emerald-900/60 max-w-2xl">Browse our complete collection of expert-backed pharmaceuticals, supplements, and wellness essentials.</p>
+          </div>
         </div>
 
         <div className="flex flex-col md:flex-row gap-8 mb-12">
@@ -590,12 +701,20 @@ const ShopView = ({
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                     referrerPolicy="no-referrer"
                   />
-                  <button 
-                    onClick={() => onAddToCart(product)}
-                    className="absolute bottom-6 right-6 w-14 h-14 bg-emerald-600 text-white rounded-2xl flex items-center justify-center shadow-xl translate-y-20 group-hover:translate-y-0 transition-transform duration-500 hover:bg-emerald-700"
-                  >
-                    <ShoppingBag size={24} />
-                  </button>
+                  <div className="absolute bottom-6 right-6 flex flex-col gap-2 translate-y-20 group-hover:translate-y-0 transition-transform duration-500">
+                    <button 
+                      onClick={() => onToggleWishlist(product)}
+                      className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-xl transition-colors ${wishlist.includes(product.id) ? 'bg-emerald-500 text-white' : 'bg-white text-emerald-900 hover:bg-emerald-50'}`}
+                    >
+                      <Heart size={20} fill={wishlist.includes(product.id) ? "currentColor" : "none"} />
+                    </button>
+                    <button 
+                      onClick={() => onAddToCart(product)}
+                      className="w-12 h-12 bg-emerald-600 text-white rounded-2xl flex items-center justify-center shadow-xl hover:bg-emerald-700"
+                    >
+                      <ShoppingBag size={20} />
+                    </button>
+                  </div>
                   <div className="absolute top-6 left-6 px-3 py-1 bg-white/90 backdrop-blur-sm rounded-full text-[10px] font-bold uppercase tracking-widest text-emerald-900">
                     {product.category}
                   </div>
@@ -665,7 +784,15 @@ const Zap = ({ size, className }: { size?: number, className?: string }) => <svg
 const Leaf = ({ size, className }: { size?: number, className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width={size || 24} height={size || 24} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8a13.42 13.42 0 0 1-10 10Z"/><path d="M17.65 5.24 11 12"/><path d="M11 12a9 9 0 0 0-9 9"/></svg>;
 const Baby = ({ size, className }: { size?: number, className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width={size || 24} height={size || 24} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M9 12h.01"/><path d="M15 12h.01"/><path d="M10 16c.5.3 1.2.5 2 .5s1.5-.2 2-.5"/><path d="M19 6.31A10 10 0 0 0 5 6.31"/><path d="M22 12.82a6 6 0 0 1-2 10.18c-3.5 0-4.4-4.5-8-4.5s-4.5 4.5-8 4.5a6 6 0 0 1-2-10.18"/><path d="M12 2v4"/></svg>;
 
-const FeaturedProducts = ({ onAddToCart }: { onAddToCart: (p: Product) => void }) => {
+const FeaturedProducts = ({ 
+  onAddToCart,
+  onToggleWishlist,
+  wishlist
+}: { 
+  onAddToCart: (p: Product) => void;
+  onToggleWishlist: (p: Product) => void;
+  wishlist: string[];
+}) => {
   return (
     <section className="py-24 bg-[#F9F8F6]">
       <div className="max-w-7xl mx-auto px-6">
@@ -690,12 +817,20 @@ const FeaturedProducts = ({ onAddToCart }: { onAddToCart: (p: Product) => void }
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                   referrerPolicy="no-referrer"
                 />
-                <button 
-                  onClick={() => onAddToCart(product)}
-                  className="absolute bottom-6 right-6 w-14 h-14 bg-emerald-600 text-white rounded-2xl flex items-center justify-center shadow-xl translate-y-20 group-hover:translate-y-0 transition-transform duration-500 hover:bg-emerald-700"
-                >
-                  <ShoppingBag size={24} />
-                </button>
+                <div className="absolute bottom-6 right-6 flex flex-col gap-2 translate-y-20 group-hover:translate-y-0 transition-transform duration-500">
+                  <button 
+                    onClick={() => onToggleWishlist(product)}
+                    className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-xl transition-colors ${wishlist.includes(product.id) ? 'bg-emerald-500 text-white' : 'bg-white text-emerald-900 hover:bg-emerald-50'}`}
+                  >
+                    <Heart size={20} fill={wishlist.includes(product.id) ? "currentColor" : "none"} />
+                  </button>
+                  <button 
+                    onClick={() => onAddToCart(product)}
+                    className="w-12 h-12 bg-emerald-600 text-white rounded-2xl flex items-center justify-center shadow-xl hover:bg-emerald-700"
+                  >
+                    <ShoppingBag size={20} />
+                  </button>
+                </div>
                 <div className="absolute top-6 left-6 px-3 py-1 bg-white/90 backdrop-blur-sm rounded-full text-[10px] font-bold uppercase tracking-widest text-emerald-900">
                   {product.category}
                 </div>
@@ -910,10 +1045,12 @@ const Footer = ({
 
 export default function App() {
   const [cart, setCart] = useState<{ product: Product; quantity: number }[]>([]);
+  const [wishlist, setWishlist] = useState<string[]>([]);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('Item added to your cart!');
   const [isShopView, setIsShopView] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isWishlistOpen, setIsWishlistOpen] = useState(false);
   const [isConsultationOpen, setIsConsultationOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -930,6 +1067,20 @@ export default function App() {
       return [...prev, { product, quantity: 1 }];
     });
     setToastMessage('Item added to your cart!');
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 3000);
+  };
+
+  const toggleWishlist = (product: Product) => {
+    setWishlist(prev => {
+      const exists = prev.includes(product.id);
+      if (exists) {
+        setToastMessage('Removed from wishlist');
+        return prev.filter(id => id !== product.id);
+      }
+      setToastMessage('Added to wishlist!');
+      return [...prev, product.id];
+    });
     setShowToast(true);
     setTimeout(() => setShowToast(false), 3000);
   };
@@ -965,12 +1116,15 @@ export default function App() {
   };
 
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+  const wishlistItems = PRODUCTS.filter(p => wishlist.includes(p.id));
 
   return (
     <div className="min-h-screen font-sans selection:bg-emerald-100 selection:text-emerald-900">
       <Navbar 
         cartCount={cartCount} 
+        wishlistCount={wishlist.length}
         onOpenCart={() => setIsCartOpen(true)}
+        onOpenWishlist={() => setIsWishlistOpen(true)}
         onSearch={setSearchQuery}
         onHome={() => { setIsShopView(false); window.scrollTo(0, 0); }}
         onShop={() => setIsShopView(true)}
@@ -982,8 +1136,11 @@ export default function App() {
         {isShopView ? (
           <ShopView 
             onAddToCart={addToCart} 
+            onToggleWishlist={toggleWishlist}
+            wishlist={wishlist}
             searchQuery={searchQuery}
             onSearch={setSearchQuery}
+            onBack={() => setIsShopView(false)}
           />
         ) : (
           <>
@@ -1015,7 +1172,11 @@ export default function App() {
             </div>
 
             <CategorySection onShop={() => setIsShopView(true)} />
-            <FeaturedProducts onAddToCart={addToCart} />
+            <FeaturedProducts 
+              onAddToCart={addToCart} 
+              onToggleWishlist={toggleWishlist}
+              wishlist={wishlist}
+            />
             
             {/* Expertise Section */}
             <section id="expertise" className="py-24 bg-white scroll-mt-20">
@@ -1156,6 +1317,14 @@ export default function App() {
         onClearCart={() => setCart([])}
       />
 
+      <WishlistModal 
+        isOpen={isWishlistOpen} 
+        onClose={() => setIsWishlistOpen(false)} 
+        wishlist={wishlistItems}
+        onRemove={(id) => setWishlist(prev => prev.filter(i => i !== id))}
+        onAddToCart={addToCart}
+      />
+
       <ConsultationModal 
         isOpen={isConsultationOpen} 
         onClose={() => setIsConsultationOpen(false)} 
@@ -1168,14 +1337,18 @@ export default function App() {
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 50 }}
-            onClick={() => setIsCartOpen(true)}
+            onClick={() => {
+              if (toastMessage.includes('cart')) setIsCartOpen(true);
+              if (toastMessage.includes('wishlist')) setIsWishlistOpen(true);
+            }}
             className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[100] bg-emerald-950 text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-4 cursor-pointer"
           >
             <div className="w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center">
-              <ShoppingBag size={16} />
+              {toastMessage.includes('wishlist') ? <Heart size={16} fill="currentColor" /> : <ShoppingBag size={16} />}
             </div>
             <p className="font-medium">{toastMessage}</p>
             {toastMessage.includes('cart') && <button className="text-emerald-400 font-bold text-sm ml-4">View Cart</button>}
+            {toastMessage.includes('wishlist') && <button className="text-emerald-400 font-bold text-sm ml-4">View Wishlist</button>}
           </motion.div>
         )}
       </AnimatePresence>
