@@ -69,5 +69,122 @@ export const PRODUCTS: Product[] = [
     image: 'https://images.unsplash.com/photo-1579722820308-d74e571900a9?auto=format&fit=crop&q=80&w=800',
     description: 'Essential digestive support with high-quality probiotic strains for a healthy gut microbiome.',
     isFeatured: true
+  },
+  {
+    id: '6',
+    name: 'Organic Turmeric Curcumin',
+    category: 'wellness',
+    price: 2800,
+    image: 'https://images.unsplash.com/photo-1615485242231-82869a81d3ac?auto=format&fit=crop&q=80&w=800',
+    description: 'High-potency organic turmeric with black pepper for maximum absorption. Supports joint health and healthy inflammatory response.',
+    isFeatured: false
+  },
+  {
+    id: '7',
+    name: 'Apple Watch Series 9',
+    category: 'wellness',
+    price: 65000,
+    image: 'https://images.unsplash.com/photo-1434493907317-a46b53b81882?auto=format&fit=crop&q=80&w=800',
+    description: 'Advanced health features, including blood oxygen and ECG apps. Track your daily activity and mental well-being.',
+    isFeatured: false
+  },
+  {
+    id: '8',
+    name: 'Oura Ring Gen3',
+    category: 'wellness',
+    price: 45000,
+    image: 'https://images.unsplash.com/photo-1629425733761-caae3b5f2e50?auto=format&fit=crop&q=80&w=800',
+    description: 'Sleek, accurate health tracker that monitors your sleep, readiness, and activity levels from your finger.',
+    isFeatured: false
+  },
+  {
+    id: '9',
+    name: 'Pure Eucalyptus Essential Oil',
+    category: 'wellness',
+    price: 1200,
+    image: 'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?auto=format&fit=crop&q=80&w=800',
+    description: '100% pure eucalyptus oil for aromatherapy and respiratory support. Refreshing and invigorating scent.',
+    isFeatured: false
+  },
+  {
+    id: '10',
+    name: 'Pregnacare Plus Omega-3',
+    category: 'mother-baby',
+    price: 3500,
+    image: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&q=80&w=800',
+    description: 'Comprehensive nutritional support for pregnancy, including folic acid and high-purity Omega-3 capsules.',
+    isFeatured: true
+  },
+  {
+    id: '11',
+    name: 'Folic Acid Tablets 5mg',
+    category: 'mother-baby',
+    price: 850,
+    image: 'https://images.unsplash.com/photo-1550573105-4584e7d7e674?auto=format&fit=crop&q=80&w=800',
+    description: 'Essential prenatal vitamin to support healthy fetal development and prevent neural tube defects.',
+    isFeatured: false
+  },
+  {
+    id: '12',
+    name: 'Ferrous Sulphate 200mg',
+    category: 'mother-baby',
+    price: 950,
+    image: 'https://images.unsplash.com/photo-1471864190281-a93a3072467a?auto=format&fit=crop&q=80&w=800',
+    description: 'Iron supplement to help prevent and treat iron-deficiency anemia during and after pregnancy.',
+    isFeatured: false
+  },
+  {
+    id: '13',
+    name: 'NAN Optipro 1 Formula (400g)',
+    category: 'mother-baby',
+    price: 1800,
+    image: 'https://images.unsplash.com/photo-1596461404969-9ae70f2830c1?auto=format&fit=crop&q=80&w=800',
+    description: 'Premium starter infant formula for healthy babies from birth when breastfeeding is not possible.',
+    isFeatured: false
+  },
+  {
+    id: '14',
+    name: 'Liptomil Plus 1 Formula (400g)',
+    category: 'mother-baby',
+    price: 1650,
+    image: 'https://images.unsplash.com/photo-1596461404969-9ae70f2830c1?auto=format&fit=crop&q=80&w=800',
+    description: 'High-quality infant formula enriched with essential nutrients for your baby\'s growth and development.',
+    isFeatured: false
+  },
+  {
+    id: '15',
+    name: 'Premium Soft Diapers (Pack of 44)',
+    category: 'mother-baby',
+    price: 1450,
+    image: 'https://images.unsplash.com/photo-1544126592-807daa2b565b?auto=format&fit=crop&q=80&w=800',
+    description: 'Ultra-absorbent and soft diapers designed to keep your baby dry and comfortable for up to 12 hours.',
+    isFeatured: false
+  },
+  {
+    id: '16',
+    name: 'Epimax Baby & Junior Cream',
+    category: 'mother-baby',
+    price: 1200,
+    image: 'https://images.unsplash.com/photo-1556229010-6c3f2c9ca5f8?auto=format&fit=crop&q=80&w=800',
+    description: 'Gentle emollient cream for dry skin conditions, suitable for babies and children. Fragrance and color-free.',
+    isFeatured: false
+  },
+  {
+    id: '17',
+    name: 'Dove Baby Rich Moisture Soap',
+    category: 'mother-baby',
+    price: 450,
+    image: 'https://images.unsplash.com/photo-1600857062241-99e5daee621d?auto=format&fit=crop&q=80&w=800',
+    description: 'Hypoallergenic and pH-neutral baby bar that goes beyond mildness to help replenish essential moisture.',
+    isFeatured: false
+  },
+  {
+    id: '18',
+    name: 'No Rash Baby Barrier Cream',
+    category: 'mother-baby',
+    price: 750,
+    image: 'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?auto=format&fit=crop&q=80&w=800',
+    description: 'Protective barrier cream to prevent and treat diaper rash, keeping baby\'s skin soft and protected.',
+    isFeatured: false
   }
 ];
