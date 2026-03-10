@@ -41,7 +41,8 @@ const Navbar = ({
   onHome, 
   onShop,
   onConsult,
-  onNavigate
+  onNavigate,
+  currentPage
 }: { 
   cartCount: number; 
   wishlistCount: number;
@@ -52,6 +53,7 @@ const Navbar = ({
   onShop: () => void;
   onConsult: () => void;
   onNavigate: (sectionId: string) => void;
+  currentPage: number;
 }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -84,10 +86,11 @@ const Navbar = ({
         </div>
 
         <div className="hidden md:flex items-center gap-8 text-sm font-medium text-emerald-900/80">
-          <button onClick={onShop} className="hover:text-emerald-600 transition-colors">Shop</button>
-          <button onClick={() => onNavigate('expertise')} className="hover:text-emerald-600 transition-colors">Expertise</button>
+          <button onClick={onHome} className={`transition-colors ${currentPage === 0 ? 'text-emerald-600 font-bold' : 'hover:text-emerald-600'}`}>Home</button>
+          <button onClick={onShop} className={`transition-colors ${currentPage >= 1 && currentPage <= 4 ? 'text-emerald-600 font-bold' : 'hover:text-emerald-600'}`}>Shop</button>
+          <button onClick={() => onNavigate('expertise')} className={`transition-colors ${currentPage === 5 ? 'text-emerald-600 font-bold' : 'hover:text-emerald-600'}`}>Expertise</button>
           <button onClick={onConsult} className="hover:text-emerald-600 transition-colors">Consultations</button>
-          <button onClick={() => onNavigate('wellness-hub')} className="hover:text-emerald-600 transition-colors">Wellness Hub</button>
+          <button onClick={() => onNavigate('wellness-hub')} className={`transition-colors ${currentPage === 6 ? 'text-emerald-600 font-bold' : 'hover:text-emerald-600'}`}>Wellness Hub</button>
         </div>
 
         <div className="flex items-center gap-4">
@@ -603,7 +606,8 @@ const ShopView = ({
   wishlist,
   searchQuery, 
   onSearch,
-  onBack
+  onBack,
+  activeCategoryOverride
 }: { 
   onAddToCart: (p: Product) => void; 
   onToggleWishlist: (p: Product) => void;
@@ -611,8 +615,15 @@ const ShopView = ({
   searchQuery: string;
   onSearch: (q: string) => void;
   onBack: () => void;
+  activeCategoryOverride?: string;
 }) => {
-  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedCategory, setSelectedCategory] = useState(activeCategoryOverride || 'all');
+
+  useEffect(() => {
+    if (activeCategoryOverride) {
+      setSelectedCategory(activeCategoryOverride);
+    }
+  }, [activeCategoryOverride]);
 
   const filteredProducts = useMemo(() => {
     return PRODUCTS.filter(p => {
@@ -624,7 +635,7 @@ const ShopView = ({
   }, [searchQuery, selectedCategory]);
 
   return (
-    <div className="pt-32 pb-24 bg-[#F9F8F6] min-h-screen">
+    <div className="pt-32 pb-12 bg-[#F9F8F6] min-h-screen">
       <div className="max-w-7xl mx-auto px-6">
         <div className="mb-12 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
@@ -635,40 +646,48 @@ const ShopView = ({
               <ArrowRight size={18} className="rotate-180" />
               Back to Home
             </button>
-            <h1 className="text-5xl font-serif text-emerald-950 mb-4">Our Pharmacy</h1>
-            <p className="text-emerald-900/60 max-w-2xl">Browse our complete collection of expert-backed pharmaceuticals, supplements, and wellness essentials.</p>
+            <h1 className="text-5xl font-serif text-emerald-950 mb-4">
+              {selectedCategory === 'all' ? 'Our Pharmacy' : CATEGORIES.find(c => c.id === selectedCategory)?.name}
+            </h1>
+            <p className="text-emerald-900/60 max-w-2xl">
+              {selectedCategory === 'all' 
+                ? 'Browse our complete collection of expert-backed pharmaceuticals, supplements, and wellness essentials.'
+                : CATEGORIES.find(c => c.id === selectedCategory)?.description}
+            </p>
           </div>
         </div>
 
-        <div className="flex flex-col md:flex-row gap-8 mb-12">
-          <div className="flex-1 flex flex-wrap gap-2">
-            <button 
-              onClick={() => setSelectedCategory('all')}
-              className={`px-6 py-2 rounded-full text-sm font-bold transition-all ${selectedCategory === 'all' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-200' : 'bg-white text-emerald-900 border border-emerald-100'}`}
-            >
-              All Products
-            </button>
-            {CATEGORIES.map(cat => (
+        {!activeCategoryOverride && (
+          <div className="flex flex-col md:flex-row gap-8 mb-12">
+            <div className="flex-1 flex flex-wrap gap-2">
               <button 
-                key={cat.id}
-                onClick={() => setSelectedCategory(cat.id)}
-                className={`px-6 py-2 rounded-full text-sm font-bold transition-all ${selectedCategory === cat.id ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-200' : 'bg-white text-emerald-900 border border-emerald-100'}`}
+                onClick={() => setSelectedCategory('all')}
+                className={`px-6 py-2 rounded-full text-sm font-bold transition-all ${selectedCategory === 'all' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-200' : 'bg-white text-emerald-900 border border-emerald-100'}`}
               >
-                {cat.name}
+                All Products
               </button>
-            ))}
+              {CATEGORIES.map(cat => (
+                <button 
+                  key={cat.id}
+                  onClick={() => setSelectedCategory(cat.id)}
+                  className={`px-6 py-2 rounded-full text-sm font-bold transition-all ${selectedCategory === cat.id ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-200' : 'bg-white text-emerald-900 border border-emerald-100'}`}
+                >
+                  {cat.name}
+                </button>
+              ))}
+            </div>
+            <div className="relative w-full md:w-80">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-300" size={20} />
+              <input 
+                type="text" 
+                placeholder="Search products..."
+                value={searchQuery}
+                onChange={(e) => onSearch(e.target.value)}
+                className="w-full bg-white border border-emerald-100 rounded-2xl pl-12 pr-4 py-3 focus:outline-none focus:border-emerald-500 shadow-sm"
+              />
+            </div>
           </div>
-          <div className="relative w-full md:w-80">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-300" size={20} />
-            <input 
-              type="text" 
-              placeholder="Search products..."
-              value={searchQuery}
-              onChange={(e) => onSearch(e.target.value)}
-              className="w-full bg-white border border-emerald-100 rounded-2xl pl-12 pr-4 py-3 focus:outline-none focus:border-emerald-500 shadow-sm"
-            />
-          </div>
-        </div>
+        )}
 
         {filteredProducts.length === 0 ? (
           <div className="py-24 text-center">
@@ -1023,6 +1042,51 @@ const StoryModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void 
   );
 };
 
+const Pagination = ({ 
+  currentPage, 
+  totalPages, 
+  onNext, 
+  onBack,
+  nextLabel
+}: { 
+  currentPage: number; 
+  totalPages: number; 
+  onNext: () => void; 
+  onBack: () => void;
+  nextLabel?: string;
+}) => {
+  return (
+    <div className="max-w-7xl mx-auto px-6 py-12 border-t border-emerald-100 flex items-center justify-between">
+      <button 
+        onClick={onBack}
+        disabled={currentPage === 0}
+        className={`flex items-center gap-2 font-bold transition-all ${currentPage === 0 ? 'opacity-0 pointer-events-none' : 'text-emerald-600 hover:gap-3'}`}
+      >
+        <ArrowRight size={18} className="rotate-180" />
+        Previous Page
+      </button>
+      
+      <div className="flex items-center gap-2">
+        {Array.from({ length: totalPages }).map((_, i) => (
+          <div 
+            key={i} 
+            className={`w-2 h-2 rounded-full transition-all ${i === currentPage ? 'w-8 bg-emerald-600' : 'bg-emerald-200'}`}
+          />
+        ))}
+      </div>
+
+      <button 
+        onClick={onNext}
+        disabled={currentPage === totalPages - 1}
+        className={`flex items-center gap-2 font-bold transition-all ${currentPage === totalPages - 1 ? 'opacity-0 pointer-events-none' : 'text-emerald-600 hover:gap-3'}`}
+      >
+        {nextLabel || 'Next Page'}
+        <ArrowRight size={18} />
+      </button>
+    </div>
+  );
+};
+
 const Footer = ({ 
   onShop, 
   onConsult, 
@@ -1114,7 +1178,21 @@ export default function App() {
   const [wishlist, setWishlist] = useState<string[]>([]);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('Item added to your cart!');
-  const [isShopView, setIsShopView] = useState(false);
+  
+  // Page Navigation State
+  // 0: Home, 1: Pharma, 2: Supplements, 3: Mother & Baby, 4: Wellness, 5: Expertise, 6: Wellness Hub
+  const [currentPage, setCurrentPage] = useState(0);
+  const totalPages = 7;
+  const pageNames = [
+    'Home', 
+    'Pharmaceuticals', 
+    'Supplements', 
+    'Mother & Baby', 
+    'Holistic Wellness', 
+    'Our Expertise', 
+    'Wellness Hub'
+  ];
+
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isWishlistOpen, setIsWishlistOpen] = useState(false);
   const [isConsultationOpen, setIsConsultationOpen] = useState(false);
@@ -1166,14 +1244,9 @@ export default function App() {
     }));
   };
 
-  const navigateToSection = (sectionId: string) => {
-    setIsShopView(false);
-    setTimeout(() => {
-      const element = document.getElementById(sectionId);
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth' });
-      }
-    }, 100);
+  const goToPage = (pageIndex: number) => {
+    setCurrentPage(pageIndex);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleLegal = (type: string) => {
@@ -1193,185 +1266,225 @@ export default function App() {
         onOpenCart={() => setIsCartOpen(true)}
         onOpenWishlist={() => setIsWishlistOpen(true)}
         onSearch={setSearchQuery}
-        onHome={() => { setIsShopView(false); window.scrollTo(0, 0); }}
-        onShop={() => setIsShopView(true)}
+        onHome={() => goToPage(0)}
+        onShop={() => goToPage(1)}
         onConsult={() => setIsConsultationOpen(true)}
-        onNavigate={navigateToSection}
+        onNavigate={(id) => {
+          if (id === 'expertise') goToPage(5);
+          if (id === 'wellness-hub') goToPage(6);
+          if (id === 'consultations') goToPage(0); // Hero has consultation
+        }}
+        currentPage={currentPage}
       />
       
-      <main>
-        {isShopView ? (
-          <ShopView 
-            onAddToCart={addToCart} 
-            onToggleWishlist={toggleWishlist}
-            wishlist={wishlist}
-            searchQuery={searchQuery}
-            onSearch={setSearchQuery}
-            onBack={() => setIsShopView(false)}
-          />
-        ) : (
-          <>
-            <Hero 
-              onShop={() => setIsShopView(true)} 
-              onConsult={() => setIsConsultationOpen(true)} 
+      <main className="min-h-[80vh]">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentPage}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.3 }}
+          >
+            {currentPage === 0 && (
+              <>
+                <Hero 
+                  onShop={() => goToPage(1)} 
+                  onConsult={() => setIsConsultationOpen(true)} 
+                />
+                
+                {/* Trust Bar */}
+                <div className="bg-emerald-900 py-10">
+                  <div className="max-w-7xl mx-auto px-6 grid grid-cols-2 lg:grid-cols-4 gap-8 text-white/80 text-sm font-medium">
+                    <div className="flex items-center gap-3">
+                      <Truck className="text-emerald-400" size={24} />
+                      <span>Fast Delivery in Ruiru & Beyond</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <ShieldCheck className="text-emerald-400" size={24} />
+                      <span>100% Authentic Products</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <Clock className="text-emerald-400" size={24} />
+                      <span>Expert Advice Available 24/7</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <Heart className="text-emerald-400" size={24} />
+                      <span>Compassionate Holistic Care</span>
+                    </div>
+                  </div>
+                </div>
+
+                <CategorySection onShop={() => goToPage(1)} />
+                <FeaturedProducts 
+                  onAddToCart={addToCart} 
+                  onToggleWishlist={toggleWishlist}
+                  wishlist={wishlist}
+                />
+              </>
+            )}
+
+            {currentPage >= 1 && currentPage <= 4 && (
+              <ShopView 
+                onAddToCart={addToCart} 
+                onToggleWishlist={toggleWishlist}
+                wishlist={wishlist}
+                searchQuery={searchQuery}
+                onSearch={setSearchQuery}
+                onBack={() => goToPage(0)}
+                // Override the internal category selection to match the page
+                activeCategoryOverride={
+                  currentPage === 1 ? 'pharma' :
+                  currentPage === 2 ? 'supplements' :
+                  currentPage === 3 ? 'mother-baby' :
+                  'wellness'
+                }
+              />
+            )}
+
+            {currentPage === 5 && (
+              <section id="expertise" className="py-32 bg-white min-h-screen">
+                <div className="max-w-7xl mx-auto px-6">
+                  <div className="grid lg:grid-cols-2 gap-16 items-center">
+                    <div className="order-2 lg:order-1 relative">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="aspect-square rounded-[2rem] overflow-hidden shadow-xl">
+                          <img src="https://images.unsplash.com/photo-1594824476967-48c8b964273f?auto=format&fit=crop&q=80&w=400" alt="Pharmaceutical Technologist" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                        </div>
+                        <div className="aspect-square rounded-[2rem] overflow-hidden shadow-xl mt-12">
+                          <img src="https://images.unsplash.com/photo-1559839734-2b71f1536783?auto=format&fit=crop&q=80&w=400" alt="Counseling Psychologist" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                        </div>
+                      </div>
+                      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white p-8 rounded-[2.5rem] shadow-2xl border border-emerald-50 text-center max-w-[200px]">
+                        <h4 className="text-3xl font-serif text-emerald-950 mb-1">Dual</h4>
+                        <p className="text-xs text-emerald-900/60 uppercase tracking-widest font-bold">Expertise Model</p>
+                      </div>
+                    </div>
+                    
+                    <div className="order-1 lg:order-2">
+                      <h2 className="text-4xl md:text-5xl font-serif text-emerald-950 mb-8 leading-tight">
+                        Science with a Soul, <br />
+                        <span className="italic text-emerald-700">Care with a Smile.</span>
+                      </h2>
+                      <div className="space-y-8">
+                        <div className="flex gap-6">
+                          <div className="w-14 h-14 shrink-0 bg-emerald-100 rounded-2xl flex items-center justify-center text-emerald-700">
+                            <Pill size={28} />
+                          </div>
+                          <div>
+                            <h4 className="text-xl font-bold text-emerald-950 mb-2">The Science Squad</h4>
+                            <p className="text-emerald-900/60 leading-relaxed">Our lead Pharmaceutical Technologist ensures every product is safe, effective, and scientifically sound. No guesswork, just results!</p>
+                          </div>
+                        </div>
+                        <div className="flex gap-6">
+                          <div className="w-14 h-14 shrink-0 bg-orange-100 rounded-2xl flex items-center justify-center text-orange-700">
+                            <Brain size={28} />
+                          </div>
+                          <div>
+                            <h4 className="text-xl font-bold text-emerald-950 mb-2">The Soul Support</h4>
+                            <p className="text-emerald-900/60 leading-relaxed">Our Counseling Psychologist provides the empathy and mental health support needed for true holistic healing. Because your mind matters too.</p>
+                          </div>
+                        </div>
+                      </div>
+                      <button 
+                        onClick={() => setIsStoryOpen(true)}
+                        className="mt-12 px-8 py-4 bg-emerald-950 text-white rounded-2xl font-semibold hover:bg-emerald-900 transition-all"
+                      >
+                        Read Our Fun Story! ✨
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </section>
+            )}
+
+            {currentPage === 6 && (
+              <div className="pt-20">
+                <SocialHub />
+                
+                {/* Testimonials */}
+                <section className="py-24 bg-emerald-50">
+                  <div className="max-w-7xl mx-auto px-6">
+                    <div className="text-center mb-16">
+                      <h2 className="text-4xl font-serif text-emerald-950 mb-4">What Our Clients Say</h2>
+                      <p className="text-emerald-900/60">Real stories from the Harvianah community.</p>
+                    </div>
+                    <div className="grid md:grid-cols-3 gap-8">
+                      {[
+                        { name: "Sarah W.", role: "Mother", text: "The advice I got for my baby's skin condition was life-changing. They truly care." },
+                        { name: "David K.", role: "Fitness Enthusiast", text: "Best supplements in Ruiru. The quality is unmatched and the delivery is always on time." },
+                        { name: "Mercy A.", role: "Wellness Client", text: "I love the holistic approach. They helped me manage my anxiety alongside my physical health." }
+                      ].map((t, i) => (
+                        <div key={i} className="bg-white p-10 rounded-[2.5rem] shadow-sm border border-emerald-100">
+                          <div className="flex text-orange-400 mb-6">
+                            {[1, 2, 3, 4, 5].map(j => <Star key={j} size={16} fill="currentColor" />)}
+                          </div>
+                          <p className="text-emerald-900/70 italic mb-8 leading-relaxed">"{t.text}"</p>
+                          <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 font-bold">
+                              {t.name[0]}
+                            </div>
+                            <div>
+                              <h5 className="font-bold text-emerald-950">{t.name}</h5>
+                              <p className="text-xs text-emerald-900/40 uppercase tracking-widest font-bold">{t.role}</p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </section>
+
+                {/* Call to Action */}
+                <section id="consultations" className="py-24">
+                  <div className="max-w-7xl mx-auto px-6">
+                    <div className="bg-emerald-600 rounded-[3rem] p-12 md:p-20 text-center text-white relative overflow-hidden">
+                      <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
+                        <div className="absolute top-10 left-10 w-64 h-64 bg-white rounded-full blur-3xl" />
+                        <div className="absolute bottom-10 right-10 w-64 h-64 bg-white rounded-full blur-3xl" />
+                      </div>
+                      <h2 className="text-4xl md:text-6xl font-serif mb-8 relative z-10">Start Your Wellness <br /> Journey Today.</h2>
+                      <p className="text-emerald-50 text-lg mb-12 max-w-2xl mx-auto relative z-10">
+                        Whether you need a prescription filled or a holistic wellness plan, we're here to support you every step of the way.
+                      </p>
+                      <div className="flex flex-wrap justify-center gap-4 relative z-10">
+                        <button 
+                          onClick={() => goToPage(1)}
+                          className="px-10 py-5 bg-white text-emerald-600 rounded-2xl font-bold hover:bg-emerald-50 transition-all shadow-xl"
+                        >
+                          Shop Now
+                        </button>
+                        <button 
+                          onClick={() => setIsConsultationOpen(true)}
+                          className="px-10 py-5 bg-emerald-700 text-white rounded-2xl font-bold hover:bg-emerald-800 transition-all border border-emerald-500/30"
+                        >
+                          Book Consultation
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+              </div>
+            )}
+
+            <Pagination 
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onBack={() => goToPage(currentPage - 1)}
+              onNext={() => goToPage(currentPage + 1)}
+              nextLabel={currentPage < totalPages - 1 ? `Next: ${pageNames[currentPage + 1]}` : undefined}
             />
-            
-            {/* Trust Bar */}
-            <div className="bg-emerald-900 py-10">
-              <div className="max-w-7xl mx-auto px-6 grid grid-cols-2 lg:grid-cols-4 gap-8 text-white/80 text-sm font-medium">
-                <div className="flex items-center gap-3">
-                  <Truck className="text-emerald-400" size={24} />
-                  <span>Fast Delivery in Ruiru & Beyond</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <ShieldCheck className="text-emerald-400" size={24} />
-                  <span>100% Authentic Products</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <Clock className="text-emerald-400" size={24} />
-                  <span>Expert Advice Available 24/7</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <Heart className="text-emerald-400" size={24} />
-                  <span>Compassionate Holistic Care</span>
-                </div>
-              </div>
-            </div>
-
-            <CategorySection onShop={() => setIsShopView(true)} />
-            <FeaturedProducts 
-              onAddToCart={addToCart} 
-              onToggleWishlist={toggleWishlist}
-              wishlist={wishlist}
-            />
-            
-            {/* Expertise Section */}
-            <section id="expertise" className="py-24 bg-white scroll-mt-20">
-              <div className="max-w-7xl mx-auto px-6">
-                <div className="grid lg:grid-cols-2 gap-16 items-center">
-                  <div className="order-2 lg:order-1 relative">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="aspect-square rounded-[2rem] overflow-hidden shadow-xl">
-                        <img src="https://images.unsplash.com/photo-1594824476967-48c8b964273f?auto=format&fit=crop&q=80&w=400" alt="Pharmaceutical Technologist" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
-                      </div>
-                      <div className="aspect-square rounded-[2rem] overflow-hidden shadow-xl mt-12">
-                        <img src="https://images.unsplash.com/photo-1559839734-2b71f1536783?auto=format&fit=crop&q=80&w=400" alt="Counseling Psychologist" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
-                      </div>
-                    </div>
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white p-8 rounded-[2.5rem] shadow-2xl border border-emerald-50 text-center max-w-[200px]">
-                      <h4 className="text-3xl font-serif text-emerald-950 mb-1">Dual</h4>
-                      <p className="text-xs text-emerald-900/60 uppercase tracking-widest font-bold">Expertise Model</p>
-                    </div>
-                  </div>
-                  
-                  <div className="order-1 lg:order-2">
-                    <h2 className="text-4xl md:text-5xl font-serif text-emerald-950 mb-8 leading-tight">
-                      Science with a Soul, <br />
-                      <span className="italic text-emerald-700">Care with a Smile.</span>
-                    </h2>
-                    <div className="space-y-8">
-                      <div className="flex gap-6">
-                        <div className="w-14 h-14 shrink-0 bg-emerald-100 rounded-2xl flex items-center justify-center text-emerald-700">
-                          <Pill size={28} />
-                        </div>
-                        <div>
-                          <h4 className="text-xl font-bold text-emerald-950 mb-2">The Science Squad</h4>
-                          <p className="text-emerald-900/60 leading-relaxed">Our lead Pharmaceutical Technologist ensures every product is safe, effective, and scientifically sound. No guesswork, just results!</p>
-                        </div>
-                      </div>
-                      <div className="flex gap-6">
-                        <div className="w-14 h-14 shrink-0 bg-orange-100 rounded-2xl flex items-center justify-center text-orange-700">
-                          <Brain size={28} />
-                        </div>
-                        <div>
-                          <h4 className="text-xl font-bold text-emerald-950 mb-2">The Soul Support</h4>
-                          <p className="text-emerald-900/60 leading-relaxed">Our Counseling Psychologist provides the empathy and mental health support needed for true holistic healing. Because your mind matters too.</p>
-                        </div>
-                      </div>
-                    </div>
-                    <button 
-                      onClick={() => setIsStoryOpen(true)}
-                      className="mt-12 px-8 py-4 bg-emerald-950 text-white rounded-2xl font-semibold hover:bg-emerald-900 transition-all"
-                    >
-                      Read Our Fun Story! ✨
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </section>
-
-            <SocialHub />
-
-            {/* Testimonials */}
-            <section className="py-24 bg-emerald-50">
-              <div className="max-w-7xl mx-auto px-6">
-                <div className="text-center mb-16">
-                  <h2 className="text-4xl font-serif text-emerald-950 mb-4">What Our Clients Say</h2>
-                  <p className="text-emerald-900/60">Real stories from the Harvianah community.</p>
-                </div>
-                <div className="grid md:grid-cols-3 gap-8">
-                  {[
-                    { name: "Sarah W.", role: "Mother", text: "The advice I got for my baby's skin condition was life-changing. They truly care." },
-                    { name: "David K.", role: "Fitness Enthusiast", text: "Best supplements in Ruiru. The quality is unmatched and the delivery is always on time." },
-                    { name: "Mercy A.", role: "Wellness Client", text: "I love the holistic approach. They helped me manage my anxiety alongside my physical health." }
-                  ].map((t, i) => (
-                    <div key={i} className="bg-white p-10 rounded-[2.5rem] shadow-sm border border-emerald-100">
-                      <div className="flex text-orange-400 mb-6">
-                        {[1, 2, 3, 4, 5].map(j => <Star key={j} size={16} fill="currentColor" />)}
-                      </div>
-                      <p className="text-emerald-900/70 italic mb-8 leading-relaxed">"{t.text}"</p>
-                      <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 font-bold">
-                          {t.name[0]}
-                        </div>
-                        <div>
-                          <h5 className="font-bold text-emerald-950">{t.name}</h5>
-                          <p className="text-xs text-emerald-900/40 uppercase tracking-widest font-bold">{t.role}</p>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </section>
-
-            {/* Call to Action */}
-            <section id="consultations" className="py-24 scroll-mt-20">
-              <div className="max-w-7xl mx-auto px-6">
-                <div className="bg-emerald-600 rounded-[3rem] p-12 md:p-20 text-center text-white relative overflow-hidden">
-                  <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
-                    <div className="absolute top-10 left-10 w-64 h-64 bg-white rounded-full blur-3xl" />
-                    <div className="absolute bottom-10 right-10 w-64 h-64 bg-white rounded-full blur-3xl" />
-                  </div>
-                  <h2 className="text-4xl md:text-6xl font-serif mb-8 relative z-10">Start Your Wellness <br /> Journey Today.</h2>
-                  <p className="text-emerald-50 text-lg mb-12 max-w-2xl mx-auto relative z-10">
-                    Whether you need a prescription filled or a holistic wellness plan, we're here to support you every step of the way.
-                  </p>
-                  <div className="flex flex-wrap justify-center gap-4 relative z-10">
-                    <button 
-                      onClick={() => setIsShopView(true)}
-                      className="px-10 py-5 bg-white text-emerald-600 rounded-2xl font-bold hover:bg-emerald-50 transition-all shadow-xl"
-                    >
-                      Shop Now
-                    </button>
-                    <button 
-                      onClick={() => setIsConsultationOpen(true)}
-                      className="px-10 py-5 bg-emerald-700 text-white rounded-2xl font-bold hover:bg-emerald-800 transition-all border border-emerald-500/30"
-                    >
-                      Book Consultation
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </section>
-          </>
-        )}
+          </motion.div>
+        </AnimatePresence>
       </main>
 
       <Footer 
-        onShop={() => setIsShopView(true)} 
+        onShop={() => goToPage(1)} 
         onConsult={() => setIsConsultationOpen(true)} 
-        onNavigate={navigateToSection}
+        onNavigate={(id) => {
+          if (id === 'expertise') goToPage(5);
+          if (id === 'wellness-hub') goToPage(6);
+        }}
         onLegal={handleLegal}
       />
 
