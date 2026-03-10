@@ -355,7 +355,12 @@ const CartModal = ({
                           <Trash2 size={18} />
                         </button>
                       </div>
-                      <p className="text-sm text-emerald-900/60 mb-3">KES {item.product.price.toLocaleString()}</p>
+                      <div className="flex flex-col mb-3">
+                        {item.product.originalPrice && (
+                          <p className="text-xs text-emerald-900/30 line-through">KES {item.product.originalPrice.toLocaleString()}</p>
+                        )}
+                        <p className="text-sm font-bold text-emerald-600">KES {item.product.price.toLocaleString()}</p>
+                      </div>
                       <div className="flex items-center gap-3">
                         <div className="flex items-center border border-emerald-100 rounded-lg">
                           <button 
@@ -580,7 +585,12 @@ const WishlistModal = ({
                           <Trash2 size={18} />
                         </button>
                       </div>
-                      <p className="text-sm text-emerald-900/60 mb-4">KES {product.price.toLocaleString()}</p>
+                      <div className="flex flex-col mb-4">
+                        {product.originalPrice && (
+                          <p className="text-xs text-emerald-900/30 line-through">KES {product.originalPrice.toLocaleString()}</p>
+                        )}
+                        <p className="text-sm font-bold text-emerald-600">KES {product.price.toLocaleString()}</p>
+                      </div>
                       <button 
                         onClick={() => { onAddToCart(product); onRemove(product.id); }}
                         className="w-full py-2 bg-emerald-600 text-white rounded-lg text-sm font-bold hover:bg-emerald-700 transition-colors flex items-center justify-center gap-2"
@@ -603,6 +613,8 @@ const WishlistModal = ({
 const ShopView = ({ 
   onAddToCart, 
   onToggleWishlist,
+  onQuickView,
+  onBuyNow,
   wishlist,
   searchQuery, 
   onSearch,
@@ -611,6 +623,8 @@ const ShopView = ({
 }: { 
   onAddToCart: (p: Product) => void; 
   onToggleWishlist: (p: Product) => void;
+  onQuickView: (p: Product) => void;
+  onBuyNow: (p: Product) => void;
   wishlist: string[];
   searchQuery: string;
   onSearch: (q: string) => void;
@@ -711,7 +725,7 @@ const ShopView = ({
                 layout
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="bg-white rounded-[2.5rem] overflow-hidden border border-emerald-50 group"
+                className="bg-white rounded-[2.5rem] overflow-hidden border border-emerald-50 group flex flex-col"
               >
                 <div className="relative aspect-[4/5] overflow-hidden">
                   <img 
@@ -720,6 +734,14 @@ const ShopView = ({
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                     referrerPolicy="no-referrer"
                   />
+                  <div className="absolute inset-0 bg-emerald-950/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <button 
+                      onClick={() => onQuickView(product)}
+                      className="px-6 py-2.5 bg-white text-emerald-900 rounded-full font-bold text-sm shadow-xl hover:bg-emerald-50 transition-all translate-y-4 group-hover:translate-y-0 duration-300"
+                    >
+                      Quick View
+                    </button>
+                  </div>
                   <div className="absolute bottom-6 right-6 flex flex-col gap-2 translate-y-20 group-hover:translate-y-0 transition-transform duration-500">
                     <button 
                       onClick={() => onToggleWishlist(product)}
@@ -738,15 +760,28 @@ const ShopView = ({
                     {product.category}
                   </div>
                 </div>
-                <div className="p-8">
+                <div className="p-8 flex-1 flex flex-col">
                   <div className="flex justify-between items-start mb-2">
                     <h3 className="text-xl font-bold text-emerald-950">{product.name}</h3>
+                  <div className="flex flex-col items-end mb-2">
+                    {product.originalPrice && (
+                      <span className="text-xs text-emerald-900/30 line-through">KES {product.originalPrice.toLocaleString()}</span>
+                    )}
                     <span className="text-emerald-600 font-bold">KES {product.price.toLocaleString()}</span>
                   </div>
+                  </div>
                   <p className="text-sm text-emerald-900/60 mb-6 line-clamp-2">{product.description}</p>
-                  <div className="flex items-center gap-1 text-orange-400">
-                    {[1, 2, 3, 4, 5].map(i => <Star key={i} size={14} fill="currentColor" />)}
-                    <span className="text-xs text-emerald-900/40 ml-2">(48 reviews)</span>
+                  <div className="mt-auto">
+                    <div className="flex items-center gap-1 text-orange-400 mb-6">
+                      {[1, 2, 3, 4, 5].map(i => <Star key={i} size={14} fill="currentColor" />)}
+                      <span className="text-xs text-emerald-900/40 ml-2">({product.reviews?.length || 0} reviews)</span>
+                    </div>
+                    <button 
+                      onClick={() => onBuyNow(product)}
+                      className="w-full py-3 bg-emerald-50 text-emerald-700 rounded-xl font-bold text-sm hover:bg-emerald-600 hover:text-white transition-all"
+                    >
+                      Buy Now
+                    </button>
                   </div>
                 </div>
               </motion.div>
@@ -806,10 +841,14 @@ const Baby = ({ size, className }: { size?: number, className?: string }) => <sv
 const FeaturedProducts = ({ 
   onAddToCart,
   onToggleWishlist,
+  onQuickView,
+  onBuyNow,
   wishlist
 }: { 
   onAddToCart: (p: Product) => void;
   onToggleWishlist: (p: Product) => void;
+  onQuickView: (p: Product) => void;
+  onBuyNow: (p: Product) => void;
   wishlist: string[];
 }) => {
   return (
@@ -827,7 +866,7 @@ const FeaturedProducts = ({
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="bg-white rounded-[2.5rem] overflow-hidden border border-emerald-50 group"
+              className="bg-white rounded-[2.5rem] overflow-hidden border border-emerald-50 group flex flex-col"
             >
               <div className="relative aspect-[4/5] overflow-hidden">
                 <img 
@@ -836,6 +875,14 @@ const FeaturedProducts = ({
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                   referrerPolicy="no-referrer"
                 />
+                <div className="absolute inset-0 bg-emerald-950/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                  <button 
+                    onClick={() => onQuickView(product)}
+                    className="px-6 py-2.5 bg-white text-emerald-900 rounded-full font-bold text-sm shadow-xl hover:bg-emerald-50 transition-all translate-y-4 group-hover:translate-y-0 duration-300"
+                  >
+                    Quick View
+                  </button>
+                </div>
                 <div className="absolute bottom-6 right-6 flex flex-col gap-2 translate-y-20 group-hover:translate-y-0 transition-transform duration-500">
                   <button 
                     onClick={() => onToggleWishlist(product)}
@@ -854,15 +901,28 @@ const FeaturedProducts = ({
                   {product.category}
                 </div>
               </div>
-              <div className="p-8">
+              <div className="p-8 flex-1 flex flex-col">
                 <div className="flex justify-between items-start mb-2">
                   <h3 className="text-xl font-bold text-emerald-950">{product.name}</h3>
-                  <span className="text-emerald-600 font-bold">KES {product.price.toLocaleString()}</span>
+                  <div className="flex flex-col items-end mb-2">
+                    {product.originalPrice && (
+                      <span className="text-xs text-emerald-900/30 line-through">KES {product.originalPrice.toLocaleString()}</span>
+                    )}
+                    <span className="text-emerald-600 font-bold">KES {product.price.toLocaleString()}</span>
+                  </div>
                 </div>
                 <p className="text-sm text-emerald-900/60 mb-6 line-clamp-2">{product.description}</p>
-                <div className="flex items-center gap-1 text-orange-400">
-                  {[1, 2, 3, 4, 5].map(i => <Star key={i} size={14} fill="currentColor" />)}
-                  <span className="text-xs text-emerald-900/40 ml-2">(48 reviews)</span>
+                <div className="mt-auto">
+                  <div className="flex items-center gap-1 text-orange-400 mb-6">
+                    {[1, 2, 3, 4, 5].map(i => <Star key={i} size={14} fill="currentColor" />)}
+                    <span className="text-xs text-emerald-900/40 ml-2">({product.reviews?.length || 0} reviews)</span>
+                  </div>
+                  <button 
+                    onClick={() => onBuyNow(product)}
+                    className="w-full py-3 bg-emerald-50 text-emerald-700 rounded-xl font-bold text-sm hover:bg-emerald-600 hover:text-white transition-all"
+                  >
+                    Buy Now
+                  </button>
                 </div>
               </div>
             </motion.div>
@@ -973,6 +1033,125 @@ const SocialHub = () => {
         </div>
       </div>
     </section>
+  );
+};
+
+const QuickViewModal = ({ 
+  product, 
+  isOpen, 
+  onClose, 
+  onAddToCart,
+  onBuyNow
+}: { 
+  product: Product | null; 
+  isOpen: boolean; 
+  onClose: () => void;
+  onAddToCart: (p: Product) => void;
+  onBuyNow: (p: Product) => void;
+}) => {
+  if (!product) return null;
+
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={onClose}
+            className="absolute inset-0 bg-emerald-950/40 backdrop-blur-sm"
+          />
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+            className="relative w-full max-w-4xl bg-white rounded-[3rem] shadow-2xl overflow-hidden flex flex-col md:flex-row max-h-[90vh]"
+          >
+            <button 
+              onClick={onClose}
+              className="absolute top-6 right-6 z-10 p-2 bg-white/80 backdrop-blur-md rounded-full text-emerald-900 hover:bg-white transition-colors shadow-sm"
+            >
+              <X size={20} />
+            </button>
+
+            <div className="w-full md:w-1/2 h-64 md:h-auto relative">
+              <img 
+                src={product.image} 
+                alt={product.name} 
+                className="w-full h-full object-cover"
+                referrerPolicy="no-referrer"
+              />
+              <div className="absolute top-6 left-6 px-4 py-1.5 bg-white/90 backdrop-blur-md rounded-full text-xs font-bold uppercase tracking-widest text-emerald-900 shadow-sm">
+                {product.category}
+              </div>
+            </div>
+
+            <div className="w-full md:w-1/2 p-8 md:p-12 overflow-y-auto">
+              <div className="mb-8">
+                <h2 className="text-3xl font-serif text-emerald-950 mb-4">{product.name}</h2>
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="flex flex-col">
+                    {product.originalPrice && (
+                      <span className="text-sm text-emerald-900/30 line-through">KES {product.originalPrice.toLocaleString()}</span>
+                    )}
+                    <span className="text-2xl font-bold text-emerald-600">KES {product.price.toLocaleString()}</span>
+                  </div>
+                  <div className="h-8 w-px bg-emerald-100" />
+                  <div className="flex items-center gap-1 text-orange-400">
+                    <Star size={16} fill="currentColor" />
+                    <span className="text-sm font-bold text-emerald-950">4.8</span>
+                    <span className="text-xs text-emerald-900/40 ml-1">({product.reviews?.length || 0} reviews)</span>
+                  </div>
+                </div>
+                <p className="text-emerald-900/70 leading-relaxed mb-6">
+                  {product.longDescription || product.description}
+                </p>
+              </div>
+
+              <div className="flex flex-col gap-3 mb-10">
+                <button 
+                  onClick={() => { onBuyNow(product); onClose(); }}
+                  className="w-full py-4 bg-emerald-600 text-white rounded-2xl font-bold hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-100 flex items-center justify-center gap-2"
+                >
+                  Buy Now <ArrowRight size={18} />
+                </button>
+                <button 
+                  onClick={() => onAddToCart(product)}
+                  className="w-full py-4 bg-white border-2 border-emerald-600 text-emerald-600 rounded-2xl font-bold hover:bg-emerald-50 transition-all flex items-center justify-center gap-2"
+                >
+                  <ShoppingBag size={18} /> Add to Cart
+                </button>
+              </div>
+
+              {product.reviews && product.reviews.length > 0 && (
+                <div>
+                  <h3 className="text-lg font-bold text-emerald-950 mb-6 flex items-center gap-2">
+                    Customer Reviews <span className="text-sm font-normal text-emerald-900/40">({product.reviews.length})</span>
+                  </h3>
+                  <div className="space-y-6">
+                    {product.reviews.map((review) => (
+                      <div key={review.id} className="pb-6 border-b border-emerald-50 last:border-0">
+                        <div className="flex justify-between items-center mb-2">
+                          <span className="font-bold text-emerald-900">{review.user}</span>
+                          <span className="text-[10px] text-emerald-900/30 uppercase tracking-widest">{review.date}</span>
+                        </div>
+                        <div className="flex gap-0.5 text-orange-400 mb-2">
+                          {[...Array(5)].map((_, i) => (
+                            <Star key={i} size={12} fill={i < review.rating ? "currentColor" : "none"} />
+                          ))}
+                        </div>
+                        <p className="text-sm text-emerald-900/60 italic">"{review.comment}"</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </motion.div>
+        </div>
+      )}
+    </AnimatePresence>
   );
 };
 
@@ -1197,6 +1376,8 @@ export default function App() {
   const [isWishlistOpen, setIsWishlistOpen] = useState(false);
   const [isConsultationOpen, setIsConsultationOpen] = useState(false);
   const [isStoryOpen, setIsStoryOpen] = useState(false);
+  const [isQuickViewOpen, setIsQuickViewOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
 
   const addToCart = (product: Product) => {
@@ -1242,6 +1423,16 @@ export default function App() {
       }
       return item;
     }));
+  };
+
+  const handleQuickView = (product: Product) => {
+    setSelectedProduct(product);
+    setIsQuickViewOpen(true);
+  };
+
+  const handleBuyNow = (product: Product) => {
+    addToCart(product);
+    setIsCartOpen(true);
   };
 
   const goToPage = (pageIndex: number) => {
@@ -1319,6 +1510,8 @@ export default function App() {
                 <FeaturedProducts 
                   onAddToCart={addToCart} 
                   onToggleWishlist={toggleWishlist}
+                  onQuickView={handleQuickView}
+                  onBuyNow={handleBuyNow}
                   wishlist={wishlist}
                 />
               </>
@@ -1328,6 +1521,8 @@ export default function App() {
               <ShopView 
                 onAddToCart={addToCart} 
                 onToggleWishlist={toggleWishlist}
+                onQuickView={handleQuickView}
+                onBuyNow={handleBuyNow}
                 wishlist={wishlist}
                 searchQuery={searchQuery}
                 onSearch={setSearchQuery}
@@ -1513,6 +1708,14 @@ export default function App() {
       <StoryModal 
         isOpen={isStoryOpen} 
         onClose={() => setIsStoryOpen(false)} 
+      />
+
+      <QuickViewModal 
+        product={selectedProduct}
+        isOpen={isQuickViewOpen}
+        onClose={() => setIsQuickViewOpen(false)}
+        onAddToCart={addToCart}
+        onBuyNow={handleBuyNow}
       />
 
       {/* Toast Notification */}
