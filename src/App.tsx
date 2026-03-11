@@ -25,7 +25,9 @@ import {
   Trash2,
   Plus,
   Minus,
-  CheckCircle2
+  CheckCircle2,
+  HelpCircle,
+  MapPin
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { CATEGORIES, PRODUCTS, Product } from './types';
@@ -74,23 +76,23 @@ const Navbar = ({
   };
 
   return (
-    <nav className={`fixed top-0 w-full z-50 transition-all duration-300 ${isScrolled ? 'bg-white/90 backdrop-blur-md shadow-sm py-3' : 'bg-transparent py-6'}`}>
+    <nav className={`fixed top-0 w-full z-50 transition-all duration-300 ${isScrolled ? 'bg-white/90 dark:bg-emerald-950/90 backdrop-blur-md shadow-sm py-3' : 'bg-transparent py-6'}`}>
       <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
         <div className="flex items-center gap-2 cursor-pointer" onClick={onHome}>
           <div className="w-10 h-10 bg-emerald-600 rounded-full flex items-center justify-center text-white">
             <Pill size={20} />
           </div>
-          <span className={`text-xl font-serif font-bold tracking-tight ${isScrolled ? 'text-emerald-900' : 'text-emerald-900'}`}>
+          <span className={`text-xl font-serif font-bold tracking-tight ${isScrolled ? 'text-emerald-900 dark:text-emerald-50' : 'text-emerald-900 dark:text-emerald-50'}`}>
             Harvianah
           </span>
         </div>
 
-        <div className="hidden md:flex items-center gap-8 text-sm font-medium text-emerald-900/80">
+        <div className="hidden md:flex items-center gap-8 text-sm font-medium text-emerald-900/80 dark:text-emerald-100/80">
           <button onClick={onHome} className={`transition-colors ${currentPage === 0 ? 'text-emerald-600 font-bold' : 'hover:text-emerald-600'}`}>Home</button>
           <button onClick={onShop} className={`transition-colors ${currentPage >= 1 && currentPage <= 4 ? 'text-emerald-600 font-bold' : 'hover:text-emerald-600'}`}>Shop</button>
           <button onClick={() => onNavigate('expertise')} className={`transition-colors ${currentPage === 5 ? 'text-emerald-600 font-bold' : 'hover:text-emerald-600'}`}>Expertise</button>
           <button onClick={onConsult} className="hover:text-emerald-600 transition-colors">Consultations</button>
-          <button onClick={() => onNavigate('wellness-hub')} className={`transition-colors ${currentPage === 6 ? 'text-emerald-600 font-bold' : 'hover:text-emerald-600'}`}>Wellness Hub</button>
+          <button onClick={() => onNavigate('community')} className={`transition-colors ${currentPage === 6 ? 'text-emerald-600 font-bold' : 'hover:text-emerald-600'}`}>Join Our Community</button>
         </div>
 
         <div className="flex items-center gap-4">
@@ -110,21 +112,21 @@ const Navbar = ({
                     placeholder="Search products..."
                     value={searchValue}
                     onChange={(e) => setSearchValue(e.target.value)}
-                    className="w-full bg-white border border-emerald-100 rounded-full px-4 py-1.5 text-sm focus:outline-none focus:border-emerald-500 shadow-sm"
+                    className="w-full bg-white dark:bg-emerald-900 border border-emerald-100 dark:border-emerald-800 rounded-full px-4 py-1.5 text-sm focus:outline-none focus:border-emerald-500 shadow-sm dark:text-white"
                   />
                 </motion.form>
               )}
             </AnimatePresence>
             <button 
               onClick={() => setIsSearchOpen(!isSearchOpen)}
-              className="p-2 text-emerald-900 hover:bg-emerald-50 rounded-full transition-colors"
+              className="p-2 text-emerald-900 dark:text-emerald-100 hover:bg-emerald-50 dark:hover:bg-emerald-900 rounded-full transition-colors"
             >
               <Search size={20} />
             </button>
           </div>
           <button 
             onClick={onOpenWishlist}
-            className="p-2 text-emerald-900 hover:bg-emerald-50 rounded-full transition-colors relative"
+            className="p-2 text-emerald-900 dark:text-emerald-100 hover:bg-emerald-50 dark:hover:bg-emerald-900 rounded-full transition-colors relative"
           >
             <Heart size={20} />
             {wishlistCount > 0 && (
@@ -135,7 +137,7 @@ const Navbar = ({
           </button>
           <button 
             onClick={onOpenCart}
-            className="p-2 text-emerald-900 hover:bg-emerald-50 rounded-full transition-colors relative"
+            className="p-2 text-emerald-900 dark:text-emerald-100 hover:bg-emerald-50 dark:hover:bg-emerald-900 rounded-full transition-colors relative"
           >
             <ShoppingBag size={20} />
             {cartCount > 0 && (
@@ -145,7 +147,7 @@ const Navbar = ({
             )}
           </button>
           <button 
-            className="md:hidden p-2 text-emerald-900"
+            className="md:hidden p-2 text-emerald-900 dark:text-emerald-100"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           >
             {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
@@ -160,13 +162,15 @@ const Navbar = ({
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="absolute top-full left-0 w-full bg-white border-t border-emerald-100 p-6 flex flex-col gap-4 md:hidden shadow-xl"
+            className="absolute top-full left-0 w-full bg-white dark:bg-emerald-950 border-t border-emerald-100 dark:border-emerald-900 p-6 flex flex-col gap-4 md:hidden shadow-xl"
           >
-            <button onClick={() => { onShop(); setIsMobileMenuOpen(false); }} className="text-left text-lg font-medium text-emerald-900">Shop</button>
-            <button onClick={() => { onNavigate('expertise'); setIsMobileMenuOpen(false); }} className="text-left text-lg font-medium text-emerald-900">Expertise</button>
-            <button onClick={() => { onConsult(); setIsMobileMenuOpen(false); }} className="text-left text-lg font-medium text-emerald-900">Consultations</button>
-            <button onClick={() => { onNavigate('wellness-hub'); setIsMobileMenuOpen(false); }} className="text-left text-lg font-medium text-emerald-900">Wellness Hub</button>
-            <hr className="border-emerald-50" />
+            <button onClick={() => { onShop(); setIsMobileMenuOpen(false); }} className="text-left text-lg font-medium text-emerald-900 dark:text-emerald-100">Shop</button>
+            <button onClick={() => { onNavigate('expertise'); setIsMobileMenuOpen(false); }} className="text-left text-lg font-medium text-emerald-900 dark:text-emerald-100">Expertise</button>
+            <button onClick={() => { onConsult(); setIsMobileMenuOpen(false); }} className="text-left text-lg font-medium text-emerald-900 dark:text-emerald-100">Consultations</button>
+            <button onClick={() => { onNavigate('community'); setIsMobileMenuOpen(false); }} className="text-left text-lg font-medium text-emerald-900 dark:text-emerald-100">Join Our Community</button>
+            <button onClick={() => { onNavigate('faqs'); setIsMobileMenuOpen(false); }} className="text-left text-lg font-medium text-emerald-900 dark:text-emerald-100">FAQs</button>
+            <button onClick={() => { onNavigate('tracking'); setIsMobileMenuOpen(false); }} className="text-left text-lg font-medium text-emerald-900 dark:text-emerald-100">Track Order</button>
+            <hr className="border-emerald-50 dark:border-emerald-900" />
             <button onClick={() => { onConsult(); setIsMobileMenuOpen(false); }} className="w-full bg-emerald-600 text-white py-3 rounded-xl font-medium text-center">Book Consultation</button>
           </motion.div>
         )}
@@ -188,7 +192,7 @@ const Hero = ({ onShop, onConsult }: { onShop: () => void; onConsult: () => void
         >
           <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full text-xs font-bold uppercase tracking-wider mb-6">
             <ShieldCheck size={14} />
-            Expert-Backed Pharmacy in Ruiru
+            Expert-Backed Pharmacy in Kimbo-Toll
           </div>
           <h1 className="text-5xl md:text-7xl font-serif text-emerald-950 leading-[1.1] mb-6">
             Science-Backed Wellness, <br />
@@ -649,7 +653,7 @@ const ShopView = ({
   }, [searchQuery, selectedCategory]);
 
   return (
-    <div className="pt-32 pb-12 bg-[#F9F8F6] min-h-screen">
+    <div className="pt-32 pb-12 bg-[#F9F8F6] dark:bg-emerald-950 min-h-screen transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-6">
         <div className="mb-12 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
@@ -660,10 +664,10 @@ const ShopView = ({
               <ArrowRight size={18} className="rotate-180" />
               Back to Home
             </button>
-            <h1 className="text-5xl font-serif text-emerald-950 mb-4">
+            <h1 className="text-5xl font-serif text-emerald-950 dark:text-emerald-50 mb-4">
               {selectedCategory === 'all' ? 'Our Pharmacy' : CATEGORIES.find(c => c.id === selectedCategory)?.name}
             </h1>
-            <p className="text-emerald-900/60 max-w-2xl">
+            <p className="text-emerald-900/60 dark:text-emerald-100/60 max-w-2xl">
               {selectedCategory === 'all' 
                 ? 'Browse our complete collection of expert-backed pharmaceuticals, supplements, and wellness essentials.'
                 : CATEGORIES.find(c => c.id === selectedCategory)?.description}
@@ -676,7 +680,7 @@ const ShopView = ({
             <div className="flex-1 flex flex-wrap gap-2">
               <button 
                 onClick={() => setSelectedCategory('all')}
-                className={`px-6 py-2 rounded-full text-sm font-bold transition-all ${selectedCategory === 'all' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-200' : 'bg-white text-emerald-900 border border-emerald-100'}`}
+                className={`px-6 py-2 rounded-full text-sm font-bold transition-all ${selectedCategory === 'all' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-200' : 'bg-white dark:bg-emerald-900 text-emerald-900 dark:text-emerald-100 border border-emerald-100 dark:border-emerald-800'}`}
               >
                 All Products
               </button>
@@ -684,7 +688,7 @@ const ShopView = ({
                 <button 
                   key={cat.id}
                   onClick={() => setSelectedCategory(cat.id)}
-                  className={`px-6 py-2 rounded-full text-sm font-bold transition-all ${selectedCategory === cat.id ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-200' : 'bg-white text-emerald-900 border border-emerald-100'}`}
+                  className={`px-6 py-2 rounded-full text-sm font-bold transition-all ${selectedCategory === cat.id ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-200' : 'bg-white dark:bg-emerald-900 text-emerald-900 dark:text-emerald-100 border border-emerald-100 dark:border-emerald-800'}`}
                 >
                   {cat.name}
                 </button>
@@ -697,7 +701,7 @@ const ShopView = ({
                 placeholder="Search products..."
                 value={searchQuery}
                 onChange={(e) => onSearch(e.target.value)}
-                className="w-full bg-white border border-emerald-100 rounded-2xl pl-12 pr-4 py-3 focus:outline-none focus:border-emerald-500 shadow-sm"
+                className="w-full bg-white dark:bg-emerald-900 border border-emerald-100 dark:border-emerald-800 rounded-2xl pl-12 pr-4 py-3 focus:outline-none focus:border-emerald-500 shadow-sm dark:text-white"
               />
             </div>
           </div>
@@ -705,11 +709,11 @@ const ShopView = ({
 
         {filteredProducts.length === 0 ? (
           <div className="py-24 text-center">
-            <div className="w-20 h-20 bg-emerald-50 rounded-full flex items-center justify-center text-emerald-300 mx-auto mb-6">
+            <div className="w-20 h-20 bg-emerald-50 dark:bg-emerald-900 rounded-full flex items-center justify-center text-emerald-300 mx-auto mb-6">
               <Search size={40} />
             </div>
-            <h3 className="text-2xl font-serif text-emerald-950 mb-2">No products found</h3>
-            <p className="text-emerald-900/60">Try adjusting your search or category filters.</p>
+            <h3 className="text-2xl font-serif text-emerald-950 dark:text-emerald-50 mb-2">No products found</h3>
+            <p className="text-emerald-900/60 dark:text-emerald-100/60">Try adjusting your search or category filters.</p>
             <button 
               onClick={() => { onSearch(''); setSelectedCategory('all'); }}
               className="mt-8 text-emerald-600 font-bold underline"
@@ -725,7 +729,7 @@ const ShopView = ({
                 layout
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="bg-white rounded-[2.5rem] overflow-hidden border border-emerald-50 group flex flex-col"
+                className="bg-white dark:bg-emerald-900/50 rounded-[2.5rem] overflow-hidden border border-emerald-50 dark:border-emerald-800 group flex flex-col"
               >
                 <div className="relative aspect-[4/5] overflow-hidden">
                   <img 
@@ -745,7 +749,7 @@ const ShopView = ({
                   <div className="absolute bottom-6 right-6 flex flex-col gap-2 translate-y-20 group-hover:translate-y-0 transition-transform duration-500">
                     <button 
                       onClick={() => onToggleWishlist(product)}
-                      className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-xl transition-colors ${wishlist.includes(product.id) ? 'bg-emerald-500 text-white' : 'bg-white text-emerald-900 hover:bg-emerald-50'}`}
+                      className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-xl transition-colors ${wishlist.includes(product.id) ? 'bg-emerald-500 text-white' : 'bg-white dark:bg-emerald-900 text-emerald-900 dark:text-emerald-100 hover:bg-emerald-50 dark:hover:bg-emerald-800'}`}
                     >
                       <Heart size={20} fill={wishlist.includes(product.id) ? "currentColor" : "none"} />
                     </button>
@@ -756,29 +760,29 @@ const ShopView = ({
                       <ShoppingBag size={20} />
                     </button>
                   </div>
-                  <div className="absolute top-6 left-6 px-3 py-1 bg-white/90 backdrop-blur-sm rounded-full text-[10px] font-bold uppercase tracking-widest text-emerald-900">
+                  <div className="absolute top-6 left-6 px-3 py-1 bg-white/90 dark:bg-emerald-900/90 backdrop-blur-sm rounded-full text-[10px] font-bold uppercase tracking-widest text-emerald-900 dark:text-emerald-100">
                     {product.category}
                   </div>
                 </div>
                 <div className="p-8 flex-1 flex flex-col">
                   <div className="flex justify-between items-start mb-2">
-                    <h3 className="text-xl font-bold text-emerald-950">{product.name}</h3>
+                    <h3 className="text-xl font-bold text-emerald-950 dark:text-emerald-50">{product.name}</h3>
                   <div className="flex flex-col items-end mb-2">
                     {product.originalPrice && (
-                      <span className="text-xs text-emerald-900/30 line-through">KES {product.originalPrice.toLocaleString()}</span>
+                      <span className="text-xs text-emerald-900/30 dark:text-emerald-100/30 line-through">KES {product.originalPrice.toLocaleString()}</span>
                     )}
                     <span className="text-emerald-600 font-bold">KES {product.price.toLocaleString()}</span>
                   </div>
                   </div>
-                  <p className="text-sm text-emerald-900/60 mb-6 line-clamp-2">{product.description}</p>
+                  <p className="text-sm text-emerald-900/60 dark:text-emerald-100/60 mb-6 line-clamp-2">{product.description}</p>
                   <div className="mt-auto">
                     <div className="flex items-center gap-1 text-orange-400 mb-6">
                       {[1, 2, 3, 4, 5].map(i => <Star key={i} size={14} fill="currentColor" />)}
-                      <span className="text-xs text-emerald-900/40 ml-2">({product.reviews?.length || 0} reviews)</span>
+                      <span className="text-xs text-emerald-900/40 dark:text-emerald-100/40 ml-2">({product.reviews?.length || 0} reviews)</span>
                     </div>
                     <button 
                       onClick={() => onBuyNow(product)}
-                      className="w-full py-3 bg-emerald-50 text-emerald-700 rounded-xl font-bold text-sm hover:bg-emerald-600 hover:text-white transition-all"
+                      className="w-full py-3 bg-emerald-50 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-100 rounded-xl font-bold text-sm hover:bg-emerald-600 hover:text-white transition-all"
                     >
                       Buy Now
                     </button>
@@ -1186,7 +1190,7 @@ const StoryModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void 
                 
                 <div className="space-y-6 text-lg text-emerald-900/70 leading-relaxed">
                   <p>
-                    Once upon a time in Ruiru, a lab coat met a listening ear. 🧪✨ 
+                    Once upon a time in Kimbo-Toll, a lab coat met a listening ear. 🧪✨ 
                   </p>
                   <p>
                     Our founders realized that while pills can fix a fever, they can't always fix the "feeling." 
@@ -1266,14 +1270,254 @@ const Pagination = ({
   );
 };
 
+const ExpertiseView = ({ onBack }: { onBack: () => void }) => {
+  return (
+    <section id="expertise" className="py-32 bg-white dark:bg-emerald-950 min-h-screen transition-colors duration-300">
+      <div className="max-w-7xl mx-auto px-6">
+        <button onClick={onBack} className="flex items-center gap-2 text-emerald-600 font-bold mb-8 hover:gap-3 transition-all">
+          <ArrowRight size={18} className="rotate-180" /> Back to Home
+        </button>
+        <div className="grid lg:grid-cols-2 gap-16 items-center">
+          <div className="order-2 lg:order-1 relative">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="aspect-square rounded-[2rem] overflow-hidden shadow-xl">
+                <img src="https://images.unsplash.com/photo-1594824476967-48c8b964273f?auto=format&fit=crop&q=80&w=400" alt="Pharmaceutical Technologist" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+              </div>
+              <div className="aspect-square rounded-[2rem] overflow-hidden shadow-xl mt-12">
+                <img src="https://images.unsplash.com/photo-1559839734-2b71f1536783?auto=format&fit=crop&q=80&w=400" alt="Counseling Psychologist" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+              </div>
+            </div>
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-emerald-900 p-8 rounded-[2.5rem] shadow-2xl border border-emerald-50 dark:border-emerald-800 text-center max-w-[200px]">
+              <h4 className="text-3xl font-serif text-emerald-950 dark:text-emerald-50 mb-1">Dual</h4>
+              <p className="text-xs text-emerald-900/60 dark:text-emerald-100/60 uppercase tracking-widest font-bold">Expertise Model</p>
+            </div>
+          </div>
+          
+          <div className="order-1 lg:order-2">
+            <h2 className="text-4xl md:text-5xl font-serif text-emerald-950 dark:text-emerald-50 mb-8 leading-tight">
+              Science with a Soul, <br />
+              <span className="italic text-emerald-700">Care with a Smile.</span>
+            </h2>
+            <div className="space-y-8">
+              <div className="flex gap-6">
+                <div className="w-14 h-14 shrink-0 bg-emerald-100 dark:bg-emerald-900 rounded-2xl flex items-center justify-center text-emerald-700 dark:text-emerald-100">
+                  <Pill size={28} />
+                </div>
+                <div>
+                  <h4 className="text-xl font-bold text-emerald-950 dark:text-emerald-50 mb-2">The Science Squad</h4>
+                  <p className="text-emerald-900/60 dark:text-emerald-100/60 leading-relaxed">Our lead Pharmaceutical Technologist ensures every product is safe, effective, and scientifically sound. No guesswork, just results!</p>
+                </div>
+              </div>
+              <div className="flex gap-6">
+                <div className="w-14 h-14 shrink-0 bg-orange-100 dark:bg-orange-900/30 rounded-2xl flex items-center justify-center text-orange-700 dark:text-orange-400">
+                  <Brain size={28} />
+                </div>
+                <div>
+                  <h4 className="text-xl font-bold text-emerald-950 dark:text-emerald-50 mb-2">The Soul Support</h4>
+                  <p className="text-emerald-900/60 dark:text-emerald-100/60 leading-relaxed">Our Counseling Psychologist provides the empathy and mental health support needed for true holistic healing. Because your mind matters too.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+const CommunityView = ({ onBack }: { onBack: () => void }) => {
+  return (
+    <div className="pt-32 pb-24 bg-[#F9F8F6] dark:bg-emerald-950 min-h-screen transition-colors duration-300">
+      <div className="max-w-7xl mx-auto px-6">
+        <button onClick={onBack} className="flex items-center gap-2 text-emerald-600 font-bold mb-8 hover:gap-3 transition-all">
+          <ArrowRight size={18} className="rotate-180" /> Back to Home
+        </button>
+        <SocialHub />
+        
+        {/* Testimonials */}
+        <section className="py-24 bg-emerald-50 dark:bg-emerald-900/20 rounded-[3rem] mt-12">
+          <div className="max-w-7xl mx-auto px-6">
+            <div className="text-center mb-16">
+              <h2 className="text-4xl font-serif text-emerald-950 dark:text-emerald-50 mb-4">What Our Clients Say</h2>
+              <p className="text-emerald-900/60 dark:text-emerald-100/60">Real stories from the Harvianah community.</p>
+            </div>
+            <div className="grid md:grid-cols-3 gap-8">
+              {[
+                { name: "Sarah W.", role: "Mother", text: "The advice I got for my baby's skin condition was life-changing. They truly care." },
+                { name: "David K.", role: "Fitness Enthusiast", text: "Best supplements in Kimbo-Toll. The quality is unmatched and the delivery is always on time." },
+                { name: "Mercy A.", role: "Wellness Client", text: "I love the holistic approach. They helped me manage my anxiety alongside my physical health." }
+              ].map((t, i) => (
+                <div key={i} className="bg-white dark:bg-emerald-900/50 p-10 rounded-[2.5rem] shadow-sm border border-emerald-100 dark:border-emerald-800">
+                  <div className="flex text-orange-400 mb-6">
+                    {[1, 2, 3, 4, 5].map(j => <Star key={j} size={16} fill="currentColor" />)}
+                  </div>
+                  <p className="text-emerald-900/70 dark:text-emerald-100/70 italic mb-8 leading-relaxed">"{t.text}"</p>
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-full bg-emerald-100 dark:bg-emerald-800 flex items-center justify-center text-emerald-700 dark:text-emerald-100 font-bold">
+                      {t.name[0]}
+                    </div>
+                    <div>
+                      <h5 className="font-bold text-emerald-950 dark:text-emerald-50">{t.name}</h5>
+                      <p className="text-xs text-emerald-900/40 dark:text-emerald-100/40 uppercase tracking-widest font-bold">{t.role}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Call to Action */}
+        <section id="consultations" className="py-24">
+          <div className="max-w-7xl mx-auto px-6">
+            <div className="bg-emerald-600 rounded-[3rem] p-12 md:p-20 text-center text-white relative overflow-hidden">
+              <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
+                <div className="absolute top-10 left-10 w-64 h-64 bg-white rounded-full blur-3xl" />
+                <div className="absolute bottom-10 right-10 w-64 h-64 bg-white rounded-full blur-3xl" />
+              </div>
+              <h2 className="text-4xl md:text-6xl font-serif mb-8 relative z-10">Start Your Wellness <br /> Journey Today.</h2>
+              <p className="text-emerald-50 text-lg mb-12 max-w-2xl mx-auto relative z-10">
+                Whether you need a prescription filled or a holistic wellness plan, we're here to support you every step of the way.
+              </p>
+              <div className="flex flex-wrap justify-center gap-4 relative z-10">
+                <button 
+                  onClick={() => onBack()}
+                  className="px-10 py-5 bg-white text-emerald-600 rounded-2xl font-bold hover:bg-emerald-50 transition-all shadow-xl"
+                >
+                  Shop Now
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  );
+};
+
+const FAQsView = ({ onBack }: { onBack: () => void }) => {
+  const faqs = [
+    { q: "How do I place an order?", a: "You can browse our shop, add items to your cart, and proceed to checkout. We'll guide you through the process." },
+    { q: "What are your delivery times?", a: "We offer fast delivery in Kimbo-Toll within 2-4 hours. Other areas in Kenya typically receive orders within 24-48 hours." },
+    { q: "Do you require prescriptions?", a: "For prescription-only medicines, we require a valid prescription from a registered medical practitioner. You can upload it during checkout or send it via WhatsApp." },
+    { q: "Can I return products?", a: "Due to safety regulations, we cannot accept returns on pharmaceutical products once they have left our premises. For other items, please contact our support." },
+    { q: "How can I track my order?", a: "You can use our 'Order Tracking' page with your order ID and email to see the real-time status of your delivery." }
+  ];
+
+  return (
+    <div className="pt-32 pb-24 bg-[#F9F8F6] dark:bg-emerald-950 min-h-screen">
+      <div className="max-w-3xl mx-auto px-6">
+        <button onClick={onBack} className="flex items-center gap-2 text-emerald-600 font-bold mb-8 hover:gap-3 transition-all">
+          <ArrowRight size={18} className="rotate-180" /> Back to Home
+        </button>
+        <h1 className="text-5xl font-serif text-emerald-950 dark:text-emerald-50 mb-12">Frequently Asked Questions</h1>
+        <div className="space-y-6">
+          {faqs.map((faq, i) => (
+            <div key={i} className="bg-white dark:bg-emerald-900/50 p-8 rounded-3xl border border-emerald-50 dark:border-emerald-800 shadow-sm">
+              <h3 className="text-xl font-bold text-emerald-900 dark:text-emerald-100 mb-3">{faq.q}</h3>
+              <p className="text-emerald-900/70 dark:text-emerald-100/60 leading-relaxed">{faq.a}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const OrderTrackingView = ({ onBack }: { onBack: () => void }) => {
+  const [orderId, setOrderId] = useState('');
+  const [status, setStatus] = useState<'idle' | 'loading' | 'found' | 'not-found'>('idle');
+
+  const handleTrack = (e: React.FormEvent) => {
+    e.preventDefault();
+    setStatus('loading');
+    setTimeout(() => {
+      if (orderId.length > 4) setStatus('found');
+      else setStatus('not-found');
+    }, 1500);
+  };
+
+  return (
+    <div className="pt-32 pb-24 bg-[#F9F8F6] dark:bg-emerald-950 min-h-screen">
+      <div className="max-w-xl mx-auto px-6 text-center">
+        <button onClick={onBack} className="flex items-center gap-2 text-emerald-600 font-bold mb-8 hover:gap-3 transition-all mx-auto">
+          <ArrowRight size={18} className="rotate-180" /> Back to Home
+        </button>
+        <h1 className="text-5xl font-serif text-emerald-950 dark:text-emerald-50 mb-6">Track Your Order</h1>
+        <p className="text-emerald-900/60 dark:text-emerald-100/60 mb-12">Enter your order ID below to see the current status of your health and wellness delivery.</p>
+        
+        <form onSubmit={handleTrack} className="bg-white dark:bg-emerald-900/50 p-8 rounded-[2.5rem] shadow-xl border border-emerald-50 dark:border-emerald-800 mb-12">
+          <div className="mb-6">
+            <label className="block text-left text-sm font-bold text-emerald-900/40 dark:text-emerald-100/40 uppercase tracking-widest mb-2">Order ID</label>
+            <input 
+              required
+              type="text" 
+              placeholder="e.g. HV-12345"
+              value={orderId}
+              onChange={(e) => setOrderId(e.target.value)}
+              className="w-full bg-emerald-50/50 dark:bg-emerald-950/50 border border-emerald-100 dark:border-emerald-800 rounded-2xl px-6 py-4 focus:outline-none focus:border-emerald-500 dark:text-white"
+            />
+          </div>
+          <button type="submit" className="w-full bg-emerald-600 text-white py-4 rounded-2xl font-bold hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-200">
+            Track Order
+          </button>
+        </form>
+
+        <AnimatePresence mode="wait">
+          {status === 'loading' && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col items-center gap-4">
+              <div className="w-12 h-12 border-4 border-emerald-200 border-t-emerald-600 rounded-full animate-spin" />
+              <p className="text-emerald-900/60 dark:text-emerald-100/60 font-medium">Locating your order...</p>
+            </motion.div>
+          )}
+          {status === 'found' && (
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-emerald-50 dark:bg-emerald-900/30 p-8 rounded-3xl border border-emerald-100 dark:border-emerald-800 text-left">
+              <div className="flex items-center gap-4 mb-6">
+                <div className="w-12 h-12 bg-emerald-600 text-white rounded-full flex items-center justify-center">
+                  <Truck size={24} />
+                </div>
+                <div>
+                  <h3 className="font-bold text-emerald-950 dark:text-emerald-50">Order #{orderId}</h3>
+                  <p className="text-emerald-600 font-bold">In Transit</p>
+                </div>
+              </div>
+              <div className="space-y-4">
+                <div className="flex gap-4">
+                  <div className="w-2 bg-emerald-600 rounded-full" />
+                  <div>
+                    <p className="font-bold text-emerald-900 dark:text-emerald-100">Out for Delivery</p>
+                    <p className="text-sm text-emerald-900/60 dark:text-emerald-100/60">Today, 10:30 AM - Kimbo-Toll Hub</p>
+                  </div>
+                </div>
+                <div className="flex gap-4">
+                  <div className="w-2 bg-emerald-200 dark:bg-emerald-800 rounded-full" />
+                  <div>
+                    <p className="font-bold text-emerald-900/40 dark:text-emerald-100/40">Processing</p>
+                    <p className="text-sm text-emerald-900/40 dark:text-emerald-100/40">Yesterday, 4:15 PM</p>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+          {status === 'not-found' && (
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="p-8 bg-red-50 dark:bg-red-900/20 rounded-3xl border border-red-100 dark:border-red-900 text-red-600 dark:text-red-400 font-bold">
+              Order not found. Please check your ID and try again.
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </div>
+  );
+};
+
 const Footer = ({ 
   onShop, 
   onConsult, 
   onNavigate,
-  onLegal
+  onLegal 
 }: { 
   onShop: () => void; 
-  onConsult: () => void; 
+  onConsult: () => void;
   onNavigate: (id: string) => void;
   onLegal: (type: string) => void;
 }) => {
@@ -1289,34 +1533,32 @@ const Footer = ({
               <span className="text-2xl font-serif font-bold tracking-tight">Harvianah</span>
             </div>
             <p className="text-emerald-100/60 leading-relaxed">
-              Premium pharmaceuticals and holistic wellness products delivered with empathy and expertise. Located in Ruiru, Kenya.
+              Premium pharmaceuticals and holistic wellness products delivered with empathy and expertise. Located in Kimbo-Toll, Anchor 2 Building.
             </p>
             <div className="flex gap-4">
               <a href="https://www.instagram.com/harvianah_pharmacy" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-emerald-600 transition-colors"><Instagram size={18} /></a>
               <a href="https://www.tiktok.com/@gitaridiana" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-emerald-600 transition-colors"><Video size={18} /></a>
-              <a href="tel:+254700000000" className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-emerald-600 transition-colors"><Phone size={18} /></a>
+              <a href="tel:0702759927" className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-emerald-600 transition-colors"><Phone size={18} /></a>
             </div>
           </div>
 
           <div>
-            <h4 className="font-bold text-lg mb-6">Quick Links</h4>
+            <h4 className="font-bold text-lg mb-6">Support</h4>
             <ul className="space-y-4 text-emerald-100/60">
-              <li><button onClick={onShop} className="hover:text-white transition-colors text-left">Shop All Products</button></li>
-              <li><button onClick={() => onNavigate('wellness-hub')} className="hover:text-white transition-colors text-left">Wellness Hub</button></li>
+              <li><button onClick={() => onNavigate('tracking')} className="hover:text-white transition-colors text-left">Track Your Order</button></li>
+              <li><button onClick={() => onNavigate('faqs')} className="hover:text-white transition-colors text-left">FAQs</button></li>
               <li><button onClick={onConsult} className="hover:text-white transition-colors text-left">Expert Consultations</button></li>
-              <li><button onClick={() => onNavigate('expertise')} className="hover:text-white transition-colors text-left">About Our Team</button></li>
+              <li><button onClick={() => onNavigate('community')} className="hover:text-white transition-colors text-left">Join Our Community</button></li>
               <li><a href="mailto:info@harvianah.com" className="hover:text-white transition-colors">Contact Us</a></li>
             </ul>
           </div>
 
           <div>
-            <h4 className="font-bold text-lg mb-6">Categories</h4>
+            <h4 className="font-bold text-lg mb-6">Shop Categories</h4>
             <ul className="space-y-4 text-emerald-100/60">
-              <li><button onClick={onShop} className="hover:text-white transition-colors text-left">Pharmaceuticals</button></li>
-              <li><button onClick={onShop} className="hover:text-white transition-colors text-left">Supplements</button></li>
-              <li><button onClick={onShop} className="hover:text-white transition-colors text-left">Mother & Baby</button></li>
-              <li><button onClick={onShop} className="hover:text-white transition-colors text-left">Personal Care</button></li>
-              <li><button onClick={onShop} className="hover:text-white transition-colors text-left">Holistic Wellness</button></li>
+              {CATEGORIES.map(cat => (
+                <li key={cat.id}><button onClick={onShop} className="hover:text-white transition-colors text-left">{cat.name}</button></li>
+              ))}
             </ul>
           </div>
 
@@ -1359,9 +1601,9 @@ export default function App() {
   const [toastMessage, setToastMessage] = useState('Item added to your cart!');
   
   // Page Navigation State
-  // 0: Home, 1: Pharma, 2: Supplements, 3: Mother & Baby, 4: Wellness, 5: Expertise, 6: Wellness Hub
+  // 0: Home, 1: Pharma, 2: Supplements, 3: Mother & Baby, 4: Wellness, 5: Expertise, 6: Join Our Community, 7: FAQs, 8: Tracking
   const [currentPage, setCurrentPage] = useState(0);
-  const totalPages = 7;
+  const totalPages = 9;
   const pageNames = [
     'Home', 
     'Pharmaceuticals', 
@@ -1369,7 +1611,9 @@ export default function App() {
     'Mother & Baby', 
     'Holistic Wellness', 
     'Our Expertise', 
-    'Wellness Hub'
+    'Join Our Community',
+    'FAQs',
+    'Order Tracking'
   ];
 
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -1450,23 +1694,25 @@ export default function App() {
   const wishlistItems = PRODUCTS.filter(p => wishlist.includes(p.id));
 
   return (
-    <div className="min-h-screen font-sans selection:bg-emerald-100 selection:text-emerald-900">
+    <div className="min-h-screen font-sans selection:bg-emerald-100 selection:text-emerald-900 bg-white transition-colors duration-300">
       <Navbar 
-        cartCount={cartCount} 
-        wishlistCount={wishlist.length}
-        onOpenCart={() => setIsCartOpen(true)}
-        onOpenWishlist={() => setIsWishlistOpen(true)}
-        onSearch={setSearchQuery}
-        onHome={() => goToPage(0)}
-        onShop={() => goToPage(1)}
-        onConsult={() => setIsConsultationOpen(true)}
-        onNavigate={(id) => {
-          if (id === 'expertise') goToPage(5);
-          if (id === 'wellness-hub') goToPage(6);
-          if (id === 'consultations') goToPage(0); // Hero has consultation
-        }}
-        currentPage={currentPage}
-      />
+          cartCount={cartCount} 
+          wishlistCount={wishlist.length}
+          onOpenCart={() => setIsCartOpen(true)}
+          onOpenWishlist={() => setIsWishlistOpen(true)}
+          onSearch={setSearchQuery}
+          onHome={() => goToPage(0)}
+          onShop={() => goToPage(1)}
+          onConsult={() => setIsConsultationOpen(true)}
+          onNavigate={(id) => {
+            if (id === 'expertise') goToPage(5);
+            if (id === 'community') goToPage(6);
+            if (id === 'faqs') goToPage(7);
+            if (id === 'tracking') goToPage(8);
+            if (id === 'consultations') goToPage(0); // Hero has consultation
+          }}
+          currentPage={currentPage}
+        />
       
       <main className="min-h-[80vh]">
         <AnimatePresence mode="wait">
@@ -1489,7 +1735,7 @@ export default function App() {
                   <div className="max-w-7xl mx-auto px-6 grid grid-cols-2 lg:grid-cols-4 gap-8 text-white/80 text-sm font-medium">
                     <div className="flex items-center gap-3">
                       <Truck className="text-emerald-400" size={24} />
-                      <span>Fast Delivery in Ruiru & Beyond</span>
+                      <span>Fast Delivery in Kimbo-Toll & Beyond</span>
                     </div>
                     <div className="flex items-center gap-3">
                       <ShieldCheck className="text-emerald-400" size={24} />
@@ -1537,130 +1783,10 @@ export default function App() {
               />
             )}
 
-            {currentPage === 5 && (
-              <section id="expertise" className="py-32 bg-white min-h-screen">
-                <div className="max-w-7xl mx-auto px-6">
-                  <div className="grid lg:grid-cols-2 gap-16 items-center">
-                    <div className="order-2 lg:order-1 relative">
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="aspect-square rounded-[2rem] overflow-hidden shadow-xl">
-                          <img src="https://images.unsplash.com/photo-1594824476967-48c8b964273f?auto=format&fit=crop&q=80&w=400" alt="Pharmaceutical Technologist" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
-                        </div>
-                        <div className="aspect-square rounded-[2rem] overflow-hidden shadow-xl mt-12">
-                          <img src="https://images.unsplash.com/photo-1559839734-2b71f1536783?auto=format&fit=crop&q=80&w=400" alt="Counseling Psychologist" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
-                        </div>
-                      </div>
-                      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white p-8 rounded-[2.5rem] shadow-2xl border border-emerald-50 text-center max-w-[200px]">
-                        <h4 className="text-3xl font-serif text-emerald-950 mb-1">Dual</h4>
-                        <p className="text-xs text-emerald-900/60 uppercase tracking-widest font-bold">Expertise Model</p>
-                      </div>
-                    </div>
-                    
-                    <div className="order-1 lg:order-2">
-                      <h2 className="text-4xl md:text-5xl font-serif text-emerald-950 mb-8 leading-tight">
-                        Science with a Soul, <br />
-                        <span className="italic text-emerald-700">Care with a Smile.</span>
-                      </h2>
-                      <div className="space-y-8">
-                        <div className="flex gap-6">
-                          <div className="w-14 h-14 shrink-0 bg-emerald-100 rounded-2xl flex items-center justify-center text-emerald-700">
-                            <Pill size={28} />
-                          </div>
-                          <div>
-                            <h4 className="text-xl font-bold text-emerald-950 mb-2">The Science Squad</h4>
-                            <p className="text-emerald-900/60 leading-relaxed">Our lead Pharmaceutical Technologist ensures every product is safe, effective, and scientifically sound. No guesswork, just results!</p>
-                          </div>
-                        </div>
-                        <div className="flex gap-6">
-                          <div className="w-14 h-14 shrink-0 bg-orange-100 rounded-2xl flex items-center justify-center text-orange-700">
-                            <Brain size={28} />
-                          </div>
-                          <div>
-                            <h4 className="text-xl font-bold text-emerald-950 mb-2">The Soul Support</h4>
-                            <p className="text-emerald-900/60 leading-relaxed">Our Counseling Psychologist provides the empathy and mental health support needed for true holistic healing. Because your mind matters too.</p>
-                          </div>
-                        </div>
-                      </div>
-                      <button 
-                        onClick={() => setIsStoryOpen(true)}
-                        className="mt-12 px-8 py-4 bg-emerald-950 text-white rounded-2xl font-semibold hover:bg-emerald-900 transition-all"
-                      >
-                        Read Our Fun Story! ✨
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </section>
-            )}
-
-            {currentPage === 6 && (
-              <div className="pt-20">
-                <SocialHub />
-                
-                {/* Testimonials */}
-                <section className="py-24 bg-emerald-50">
-                  <div className="max-w-7xl mx-auto px-6">
-                    <div className="text-center mb-16">
-                      <h2 className="text-4xl font-serif text-emerald-950 mb-4">What Our Clients Say</h2>
-                      <p className="text-emerald-900/60">Real stories from the Harvianah community.</p>
-                    </div>
-                    <div className="grid md:grid-cols-3 gap-8">
-                      {[
-                        { name: "Sarah W.", role: "Mother", text: "The advice I got for my baby's skin condition was life-changing. They truly care." },
-                        { name: "David K.", role: "Fitness Enthusiast", text: "Best supplements in Ruiru. The quality is unmatched and the delivery is always on time." },
-                        { name: "Mercy A.", role: "Wellness Client", text: "I love the holistic approach. They helped me manage my anxiety alongside my physical health." }
-                      ].map((t, i) => (
-                        <div key={i} className="bg-white p-10 rounded-[2.5rem] shadow-sm border border-emerald-100">
-                          <div className="flex text-orange-400 mb-6">
-                            {[1, 2, 3, 4, 5].map(j => <Star key={j} size={16} fill="currentColor" />)}
-                          </div>
-                          <p className="text-emerald-900/70 italic mb-8 leading-relaxed">"{t.text}"</p>
-                          <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 font-bold">
-                              {t.name[0]}
-                            </div>
-                            <div>
-                              <h5 className="font-bold text-emerald-950">{t.name}</h5>
-                              <p className="text-xs text-emerald-900/40 uppercase tracking-widest font-bold">{t.role}</p>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </section>
-
-                {/* Call to Action */}
-                <section id="consultations" className="py-24">
-                  <div className="max-w-7xl mx-auto px-6">
-                    <div className="bg-emerald-600 rounded-[3rem] p-12 md:p-20 text-center text-white relative overflow-hidden">
-                      <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
-                        <div className="absolute top-10 left-10 w-64 h-64 bg-white rounded-full blur-3xl" />
-                        <div className="absolute bottom-10 right-10 w-64 h-64 bg-white rounded-full blur-3xl" />
-                      </div>
-                      <h2 className="text-4xl md:text-6xl font-serif mb-8 relative z-10">Start Your Wellness <br /> Journey Today.</h2>
-                      <p className="text-emerald-50 text-lg mb-12 max-w-2xl mx-auto relative z-10">
-                        Whether you need a prescription filled or a holistic wellness plan, we're here to support you every step of the way.
-                      </p>
-                      <div className="flex flex-wrap justify-center gap-4 relative z-10">
-                        <button 
-                          onClick={() => goToPage(1)}
-                          className="px-10 py-5 bg-white text-emerald-600 rounded-2xl font-bold hover:bg-emerald-50 transition-all shadow-xl"
-                        >
-                          Shop Now
-                        </button>
-                        <button 
-                          onClick={() => setIsConsultationOpen(true)}
-                          className="px-10 py-5 bg-emerald-700 text-white rounded-2xl font-bold hover:bg-emerald-800 transition-all border border-emerald-500/30"
-                        >
-                          Book Consultation
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </section>
-              </div>
-            )}
+            {currentPage === 5 && <ExpertiseView onBack={() => goToPage(0)} />}
+            {currentPage === 6 && <CommunityView onBack={() => goToPage(0)} />}
+            {currentPage === 7 && <FAQsView onBack={() => goToPage(0)} />}
+            {currentPage === 8 && <OrderTrackingView onBack={() => goToPage(0)} />}
 
             <Pagination 
               currentPage={currentPage}
@@ -1678,7 +1804,9 @@ export default function App() {
         onConsult={() => setIsConsultationOpen(true)} 
         onNavigate={(id) => {
           if (id === 'expertise') goToPage(5);
-          if (id === 'wellness-hub') goToPage(6);
+          if (id === 'community') goToPage(6);
+          if (id === 'faqs') goToPage(7);
+          if (id === 'tracking') goToPage(8);
         }}
         onLegal={handleLegal}
       />

@@ -33,6 +33,7 @@ export const CATEGORIES: Category[] = [
   { id: 'supplements', name: 'Premium Supplements', icon: 'Zap', description: 'High-quality vitamins and minerals.' },
   { id: 'wellness', name: 'Holistic Wellness', icon: 'Leaf', description: 'Natural products for mind and body.' },
   { id: 'mother-baby', name: 'Mother & Baby', icon: 'Baby', description: 'Care for the little ones and moms.' },
+  { id: 'personal-care', name: 'Personal Care', icon: 'User', description: 'Hygiene and grooming essentials.' },
 ];
 
 export const PRODUCTS: Product[] = [
