@@ -34,9 +34,32 @@ export const CATEGORIES: Category[] = [
   { id: 'wellness', name: 'Holistic Wellness', icon: 'Leaf', description: 'Natural products for mind and body.' },
   { id: 'mother-baby', name: 'Mother & Baby', icon: 'Baby', description: 'Care for the little ones and moms.' },
   { id: 'personal-care', name: 'Personal Care', icon: 'User', description: 'Hygiene and grooming essentials.' },
+  { id: 'beauty', name: 'Beauty & Skincare', icon: 'Sparkles', description: 'Premium skincare and beauty products.' },
 ];
 
 export const PRODUCTS: Product[] = [
+  {
+    id: 'b1',
+    name: 'Harvianah Glow Serum',
+    category: 'beauty',
+    price: 4500,
+    originalPrice: 5200,
+    image: 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&q=80&w=800',
+    description: 'Advanced brightening serum with Vitamin C and Hyaluronic Acid for a radiant complexion.',
+    longDescription: 'Our Glow Serum is a powerhouse of antioxidants and hydrating ingredients. It combines 15% pure Vitamin C with Hyaluronic Acid and Ferulic Acid to brighten skin tone, reduce the appearance of dark spots, and provide intense hydration. Suitable for all skin types, it helps protect against environmental stressors and promotes a youthful, glowing look.',
+    isFeatured: true
+  },
+  {
+    id: 'b2',
+    name: 'Harvianah Night Repair Cream',
+    category: 'beauty',
+    price: 3800,
+    originalPrice: 4500,
+    image: 'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?auto=format&fit=crop&q=80&w=800',
+    description: 'Rich, nourishing night cream that repairs and rejuvenates your skin while you sleep.',
+    longDescription: 'Wake up to smoother, firmer skin with our Night Repair Cream. Infused with Retinol, Peptides, and Ceramides, this rich formula works overnight to stimulate collagen production and strengthen the skin barrier. It deeply hydrates and targets fine lines and wrinkles, leaving your skin feeling soft and revitalized by morning.',
+    isFeatured: false
+  },
   {
     id: '1',
     name: 'Harvianah Marine Collagen (Strawberry Raspberry)',
