@@ -33,6 +33,48 @@ import {
 import { motion, AnimatePresence } from 'motion/react';
 import { CATEGORIES, PRODUCTS, Product } from './types';
 
+// --- Utilities ---
+
+const getLevenshteinDistance = (a: string, b: string): number => {
+  const matrix = Array.from({ length: a.length + 1 }, () =>
+    Array.from({ length: b.length + 1 }, (_, i) => i)
+  );
+  for (let i = 1; i <= a.length; i++) matrix[i][0] = i;
+
+  for (let i = 1; i <= a.length; i++) {
+    for (let j = 1; j <= b.length; j++) {
+      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+      matrix[i][j] = Math.min(
+        matrix[i - 1][j] + 1,
+        matrix[i][j - 1] + 1,
+        matrix[i - 1][j - 1] + cost
+      );
+    }
+  }
+  return matrix[a.length][b.length];
+};
+
+const findDidYouMean = (query: string, items: string[]): string | null => {
+  if (!query || query.length < 3) return null;
+  const normalizedQuery = query.toLowerCase();
+  
+  let bestMatch: string | null = null;
+  let minDistance = 3; // Max distance allowed
+
+  for (const item of items) {
+    const normalizedItem = item.toLowerCase();
+    if (normalizedItem === normalizedQuery) return null; // Exact match exists
+    
+    const distance = getLevenshteinDistance(normalizedQuery, normalizedItem);
+    if (distance < minDistance) {
+      minDistance = distance;
+      bestMatch = item;
+    }
+  }
+  
+  return bestMatch;
+};
+
 // --- Components ---
 
 const ExpandableText = ({ text, limit = 150 }: { text: string; limit?: number }) => {
@@ -662,6 +704,7 @@ const ShopView = ({
 }) => {
   const [selectedCategory, setSelectedCategory] = useState(activeCategoryOverride || 'all');
   const [shopPage, setShopPage] = useState(0);
+  const [showSuggestions, setShowSuggestions] = useState(false);
   const ITEMS_PER_PAGE = 8;
 
   useEffect(() => {
@@ -682,6 +725,19 @@ const ShopView = ({
       return matchesSearch && matchesCategory;
     });
   }, [searchQuery, selectedCategory]);
+
+  const suggestions = useMemo(() => {
+    if (!searchQuery || searchQuery.length < 2) return [];
+    return PRODUCTS.filter(p => 
+      p.name.toLowerCase().includes(searchQuery.toLowerCase())
+    ).slice(0, 5);
+  }, [searchQuery]);
+
+  const didYouMean = useMemo(() => {
+    if (filteredProducts.length > 0 || !searchQuery) return null;
+    const productNames = PRODUCTS.map(p => p.name);
+    return findDidYouMean(searchQuery, productNames);
+  }, [filteredProducts, searchQuery]);
 
   const paginatedProducts = useMemo(() => {
     const start = shopPage * ITEMS_PER_PAGE;
@@ -738,9 +794,38 @@ const ShopView = ({
                 type="text" 
                 placeholder="Search products..."
                 value={searchQuery}
+                onFocus={() => setShowSuggestions(true)}
+                onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
                 onChange={(e) => onSearch(e.target.value)}
                 className="w-full bg-white border border-emerald-100 rounded-2xl pl-12 pr-4 py-3 focus:outline-none focus:border-emerald-500 shadow-sm"
               />
+              
+              <AnimatePresence>
+                {showSuggestions && suggestions.length > 0 && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 10 }}
+                    className="absolute top-full left-0 w-full bg-white mt-2 rounded-2xl shadow-2xl border border-emerald-50 overflow-hidden z-20"
+                  >
+                    {suggestions.map(p => (
+                      <button 
+                        key={p.id}
+                        onClick={() => {
+                          onSearch(p.name);
+                          setShowSuggestions(false);
+                        }}
+                        className="w-full px-6 py-3 text-left hover:bg-emerald-50 flex items-center gap-3 transition-colors"
+                      >
+                        <div className="w-8 h-8 rounded-lg overflow-hidden flex-shrink-0">
+                          <img src={p.image} alt="" className="w-full h-full object-cover" />
+                        </div>
+                        <span className="text-sm font-medium text-emerald-950">{p.name}</span>
+                      </button>
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           </div>
         )}
@@ -752,6 +837,13 @@ const ShopView = ({
             </div>
             <h3 className="text-2xl font-serif text-emerald-950 mb-2">No products found</h3>
             <p className="text-emerald-900/60">Try adjusting your search or category filters.</p>
+            
+            {didYouMean && (
+              <p className="mt-4 text-emerald-900 font-medium">
+                Did you mean: <button onClick={() => onSearch(didYouMean)} className="text-emerald-600 underline italic">{didYouMean}</button>?
+              </p>
+            )}
+
             <button 
               onClick={() => { onSearch(''); setSelectedCategory('all'); }}
               className="mt-8 text-emerald-600 font-bold underline"
