@@ -214,7 +214,7 @@ const Navbar = ({
             )}
           </button>
           <button 
-            className="md:hidden p-2 text-emerald-950 hover:bg-emerald-50 rounded-full transition-colors"
+            className="md:hidden p-2 bg-emerald-950 text-white rounded-full transition-colors hover:bg-emerald-900"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           >
             {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
@@ -894,6 +894,11 @@ const ShopView = ({
                   <div className="absolute top-6 left-6 px-3 py-1 bg-white/90 backdrop-blur-sm rounded-full text-[10px] font-bold uppercase tracking-widest text-emerald-900">
                     {product.category}
                   </div>
+                  {product.originalPrice && (
+                    <div className="absolute top-6 right-6 px-3 py-1 bg-red-500 text-white rounded-full text-[10px] font-bold uppercase tracking-widest shadow-lg">
+                      Sale
+                    </div>
+                  )}
                 </div>
                 <div className="p-8 flex-1 flex flex-col">
                   <div className="flex justify-between items-start mb-2">
@@ -1051,6 +1056,11 @@ const FeaturedProducts = ({
                 <div className="absolute top-6 left-6 px-3 py-1 bg-white/90 backdrop-blur-sm rounded-full text-[10px] font-bold uppercase tracking-widest text-emerald-900">
                   {product.category}
                 </div>
+                {product.originalPrice && (
+                  <div className="absolute top-6 right-6 px-3 py-1 bg-red-500 text-white rounded-full text-[10px] font-bold uppercase tracking-widest shadow-lg">
+                    Sale
+                  </div>
+                )}
               </div>
               <div className="p-8 flex-1 flex flex-col">
                 <div className="flex justify-between items-start mb-2">
@@ -1236,6 +1246,11 @@ const QuickViewModal = ({
               <div className="absolute top-6 left-6 px-4 py-1.5 bg-white/90 backdrop-blur-md rounded-full text-xs font-bold uppercase tracking-widest text-emerald-900 shadow-sm">
                 {product.category}
               </div>
+              {product.originalPrice && (
+                <div className="absolute top-6 right-6 px-4 py-1.5 bg-red-500 text-white rounded-full text-xs font-bold uppercase tracking-widest shadow-lg">
+                  Sale
+                </div>
+              )}
             </div>
 
             <div className="w-full md:w-1/2 p-8 md:p-12 overflow-y-auto">
