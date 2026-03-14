@@ -155,41 +155,54 @@ const Navbar = ({
         </div>
 
         <div className="hidden md:flex items-center gap-8 text-sm font-medium text-white/90">
-          <button onClick={onHome} className={`transition-colors ${currentPage === 0 ? 'text-white font-bold underline underline-offset-8' : 'hover:text-white'}`}>Home</button>
-          <button onClick={onShop} className={`transition-colors ${currentPage >= 1 && currentPage <= 5 ? 'text-white font-bold underline underline-offset-8' : 'hover:text-white'}`}>Shop</button>
-          <button onClick={() => onNavigate('expertise')} className={`transition-colors ${currentPage === 6 ? 'text-white font-bold underline underline-offset-8' : 'hover:text-white'}`}>Expertise</button>
-          <button onClick={onConsult} className="hover:text-white transition-colors">Consultations</button>
-          <button onClick={() => onNavigate('tracking')} className={`transition-colors ${currentPage === 9 ? 'text-white font-bold underline underline-offset-8' : 'hover:text-white'}`}>Track Order</button>
-          <button onClick={() => onNavigate('community')} className={`transition-colors ${currentPage === 7 ? 'text-white font-bold underline underline-offset-8' : 'hover:text-white'}`}>Join Our Community</button>
+          <AnimatePresence mode="wait">
+            {!isSearchOpen ? (
+              <motion.div 
+                key="nav-links"
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -10 }}
+                className="flex items-center gap-8"
+              >
+                <button onClick={onHome} className={`transition-colors ${currentPage === 0 ? 'text-white font-bold underline underline-offset-8' : 'hover:text-white'}`}>Home</button>
+                <button onClick={onShop} className={`transition-colors ${currentPage >= 1 && currentPage <= 6 ? 'text-white font-bold underline underline-offset-8' : 'hover:text-white'}`}>Shop</button>
+                <button onClick={() => onNavigate('expertise')} className={`transition-colors ${currentPage === 6 ? 'text-white font-bold underline underline-offset-8' : 'hover:text-white'}`}>Expertise</button>
+                <button onClick={onConsult} className="hover:text-white transition-colors">Consultations</button>
+                <button onClick={() => onNavigate('tracking')} className={`transition-colors ${currentPage === 9 ? 'text-white font-bold underline underline-offset-8' : 'hover:text-white'}`}>Track Order</button>
+                <button onClick={() => onNavigate('community')} className={`transition-colors ${currentPage === 7 ? 'text-white font-bold underline underline-offset-8' : 'hover:text-white'}`}>Join Our Community</button>
+              </motion.div>
+            ) : (
+              <motion.form 
+                key="search-form"
+                initial={{ width: 0, opacity: 0 }}
+                animate={{ width: 400, opacity: 1 }}
+                exit={{ width: 0, opacity: 0 }}
+                onSubmit={handleSearchSubmit}
+                className="relative"
+              >
+                <input 
+                  autoFocus
+                  type="text" 
+                  placeholder="Search for products, health tips, or expertise..."
+                  value={searchValue}
+                  onChange={(e) => setSearchValue(e.target.value)}
+                  className="w-full bg-white/10 border border-white/20 rounded-full px-6 py-2 text-sm text-white placeholder:text-white/60 focus:outline-none focus:bg-white focus:text-brand-dark focus:placeholder:text-brand-dark/40 transition-all shadow-inner"
+                />
+                <button type="submit" className="absolute right-4 top-1/2 -translate-y-1/2 text-white/60 hover:text-white transition-colors">
+                  <Search size={16} />
+                </button>
+              </motion.form>
+            )}
+          </AnimatePresence>
         </div>
 
         <div className="flex items-center gap-4">
           <div className="relative flex items-center">
-            <AnimatePresence>
-              {isSearchOpen && (
-                <motion.form 
-                  initial={{ width: 0, opacity: 0 }}
-                  animate={{ width: 200, opacity: 1 }}
-                  exit={{ width: 0, opacity: 0 }}
-                  onSubmit={handleSearchSubmit}
-                  className="absolute right-full mr-2"
-                >
-                  <input 
-                    autoFocus
-                    type="text" 
-                    placeholder="Search products..."
-                    value={searchValue}
-                    onChange={(e) => setSearchValue(e.target.value)}
-                    className="w-full bg-white border border-brand-surface rounded-full px-4 py-1.5 text-sm focus:outline-none focus:border-brand-primary shadow-sm"
-                  />
-                </motion.form>
-              )}
-            </AnimatePresence>
             <button 
               onClick={() => setIsSearchOpen(!isSearchOpen)}
-              className="p-2 text-white hover:bg-white/10 rounded-full transition-colors"
+              className={`p-2 rounded-full transition-all ${isSearchOpen ? 'bg-white text-brand-primary' : 'text-white hover:bg-white/10'}`}
             >
-              <Search size={20} />
+              {isSearchOpen ? <X size={20} /> : <Search size={20} />}
             </button>
           </div>
           <button 
@@ -1086,7 +1099,7 @@ const ShopView = ({
 );
 };
 
-const CategorySection = ({ onShop }: { onShop: () => void }) => {
+const CategorySection = ({ onSelectCategory }: { onSelectCategory: (id: string) => void }) => {
   return (
     <section id="shop" className="py-24 bg-white scroll-mt-20">
       <div className="max-w-7xl mx-auto px-6">
@@ -1096,7 +1109,7 @@ const CategorySection = ({ onShop }: { onShop: () => void }) => {
             <p className="text-brand-dark/60 max-w-md">Find exactly what you need from our curated selection of medical and wellness essentials.</p>
           </div>
           <button 
-            onClick={onShop}
+            onClick={() => onSelectCategory('all')}
             className="text-brand-primary font-bold flex items-center gap-2 hover:gap-3 transition-all"
           >
             View All Categories <ChevronRight size={20} />
@@ -1108,7 +1121,7 @@ const CategorySection = ({ onShop }: { onShop: () => void }) => {
             <motion.div 
               key={cat.id}
               whileHover={{ y: -8 }}
-              onClick={onShop}
+              onClick={() => onSelectCategory(cat.id)}
               className="group p-8 rounded-[2rem] bg-brand-surface/50 border border-brand-light/50 hover:bg-white hover:shadow-xl hover:shadow-brand-light/10 transition-all cursor-pointer"
             >
               <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-brand-primary mb-6 shadow-sm group-hover:bg-brand-primary group-hover:text-white transition-colors">
@@ -2048,15 +2061,21 @@ export default function App() {
           onOpenWishlist={() => setIsWishlistOpen(true)}
           onSearch={setSearchQuery}
           onHome={() => goToPage(0)}
-          onShop={() => goToPage(1)}
+          onShop={() => { setSearchQuery(''); goToPage(1); }}
           onConsult={() => setIsConsultationOpen(true)}
           onNavigate={(id) => {
-            if (id === 'beauty') goToPage(5);
-            if (id === 'expertise') goToPage(6);
-            if (id === 'community') goToPage(7);
-            if (id === 'faqs') goToPage(8);
-            if (id === 'tracking') goToPage(9);
-            if (id === 'consultations') goToPage(0); // Hero has consultation
+            setSearchQuery('');
+            if (id === 'all') goToPage(1);
+            if (id === 'pharma') goToPage(2);
+            if (id === 'supplements') goToPage(3);
+            if (id === 'mother-baby') goToPage(4);
+            if (id === 'wellness') goToPage(5);
+            if (id === 'beauty') goToPage(6);
+            if (id === 'expertise') goToPage(7);
+            if (id === 'community') goToPage(8);
+            if (id === 'faqs') goToPage(9);
+            if (id === 'tracking') goToPage(10);
+            if (id === 'consultations') goToPage(0);
           }}
           currentPage={currentPage}
         />
@@ -2073,7 +2092,7 @@ export default function App() {
             {currentPage === 0 && (
               <>
                 <Hero 
-                  onShop={() => goToPage(1)} 
+                  onShop={() => { setSearchQuery(''); goToPage(1); }} 
                   onConsult={() => setIsConsultationOpen(true)} 
                 />
                 
@@ -2099,7 +2118,16 @@ export default function App() {
                   </div>
                 </div>
 
-                <CategorySection onShop={() => goToPage(1)} />
+                <CategorySection onSelectCategory={(id) => {
+                  setSearchQuery('');
+                  if (id === 'all') goToPage(1);
+                  if (id === 'pharma') goToPage(2);
+                  if (id === 'supplements') goToPage(3);
+                  if (id === 'mother-baby') goToPage(4);
+                  if (id === 'wellness') goToPage(5);
+                  if (id === 'personal-care') goToPage(1); // Default to all for now
+                  if (id === 'beauty') goToPage(6);
+                }} />
                 <FeaturedProducts 
                   onAddToCart={addToCart} 
                   onToggleWishlist={toggleWishlist}
@@ -2110,7 +2138,7 @@ export default function App() {
               </>
             )}
 
-            {currentPage >= 1 && currentPage <= 5 && (
+            {currentPage >= 1 && currentPage <= 6 && (
               <ShopView 
                 onAddToCart={addToCart} 
                 onToggleWishlist={toggleWishlist}
@@ -2122,32 +2150,39 @@ export default function App() {
                 onBack={() => goToPage(0)}
                 // Override the internal category selection to match the page
                 activeCategoryOverride={
-                  currentPage === 1 ? 'pharma' :
-                  currentPage === 2 ? 'supplements' :
-                  currentPage === 3 ? 'mother-baby' :
-                  currentPage === 4 ? 'wellness' :
+                  currentPage === 1 ? 'all' :
+                  currentPage === 2 ? 'pharma' :
+                  currentPage === 3 ? 'supplements' :
+                  currentPage === 4 ? 'mother-baby' :
+                  currentPage === 5 ? 'wellness' :
                   'beauty'
                 }
               />
             )}
 
-            {currentPage === 6 && <ExpertiseView onBack={() => goToPage(0)} />}
-            {currentPage === 7 && <CommunityView onBack={() => goToPage(0)} />}
-            {currentPage === 8 && <FAQsView onBack={() => goToPage(0)} />}
-            {currentPage === 9 && <OrderTrackingView onBack={() => goToPage(0)} />}
+            {currentPage === 7 && <ExpertiseView onBack={() => goToPage(0)} />}
+            {currentPage === 8 && <CommunityView onBack={() => goToPage(0)} />}
+            {currentPage === 9 && <FAQsView onBack={() => goToPage(0)} />}
+            {currentPage === 10 && <OrderTrackingView onBack={() => goToPage(0)} />}
           </motion.div>
         </AnimatePresence>
       </main>
 
       <Footer 
-        onShop={() => goToPage(1)} 
+        onShop={() => { setSearchQuery(''); goToPage(1); }} 
         onConsult={() => setIsConsultationOpen(true)} 
         onNavigate={(id) => {
-          if (id === 'beauty') goToPage(5);
-          if (id === 'expertise') goToPage(6);
-          if (id === 'community') goToPage(7);
-          if (id === 'faqs') goToPage(8);
-          if (id === 'tracking') goToPage(9);
+          setSearchQuery('');
+          if (id === 'all') goToPage(1);
+          if (id === 'pharma') goToPage(2);
+          if (id === 'supplements') goToPage(3);
+          if (id === 'mother-baby') goToPage(4);
+          if (id === 'wellness') goToPage(5);
+          if (id === 'beauty') goToPage(6);
+          if (id === 'expertise') goToPage(7);
+          if (id === 'community') goToPage(8);
+          if (id === 'faqs') goToPage(9);
+          if (id === 'tracking') goToPage(10);
         }}
         onLegal={handleLegal}
       />
