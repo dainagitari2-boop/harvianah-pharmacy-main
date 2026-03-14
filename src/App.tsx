@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { 
   ShoppingBag, 
   Search, 
@@ -81,11 +81,11 @@ const ExpandableText = ({ text, limit = 150 }: { text: string; limit?: number })
   const [isExpanded, setIsExpanded] = useState(false);
   const shouldTruncate = text.length > limit;
 
-  if (!shouldTruncate) return <p className="text-sm text-emerald-900/60 mb-6">{text}</p>;
+  if (!shouldTruncate) return <p className="text-sm text-brand-dark/60 mb-6">{text}</p>;
 
   return (
     <div className="mb-6">
-      <p className="text-sm text-emerald-900/60 leading-relaxed">
+      <p className="text-sm text-brand-dark/60 leading-relaxed">
         {isExpanded ? text : `${text.slice(0, limit)}...`}
       </p>
       <button 
@@ -93,7 +93,7 @@ const ExpandableText = ({ text, limit = 150 }: { text: string; limit?: number })
           e.stopPropagation();
           setIsExpanded(!isExpanded);
         }}
-        className="text-emerald-600 text-xs font-bold mt-2 hover:underline flex items-center gap-1"
+        className="text-brand-primary text-xs font-bold mt-2 hover:underline flex items-center gap-1"
       >
         {isExpanded ? 'Read Less' : 'Read More'}
       </button>
@@ -143,23 +143,24 @@ const Navbar = ({
   };
 
   return (
-    <nav className={`fixed top-0 w-full z-50 transition-all duration-300 ${isScrolled ? 'bg-white/90 backdrop-blur-md shadow-sm py-3' : 'bg-transparent py-6'}`}>
+    <nav className={`fixed top-0 w-full z-50 transition-all duration-300 ${isScrolled ? 'bg-brand-primary shadow-lg py-3' : 'bg-brand-primary py-6'}`}>
       <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
         <div className="flex items-center gap-2 cursor-pointer" onClick={onHome}>
-          <div className="w-10 h-10 bg-emerald-950 rounded-full flex items-center justify-center text-white">
+          <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-brand-primary">
             <Pill size={20} />
           </div>
-          <span className={`text-xl font-serif font-bold tracking-tight ${isScrolled ? 'text-emerald-900' : 'text-emerald-900'}`}>
+          <span className="text-xl font-serif font-bold tracking-tight text-white">
             Harvianah
           </span>
         </div>
 
-        <div className="hidden md:flex items-center gap-8 text-sm font-medium text-emerald-900/80">
-          <button onClick={onHome} className={`transition-colors ${currentPage === 0 ? 'text-emerald-600 font-bold' : 'hover:text-emerald-600'}`}>Home</button>
-          <button onClick={onShop} className={`transition-colors ${currentPage >= 1 && currentPage <= 5 ? 'text-emerald-600 font-bold' : 'hover:text-emerald-600'}`}>Shop</button>
-          <button onClick={() => onNavigate('expertise')} className={`transition-colors ${currentPage === 6 ? 'text-emerald-600 font-bold' : 'hover:text-emerald-600'}`}>Expertise</button>
-          <button onClick={onConsult} className="hover:text-emerald-600 transition-colors">Consultations</button>
-          <button onClick={() => onNavigate('community')} className={`transition-colors ${currentPage === 7 ? 'text-emerald-600 font-bold' : 'hover:text-emerald-600'}`}>Join Our Community</button>
+        <div className="hidden md:flex items-center gap-8 text-sm font-medium text-white/90">
+          <button onClick={onHome} className={`transition-colors ${currentPage === 0 ? 'text-white font-bold underline underline-offset-8' : 'hover:text-white'}`}>Home</button>
+          <button onClick={onShop} className={`transition-colors ${currentPage >= 1 && currentPage <= 5 ? 'text-white font-bold underline underline-offset-8' : 'hover:text-white'}`}>Shop</button>
+          <button onClick={() => onNavigate('expertise')} className={`transition-colors ${currentPage === 6 ? 'text-white font-bold underline underline-offset-8' : 'hover:text-white'}`}>Expertise</button>
+          <button onClick={onConsult} className="hover:text-white transition-colors">Consultations</button>
+          <button onClick={() => onNavigate('tracking')} className={`transition-colors ${currentPage === 9 ? 'text-white font-bold underline underline-offset-8' : 'hover:text-white'}`}>Track Order</button>
+          <button onClick={() => onNavigate('community')} className={`transition-colors ${currentPage === 7 ? 'text-white font-bold underline underline-offset-8' : 'hover:text-white'}`}>Join Our Community</button>
         </div>
 
         <div className="flex items-center gap-4">
@@ -179,42 +180,42 @@ const Navbar = ({
                     placeholder="Search products..."
                     value={searchValue}
                     onChange={(e) => setSearchValue(e.target.value)}
-                    className="w-full bg-white border border-emerald-100 rounded-full px-4 py-1.5 text-sm focus:outline-none focus:border-emerald-500 shadow-sm"
+                    className="w-full bg-white border border-brand-surface rounded-full px-4 py-1.5 text-sm focus:outline-none focus:border-brand-primary shadow-sm"
                   />
                 </motion.form>
               )}
             </AnimatePresence>
             <button 
               onClick={() => setIsSearchOpen(!isSearchOpen)}
-              className="p-2 text-emerald-900 hover:bg-emerald-50 rounded-full transition-colors"
+              className="p-2 text-white hover:bg-white/10 rounded-full transition-colors"
             >
               <Search size={20} />
             </button>
           </div>
           <button 
             onClick={onOpenWishlist}
-            className="p-2 text-emerald-900 hover:bg-emerald-50 rounded-full transition-colors relative"
+            className="p-2 text-white hover:bg-white/10 rounded-full transition-colors relative"
           >
             <Heart size={20} />
             {wishlistCount > 0 && (
-              <span className="absolute top-0 right-0 w-4 h-4 bg-emerald-500 text-white text-[10px] flex items-center justify-center rounded-full">
+              <span className="absolute top-0 right-0 w-4 h-4 bg-white text-brand-primary text-[10px] flex items-center justify-center rounded-full font-bold">
                 {wishlistCount}
               </span>
             )}
           </button>
           <button 
             onClick={onOpenCart}
-            className="p-2 text-emerald-900 hover:bg-emerald-50 rounded-full transition-colors relative"
+            className="p-2 text-white hover:bg-white/10 rounded-full transition-colors relative"
           >
             <ShoppingBag size={20} />
             {cartCount > 0 && (
-              <span className="absolute top-0 right-0 w-4 h-4 bg-orange-500 text-white text-[10px] flex items-center justify-center rounded-full">
+              <span className="absolute top-0 right-0 w-4 h-4 bg-white text-brand-primary text-[10px] flex items-center justify-center rounded-full font-bold">
                 {cartCount}
               </span>
             )}
           </button>
           <button 
-            className="md:hidden p-2 bg-emerald-950 text-white rounded-full transition-colors hover:bg-emerald-900"
+            className="md:hidden p-2 bg-white text-brand-primary rounded-full transition-colors hover:bg-brand-surface"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           >
             {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
@@ -229,16 +230,16 @@ const Navbar = ({
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="absolute top-full left-0 w-full bg-white border-t border-emerald-100 p-6 flex flex-col gap-4 md:hidden shadow-xl"
+            className="absolute top-full left-0 w-full bg-brand-primary border-t border-white/10 p-6 flex flex-col gap-4 md:hidden shadow-xl"
           >
-            <button onClick={() => { onShop(); setIsMobileMenuOpen(false); }} className="text-left text-lg font-medium text-emerald-900">Shop</button>
-            <button onClick={() => { onNavigate('expertise'); setIsMobileMenuOpen(false); }} className="text-left text-lg font-medium text-emerald-900">Expertise</button>
-            <button onClick={() => { onConsult(); setIsMobileMenuOpen(false); }} className="text-left text-lg font-medium text-emerald-900">Consultations</button>
-            <button onClick={() => { onNavigate('community'); setIsMobileMenuOpen(false); }} className="text-left text-lg font-medium text-emerald-900">Join Our Community</button>
-            <button onClick={() => { onNavigate('faqs'); setIsMobileMenuOpen(false); }} className="text-left text-lg font-medium text-emerald-900">FAQs</button>
-            <button onClick={() => { onNavigate('tracking'); setIsMobileMenuOpen(false); }} className="text-left text-lg font-medium text-emerald-900">Track Order</button>
-            <hr className="border-emerald-50" />
-            <button onClick={() => { onConsult(); setIsMobileMenuOpen(false); }} className="w-full bg-emerald-600 text-white py-3 rounded-xl font-medium text-center">Book Consultation</button>
+            <button onClick={() => { onShop(); setIsMobileMenuOpen(false); }} className="text-left text-lg font-medium text-white">Shop</button>
+            <button onClick={() => { onNavigate('expertise'); setIsMobileMenuOpen(false); }} className="text-left text-lg font-medium text-white">Expertise</button>
+            <button onClick={() => { onConsult(); setIsMobileMenuOpen(false); }} className="text-left text-lg font-medium text-white">Consultations</button>
+            <button onClick={() => { onNavigate('community'); setIsMobileMenuOpen(false); }} className="text-left text-lg font-medium text-white">Join Our Community</button>
+            <button onClick={() => { onNavigate('faqs'); setIsMobileMenuOpen(false); }} className="text-left text-lg font-medium text-white">FAQs</button>
+            <button onClick={() => { onNavigate('tracking'); setIsMobileMenuOpen(false); }} className="text-left text-lg font-medium text-white">Track Order</button>
+            <hr className="border-white/10" />
+            <button onClick={() => { onConsult(); setIsMobileMenuOpen(false); }} className="w-full bg-white text-brand-primary py-3 rounded-xl font-bold text-center">Book Consultation</button>
           </motion.div>
         )}
       </AnimatePresence>
@@ -249,7 +250,7 @@ const Navbar = ({
 const Hero = ({ onShop, onConsult }: { onShop: () => void; onConsult: () => void }) => {
   return (
     <section className="relative min-h-screen flex items-center pt-20 overflow-hidden bg-[#F9F8F6]">
-      <div className="absolute top-0 right-0 w-1/2 h-full bg-emerald-50/50 -skew-x-12 translate-x-1/4 hidden lg:block" />
+      <div className="absolute top-0 right-0 w-1/2 h-full bg-brand-surface/50 -skew-x-12 translate-x-1/4 hidden lg:block" />
       
       <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-12 items-center relative z-10">
         <motion.div
@@ -257,34 +258,34 @@ const Hero = ({ onShop, onConsult }: { onShop: () => void; onConsult: () => void
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8 }}
         >
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full text-xs font-bold uppercase tracking-wider mb-6">
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-brand-surface text-brand-primary rounded-full text-xs font-bold uppercase tracking-wider mb-6">
             <ShieldCheck size={14} />
             Expert-Backed Pharmacy in Kimbo-Toll
           </div>
-          <h1 className="text-5xl md:text-7xl font-serif text-emerald-950 leading-[1.1] mb-6">
+          <h1 className="text-5xl md:text-7xl font-serif text-brand-dark leading-[1.1] mb-6">
             Science-Backed Wellness, <br />
-            <span className="italic text-emerald-700">Rooted in Empathy.</span>
+            <span className="italic text-brand-primary">Rooted in Empathy.</span>
           </h1>
-          <p className="text-lg text-emerald-900/70 mb-8 max-w-lg leading-relaxed">
+          <p className="text-lg text-brand-dark/70 mb-8 max-w-lg leading-relaxed">
             Harvianah Pharmacy combines pharmaceutical precision with psychological insight to provide holistic care that heals both body and mind.
           </p>
           <div className="flex flex-wrap gap-4">
             <button 
               onClick={onShop}
-              className="px-8 py-4 bg-emerald-600 text-white rounded-2xl font-semibold hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-200 flex items-center gap-2 group"
+              className="px-8 py-4 bg-brand-primary text-white rounded-2xl font-semibold hover:bg-brand-dark transition-all shadow-lg shadow-brand-light/20 flex items-center gap-2 group"
             >
               Shop All Products
               <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
             </button>
             <button 
               onClick={onConsult}
-              className="px-8 py-4 bg-white text-emerald-900 border border-emerald-100 rounded-2xl font-semibold hover:bg-emerald-50 transition-all"
+              className="px-8 py-4 bg-white text-brand-dark border border-brand-surface rounded-2xl font-semibold hover:bg-brand-surface transition-all"
             >
               Book a Consultation
             </button>
           </div>
 
-          <div className="mt-12 flex items-center gap-8 border-t border-emerald-100 pt-8">
+          <div className="mt-12 flex items-center gap-8 border-t border-brand-surface pt-8">
             <div className="flex -space-x-3">
               {[
                 "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&q=80&w=100",
@@ -292,7 +293,7 @@ const Hero = ({ onShop, onConsult }: { onShop: () => void; onConsult: () => void
                 "https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?auto=format&fit=crop&q=80&w=100",
                 "https://images.unsplash.com/photo-1507152832244-10d45c7eda57?auto=format&fit=crop&q=80&w=100"
               ].map((url, i) => (
-                <div key={i} className="w-10 h-10 rounded-full border-2 border-white overflow-hidden bg-emerald-100">
+                <div key={i} className="w-10 h-10 rounded-full border-2 border-white overflow-hidden bg-brand-surface">
                   <img src={url} alt="User" referrerPolicy="no-referrer" className="w-full h-full object-cover" />
                 </div>
               ))}
@@ -301,7 +302,7 @@ const Hero = ({ onShop, onConsult }: { onShop: () => void; onConsult: () => void
               <div className="flex text-orange-400 mb-1">
                 {[1, 2, 3, 4, 5].map(i => <Star key={i} size={14} fill="currentColor" />)}
               </div>
-              <p className="text-sm text-emerald-900/60 font-medium">Trusted by 2,000+ happy clients</p>
+              <p className="text-sm text-brand-dark/60 font-medium">Trusted by 2,000+ happy clients</p>
             </div>
           </div>
         </motion.div>
@@ -319,25 +320,25 @@ const Hero = ({ onShop, onConsult }: { onShop: () => void; onConsult: () => void
               className="w-full h-full object-cover"
               referrerPolicy="no-referrer"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-emerald-950/40 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-brand-dark/40 to-transparent" />
           </div>
           
           {/* Floating Expertise Card */}
           <motion.div 
             animate={{ y: [0, -10, 0] }}
             transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute -bottom-6 -left-6 bg-white p-6 rounded-3xl shadow-xl max-w-xs border border-emerald-50"
+            className="absolute -bottom-6 -left-6 bg-white p-6 rounded-3xl shadow-xl max-w-xs border border-brand-surface"
           >
             <div className="flex items-center gap-4 mb-3">
               <div className="w-12 h-12 bg-orange-100 rounded-2xl flex items-center justify-center text-orange-600">
                 <Brain size={24} />
               </div>
               <div>
-                <h4 className="font-bold text-emerald-950">Dual Expertise</h4>
-                <p className="text-xs text-emerald-900/60 uppercase tracking-wider font-bold">Pharma + Psychology</p>
+                <h4 className="font-bold text-brand-dark">Dual Expertise</h4>
+                <p className="text-xs text-brand-dark/60 uppercase tracking-wider font-bold">Pharma + Psychology</p>
               </div>
             </div>
-            <p className="text-sm text-emerald-900/70 italic">"We don't just dispense medicine; we provide a path to holistic well-being."</p>
+            <p className="text-sm text-brand-dark/70 italic">"We don't just dispense medicine; we provide a path to holistic well-being."</p>
           </motion.div>
         </motion.div>
       </div>
@@ -387,7 +388,7 @@ const CartModal = ({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="absolute inset-0 bg-emerald-950/40 backdrop-blur-sm"
+            className="absolute inset-0 bg-brand-dark/40 backdrop-blur-sm"
           />
           <motion.div 
             initial={{ x: '100%' }}
@@ -396,9 +397,9 @@ const CartModal = ({
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
             className="relative w-full max-w-md h-full bg-white shadow-2xl flex flex-col"
           >
-            <div className="p-6 border-b border-emerald-50 flex items-center justify-between">
-              <h2 className="text-2xl font-serif text-emerald-950">Your Cart</h2>
-              <button onClick={onClose} className="p-2 hover:bg-emerald-50 rounded-full transition-colors">
+            <div className="p-6 border-b border-brand-surface flex items-center justify-between">
+              <h2 className="text-2xl font-serif text-brand-dark">Your Cart</h2>
+              <button onClick={onClose} className="p-2 hover:bg-brand-surface rounded-full transition-colors">
                 <X size={24} />
               </button>
             </div>
@@ -406,23 +407,23 @@ const CartModal = ({
             <div className="flex-1 overflow-y-auto p-6 space-y-6">
               {cart.length === 0 ? (
                 <div className="h-full flex flex-col items-center justify-center text-center">
-                  <div className="w-20 h-20 bg-emerald-50 rounded-full flex items-center justify-center text-emerald-300 mb-4">
+                  <div className="w-20 h-20 bg-brand-surface rounded-full flex items-center justify-center text-brand-light mb-4">
                     <ShoppingBag size={40} />
                   </div>
-                  <h3 className="text-xl font-bold text-emerald-950 mb-2">Your cart is empty</h3>
-                  <p className="text-emerald-900/60 mb-8">Looks like you haven't added anything yet.</p>
-                  <button onClick={onClose} className="px-8 py-3 bg-emerald-600 text-white rounded-xl font-bold">Start Shopping</button>
+                  <h3 className="text-xl font-bold text-brand-dark mb-2">Your cart is empty</h3>
+                  <p className="text-brand-dark/60 mb-8">Looks like you haven't added anything yet.</p>
+                  <button onClick={onClose} className="px-8 py-3 bg-brand-primary text-white rounded-xl font-bold">Start Shopping</button>
                 </div>
               ) : (
                 cart.map((item) => (
                   <div key={item.product.id} className="flex gap-4">
-                    <div className="w-20 h-24 rounded-xl overflow-hidden bg-emerald-50 shrink-0">
+                    <div className="w-20 h-24 rounded-xl overflow-hidden bg-brand-surface shrink-0">
                       <img src={item.product.image} alt={item.product.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                     </div>
                     <div className="flex-1">
                       <div className="flex justify-between mb-1">
-                        <h4 className="font-bold text-emerald-950 line-clamp-1">{item.product.name}</h4>
-                        <button onClick={() => onRemove(item.product.id)} className="text-emerald-300 hover:text-red-500 transition-colors">
+                        <h4 className="font-bold text-brand-dark line-clamp-1">{item.product.name}</h4>
+                        <button onClick={() => onRemove(item.product.id)} className="text-brand-light hover:text-red-500 transition-colors">
                           <Trash2 size={18} />
                         </button>
                       </div>
@@ -430,25 +431,25 @@ const CartModal = ({
                         {item.product.originalPrice && (
                           <p className="text-xs text-red-500 line-through">KES {item.product.originalPrice.toLocaleString()}</p>
                         )}
-                        <p className="text-sm font-bold text-emerald-600">KES {item.product.price.toLocaleString()}</p>
+                        <p className="text-sm font-bold text-brand-primary">KES {item.product.price.toLocaleString()}</p>
                       </div>
                       <div className="flex items-center gap-3">
-                        <div className="flex items-center border border-emerald-100 rounded-lg">
+                        <div className="flex items-center border border-brand-light rounded-lg">
                           <button 
                             onClick={() => onUpdateQuantity(item.product.id, -1)}
-                            className="p-1 hover:bg-emerald-50 text-emerald-600"
+                            className="p-1 hover:bg-brand-surface text-brand-primary"
                           >
                             <Minus size={14} />
                           </button>
                           <span className="w-8 text-center text-sm font-bold">{item.quantity}</span>
                           <button 
                             onClick={() => onUpdateQuantity(item.product.id, 1)}
-                            className="p-1 hover:bg-emerald-50 text-emerald-600"
+                            className="p-1 hover:bg-brand-surface text-brand-primary"
                           >
                             <Plus size={14} />
                           </button>
                         </div>
-                        <span className="text-sm font-bold text-emerald-950 ml-auto">
+                        <span className="text-sm font-bold text-brand-dark ml-auto">
                           KES {(item.product.price * item.quantity).toLocaleString()}
                         </span>
                       </div>
@@ -459,16 +460,16 @@ const CartModal = ({
             </div>
 
             {cart.length > 0 && (
-              <div className="p-6 border-t border-emerald-50 bg-emerald-50/30">
+              <div className="p-6 border-t border-brand-surface bg-brand-surface/30">
                 <div className="flex justify-between mb-6">
-                  <span className="text-emerald-900/60 font-medium">Subtotal</span>
-                  <span className="text-2xl font-bold text-emerald-950">KES {total.toLocaleString()}</span>
+                  <span className="text-brand-dark/60 font-medium">Subtotal</span>
+                  <span className="text-2xl font-bold text-brand-dark">KES {total.toLocaleString()}</span>
                 </div>
                 <button 
                   onClick={handleCheckout}
                   disabled={isCheckingOut || isSuccess}
                   className={`w-full py-4 rounded-2xl font-bold text-white transition-all flex items-center justify-center gap-2 ${
-                    isSuccess ? 'bg-emerald-500' : 'bg-emerald-600 hover:bg-emerald-700'
+                    isSuccess ? 'bg-brand-primary' : 'bg-brand-primary hover:bg-brand-dark'
                   }`}
                 >
                   {isCheckingOut ? (
@@ -492,20 +493,59 @@ const CartModal = ({
 };
 
 const ConsultationModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    type: 'Pharmaceutical Advice',
+    date: '',
+    time: '',
+    message: ''
+  });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    setTimeout(() => {
-      setIsSubmitting(false);
+    setError(null);
+
+    try {
+      const response = await fetch('/api/book-consultation', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to book consultation');
+      }
+
       setIsSuccess(true);
       setTimeout(() => {
         setIsSuccess(false);
         onClose();
-      }, 3000);
-    }, 1500);
+        setFormData({
+          name: '',
+          email: '',
+          phone: '',
+          type: 'Pharmaceutical Advice',
+          date: '',
+          time: '',
+          message: ''
+        });
+      }, 5000);
+    } catch (err) {
+      console.error(err);
+      setError('Something went wrong. Please try again or contact us directly.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -517,18 +557,18 @@ const ConsultationModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () =
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="absolute inset-0 bg-emerald-950/40 backdrop-blur-sm"
+            className="absolute inset-0 bg-brand-dark/40 backdrop-blur-sm"
           />
           <motion.div 
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.9, opacity: 0 }}
-            className="relative w-full max-w-2xl bg-white rounded-[3rem] shadow-2xl overflow-hidden"
+            className="relative w-full max-w-4xl bg-white rounded-[3rem] shadow-2xl overflow-hidden"
           >
-            <div className="grid md:grid-cols-2">
-              <div className="bg-emerald-600 p-12 text-white hidden md:block">
+            <div className="grid md:grid-cols-[1fr_1.5fr]">
+              <div className="bg-brand-primary p-12 text-white hidden md:block">
                 <h2 className="text-3xl font-serif mb-6">Expert <br /> Consultation</h2>
-                <p className="text-emerald-50 mb-8 leading-relaxed">Book a session with our Pharmaceutical Technologist or Counseling Psychologist for personalized care.</p>
+                <p className="text-brand-surface mb-8 leading-relaxed">Book a session with our Pharmaceutical Technologist or Counseling Psychologist for personalized care.</p>
                 <div className="space-y-6">
                   <div className="flex items-center gap-4">
                     <div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center"><Clock size={20} /></div>
@@ -538,51 +578,150 @@ const ConsultationModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () =
                     <div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center"><ShieldCheck size={20} /></div>
                     <p className="text-sm font-medium">Confidential & Private</p>
                   </div>
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center"><Video size={20} /></div>
+                    <p className="text-sm font-medium">Virtual or In-Person</p>
+                  </div>
+                </div>
+
+                <div className="mt-12 pt-12 border-t border-white/10">
+                  <p className="text-xs text-brand-surface/60 uppercase tracking-widest font-bold mb-4">Direct Contact</p>
+                  <p className="font-bold text-lg">+254 700 000 000</p>
+                  <p className="text-brand-surface/80">info@harvianah.com</p>
                 </div>
               </div>
-              <div className="p-8 md:p-12">
-                <button onClick={onClose} className="absolute top-6 right-6 p-2 hover:bg-emerald-50 rounded-full transition-colors text-emerald-900">
+              <div className="p-8 md:p-12 max-h-[90vh] overflow-y-auto">
+                <button onClick={onClose} className="absolute top-6 right-6 p-2 hover:bg-brand-surface rounded-full transition-colors text-brand-dark z-10">
                   <X size={24} />
                 </button>
                 
                 {isSuccess ? (
-                  <div className="h-full flex flex-col items-center justify-center text-center">
-                    <div className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-600 mb-6">
+                  <div className="h-full flex flex-col items-center justify-center text-center py-12">
+                    <div className="w-20 h-20 bg-brand-surface rounded-full flex items-center justify-center text-brand-primary mb-6">
                       <CheckCircle2 size={40} />
                     </div>
-                    <h3 className="text-2xl font-serif text-emerald-950 mb-2">Request Received!</h3>
-                    <p className="text-emerald-900/60">We'll contact you within 24 hours to confirm your appointment.</p>
+                    <h3 className="text-2xl font-serif text-brand-dark mb-2">Booking Request Sent!</h3>
+                    <p className="text-brand-dark/60 mb-8">We've received your request and an email has been sent to our team. We'll contact you shortly to confirm.</p>
+                    <button 
+                      onClick={onClose}
+                      className="px-8 py-3 bg-brand-primary text-white rounded-xl font-bold hover:bg-brand-dark transition-all"
+                    >
+                      Close Window
+                    </button>
                   </div>
                 ) : (
-                  <form onSubmit={handleSubmit} className="space-y-4">
-                    <h3 className="text-2xl font-serif text-emerald-950 mb-6">Book Your Session</h3>
+                  <form onSubmit={handleSubmit} className="space-y-6">
                     <div>
-                      <label className="block text-xs font-bold uppercase tracking-widest text-emerald-900/40 mb-2">Full Name</label>
-                      <input required type="text" className="w-full bg-emerald-50 border border-emerald-100 rounded-xl px-4 py-3 focus:outline-none focus:border-emerald-500" placeholder="Jane Doe" />
+                      <h3 className="text-3xl font-serif text-brand-dark mb-2">Book Your Session</h3>
+                      <p className="text-brand-dark/60">Fill in the details below and we'll get back to you.</p>
                     </div>
+
+                    {error && (
+                      <div className="p-4 bg-red-50 text-red-600 rounded-xl text-sm font-medium border border-red-100">
+                        {error}
+                      </div>
+                    )}
+
+                    <div className="grid sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-bold uppercase tracking-widest text-brand-dark/40 mb-2">Full Name</label>
+                        <input 
+                          required 
+                          type="text" 
+                          value={formData.name}
+                          onChange={(e) => setFormData({...formData, name: e.target.value})}
+                          className="w-full bg-brand-surface border border-brand-light rounded-xl px-4 py-3 focus:outline-none focus:border-brand-primary" 
+                          placeholder="Jane Doe" 
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-bold uppercase tracking-widest text-brand-dark/40 mb-2">Email Address</label>
+                        <input 
+                          required 
+                          type="email" 
+                          value={formData.email}
+                          onChange={(e) => setFormData({...formData, email: e.target.value})}
+                          className="w-full bg-brand-surface border border-brand-light rounded-xl px-4 py-3 focus:outline-none focus:border-brand-primary" 
+                          placeholder="jane@example.com" 
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-bold uppercase tracking-widest text-brand-dark/40 mb-2">Phone Number</label>
+                        <input 
+                          type="tel" 
+                          value={formData.phone}
+                          onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                          className="w-full bg-brand-surface border border-brand-light rounded-xl px-4 py-3 focus:outline-none focus:border-brand-primary" 
+                          placeholder="+254 7..." 
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-bold uppercase tracking-widest text-brand-dark/40 mb-2">Consultation Type</label>
+                        <select 
+                          value={formData.type}
+                          onChange={(e) => setFormData({...formData, type: e.target.value})}
+                          className="w-full bg-brand-surface border border-brand-light rounded-xl px-4 py-3 focus:outline-none focus:border-brand-primary"
+                        >
+                          <option>Pharmaceutical Advice</option>
+                          <option>Mental Wellness Counseling</option>
+                          <option>Holistic Health Plan</option>
+                          <option>Skincare Consultation</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div className="grid sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-bold uppercase tracking-widest text-brand-dark/40 mb-2">Preferred Date</label>
+                        <input 
+                          type="date" 
+                          value={formData.date}
+                          onChange={(e) => setFormData({...formData, date: e.target.value})}
+                          className="w-full bg-brand-surface border border-brand-light rounded-xl px-4 py-3 focus:outline-none focus:border-brand-primary" 
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-bold uppercase tracking-widest text-brand-dark/40 mb-2">Preferred Time</label>
+                        <input 
+                          type="time" 
+                          value={formData.time}
+                          onChange={(e) => setFormData({...formData, time: e.target.value})}
+                          className="w-full bg-brand-surface border border-brand-light rounded-xl px-4 py-3 focus:outline-none focus:border-brand-primary" 
+                        />
+                      </div>
+                    </div>
+
                     <div>
-                      <label className="block text-xs font-bold uppercase tracking-widest text-emerald-900/40 mb-2">Email Address</label>
-                      <input required type="email" className="w-full bg-emerald-50 border border-emerald-100 rounded-xl px-4 py-3 focus:outline-none focus:border-emerald-500" placeholder="jane@example.com" />
+                      <label className="block text-xs font-bold uppercase tracking-widest text-brand-dark/40 mb-2">Additional Message</label>
+                      <textarea 
+                        rows={3}
+                        value={formData.message}
+                        onChange={(e) => setFormData({...formData, message: e.target.value})}
+                        className="w-full bg-brand-surface border border-brand-light rounded-xl px-4 py-3 focus:outline-none focus:border-brand-primary resize-none" 
+                        placeholder="Tell us a bit about what you'd like to discuss..."
+                      />
                     </div>
-                    <div>
-                      <label className="block text-xs font-bold uppercase tracking-widest text-emerald-900/40 mb-2">Consultation Type</label>
-                      <select className="w-full bg-emerald-50 border border-emerald-100 rounded-xl px-4 py-3 focus:outline-none focus:border-emerald-500">
-                        <option>Pharmaceutical Advice</option>
-                        <option>Mental Wellness Counseling</option>
-                        <option>Holistic Health Plan</option>
-                      </select>
-                    </div>
+
                     <div className="pt-4">
                       <button 
                         disabled={isSubmitting}
-                        className="w-full py-4 bg-emerald-600 text-white rounded-2xl font-bold hover:bg-emerald-700 transition-all flex items-center justify-center gap-2"
+                        className="w-full py-4 bg-brand-primary text-white rounded-2xl font-bold hover:bg-brand-dark transition-all flex items-center justify-center gap-2 shadow-lg shadow-brand-light/20"
                       >
                         {isSubmitting ? (
                           <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                         ) : (
-                          'Confirm Booking'
+                          <>
+                            Confirm Booking Request
+                            <ArrowRight size={18} />
+                          </>
                         )}
                       </button>
+                      <p className="text-[10px] text-center text-brand-dark/40 mt-4 uppercase tracking-widest font-bold">
+                        By booking, you agree to our privacy policy and terms of service.
+                      </p>
                     </div>
                   </form>
                 )}
@@ -617,7 +756,7 @@ const WishlistModal = ({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="absolute inset-0 bg-emerald-950/40 backdrop-blur-sm"
+            className="absolute inset-0 bg-brand-dark/40 backdrop-blur-sm"
           />
           <motion.div 
             initial={{ x: '100%' }}
@@ -626,9 +765,9 @@ const WishlistModal = ({
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
             className="relative w-full max-w-md h-full bg-white shadow-2xl flex flex-col"
           >
-            <div className="p-6 border-b border-emerald-50 flex items-center justify-between">
-              <h2 className="text-2xl font-serif text-emerald-950">Your Wishlist</h2>
-              <button onClick={onClose} className="p-2 hover:bg-emerald-50 rounded-full transition-colors">
+            <div className="p-6 border-b border-brand-surface flex items-center justify-between">
+              <h2 className="text-2xl font-serif text-brand-dark">Your Wishlist</h2>
+              <button onClick={onClose} className="p-2 hover:bg-brand-surface rounded-full transition-colors">
                 <X size={24} />
               </button>
             </div>
@@ -636,23 +775,23 @@ const WishlistModal = ({
             <div className="flex-1 overflow-y-auto p-6 space-y-6">
               {wishlist.length === 0 ? (
                 <div className="h-full flex flex-col items-center justify-center text-center">
-                  <div className="w-20 h-20 bg-emerald-50 rounded-full flex items-center justify-center text-emerald-300 mb-4">
+                  <div className="w-20 h-20 bg-brand-surface rounded-full flex items-center justify-center text-brand-light mb-4">
                     <Heart size={40} />
                   </div>
-                  <h3 className="text-xl font-bold text-emerald-950 mb-2">Your wishlist is empty</h3>
-                  <p className="text-emerald-900/60 mb-8">Save items you love for later!</p>
-                  <button onClick={onClose} className="px-8 py-3 bg-emerald-600 text-white rounded-xl font-bold">Start Browsing</button>
+                  <h3 className="text-xl font-bold text-brand-dark mb-2">Your wishlist is empty</h3>
+                  <p className="text-brand-dark/60 mb-8">Save items you love for later!</p>
+                  <button onClick={onClose} className="px-8 py-3 bg-brand-primary text-white rounded-xl font-bold">Start Browsing</button>
                 </div>
               ) : (
                 wishlist.map((product) => (
                   <div key={product.id} className="flex gap-4">
-                    <div className="w-20 h-24 rounded-xl overflow-hidden bg-emerald-50 shrink-0">
+                    <div className="w-20 h-24 rounded-xl overflow-hidden bg-brand-surface shrink-0">
                       <img src={product.image} alt={product.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                     </div>
                     <div className="flex-1">
                       <div className="flex justify-between mb-1">
-                        <h4 className="font-bold text-emerald-950 line-clamp-1">{product.name}</h4>
-                        <button onClick={() => onRemove(product.id)} className="text-emerald-300 hover:text-red-500 transition-colors">
+                        <h4 className="font-bold text-brand-dark line-clamp-1">{product.name}</h4>
+                        <button onClick={() => onRemove(product.id)} className="text-brand-light hover:text-red-500 transition-colors">
                           <Trash2 size={18} />
                         </button>
                       </div>
@@ -660,11 +799,11 @@ const WishlistModal = ({
                         {product.originalPrice && (
                           <p className="text-xs text-red-500 line-through">KES {product.originalPrice.toLocaleString()}</p>
                         )}
-                        <p className="text-sm font-bold text-emerald-600">KES {product.price.toLocaleString()}</p>
+                        <p className="text-sm font-bold text-brand-primary">KES {product.price.toLocaleString()}</p>
                       </div>
                       <button 
                         onClick={() => { onAddToCart(product); onRemove(product.id); }}
-                        className="w-full py-2 bg-emerald-600 text-white rounded-lg text-sm font-bold hover:bg-emerald-700 transition-colors flex items-center justify-center gap-2"
+                        className="w-full py-2 bg-brand-primary text-white rounded-lg text-sm font-bold hover:bg-brand-dark transition-colors flex items-center justify-center gap-2"
                       >
                         <ShoppingBag size={16} />
                         Add to Cart
@@ -753,15 +892,15 @@ const ShopView = ({
           <div>
             <button 
               onClick={onBack}
-              className="flex items-center gap-2 text-emerald-600 font-bold mb-4 hover:gap-3 transition-all"
+              className="flex items-center gap-2 text-brand-primary font-bold mb-4 hover:gap-3 transition-all"
             >
               <ArrowRight size={18} className="rotate-180" />
               Back to Home
             </button>
-            <h1 className="text-5xl font-serif text-emerald-950 mb-4">
+            <h1 className="text-5xl font-serif text-brand-dark mb-4">
               {selectedCategory === 'all' ? 'Our Pharmacy' : CATEGORIES.find(c => c.id === selectedCategory)?.name}
             </h1>
-            <p className="text-emerald-900/60 max-w-2xl">
+            <p className="text-brand-dark/60 max-w-2xl">
               {selectedCategory === 'all' 
                 ? 'Browse our complete collection of expert-backed pharmaceuticals, supplements, and wellness essentials.'
                 : CATEGORIES.find(c => c.id === selectedCategory)?.description}
@@ -774,7 +913,7 @@ const ShopView = ({
             <div className="flex-1 flex flex-wrap gap-2">
               <button 
                 onClick={() => setSelectedCategory('all')}
-                className={`px-6 py-2 rounded-full text-sm font-bold transition-all ${selectedCategory === 'all' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-200' : 'bg-white text-emerald-900 border border-emerald-100'}`}
+                className={`px-6 py-2 rounded-full text-sm font-bold transition-all ${selectedCategory === 'all' ? 'bg-brand-primary text-white shadow-lg shadow-brand-light/20' : 'bg-white text-brand-dark border border-brand-surface'}`}
               >
                 All Products
               </button>
@@ -782,14 +921,14 @@ const ShopView = ({
                 <button 
                   key={cat.id}
                   onClick={() => setSelectedCategory(cat.id)}
-                  className={`px-6 py-2 rounded-full text-sm font-bold transition-all ${selectedCategory === cat.id ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-200' : 'bg-white text-emerald-900 border border-emerald-100'}`}
+                  className={`px-6 py-2 rounded-full text-sm font-bold transition-all ${selectedCategory === cat.id ? 'bg-brand-primary text-white shadow-lg shadow-brand-light/20' : 'bg-white text-brand-dark border border-brand-surface'}`}
                 >
                   {cat.name}
                 </button>
               ))}
             </div>
             <div className="relative w-full md:w-80">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-300" size={20} />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-light" size={20} />
               <input 
                 type="text" 
                 placeholder="Search products..."
@@ -797,7 +936,7 @@ const ShopView = ({
                 onFocus={() => setShowSuggestions(true)}
                 onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
                 onChange={(e) => onSearch(e.target.value)}
-                className="w-full bg-white border border-emerald-100 rounded-2xl pl-12 pr-4 py-3 focus:outline-none focus:border-emerald-500 shadow-sm"
+                className="w-full bg-white border border-brand-surface rounded-2xl pl-12 pr-4 py-3 focus:outline-none focus:border-brand-primary shadow-sm"
               />
               
               <AnimatePresence>
@@ -806,7 +945,7 @@ const ShopView = ({
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 10 }}
-                    className="absolute top-full left-0 w-full bg-white mt-2 rounded-2xl shadow-2xl border border-emerald-50 overflow-hidden z-20"
+                    className="absolute top-full left-0 w-full bg-white mt-2 rounded-2xl shadow-2xl border border-brand-surface overflow-hidden z-20"
                   >
                     {suggestions.map(p => (
                       <button 
@@ -815,12 +954,12 @@ const ShopView = ({
                           onSearch(p.name);
                           setShowSuggestions(false);
                         }}
-                        className="w-full px-6 py-3 text-left hover:bg-emerald-50 flex items-center gap-3 transition-colors"
+                        className="w-full px-6 py-3 text-left hover:bg-brand-surface flex items-center gap-3 transition-colors"
                       >
                         <div className="w-8 h-8 rounded-lg overflow-hidden flex-shrink-0">
                           <img src={p.image} alt="" className="w-full h-full object-cover" />
                         </div>
-                        <span className="text-sm font-medium text-emerald-950">{p.name}</span>
+                        <span className="text-sm font-medium text-brand-dark">{p.name}</span>
                       </button>
                     ))}
                   </motion.div>
@@ -832,21 +971,21 @@ const ShopView = ({
 
         {filteredProducts.length === 0 ? (
           <div className="py-24 text-center">
-            <div className="w-20 h-20 bg-emerald-50 rounded-full flex items-center justify-center text-emerald-300 mx-auto mb-6">
+            <div className="w-20 h-20 bg-brand-surface rounded-full flex items-center justify-center text-brand-light mx-auto mb-6">
               <Search size={40} />
             </div>
-            <h3 className="text-2xl font-serif text-emerald-950 mb-2">No products found</h3>
-            <p className="text-emerald-900/60">Try adjusting your search or category filters.</p>
+            <h3 className="text-2xl font-serif text-brand-dark mb-2">No products found</h3>
+            <p className="text-brand-dark/60">Try adjusting your search or category filters.</p>
             
             {didYouMean && (
-              <p className="mt-4 text-emerald-900 font-medium">
-                Did you mean: <button onClick={() => onSearch(didYouMean)} className="text-emerald-600 underline italic">{didYouMean}</button>?
+              <p className="mt-4 text-brand-dark font-medium">
+                Did you mean: <button onClick={() => onSearch(didYouMean)} className="text-brand-primary underline italic">{didYouMean}</button>?
               </p>
             )}
 
             <button 
               onClick={() => { onSearch(''); setSelectedCategory('all'); }}
-              className="mt-8 text-emerald-600 font-bold underline"
+              className="mt-8 text-brand-primary font-bold underline"
             >
               Clear all filters
             </button>
@@ -860,7 +999,7 @@ const ShopView = ({
                 layout
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="bg-white rounded-[2.5rem] overflow-hidden border border-emerald-50 group flex flex-col"
+                className="bg-white rounded-[2.5rem] overflow-hidden border border-brand-surface group flex flex-col"
               >
                 <div className="relative aspect-[4/5] overflow-hidden">
                   <img 
@@ -869,10 +1008,10 @@ const ShopView = ({
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                     referrerPolicy="no-referrer"
                   />
-                  <div className="absolute inset-0 bg-emerald-950/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                  <div className="absolute inset-0 bg-brand-dark/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                     <button 
                       onClick={() => onQuickView(product)}
-                      className="px-6 py-2.5 bg-white text-emerald-900 rounded-full font-bold text-sm shadow-xl hover:bg-emerald-50 transition-all translate-y-4 group-hover:translate-y-0 duration-300"
+                      className="px-6 py-2.5 bg-white text-brand-dark rounded-full font-bold text-sm shadow-xl hover:bg-brand-surface transition-all translate-y-4 group-hover:translate-y-0 duration-300"
                     >
                       Quick View
                     </button>
@@ -880,18 +1019,18 @@ const ShopView = ({
                   <div className="absolute bottom-6 right-6 flex flex-col gap-2 translate-y-20 group-hover:translate-y-0 transition-transform duration-500">
                     <button 
                       onClick={() => onToggleWishlist(product)}
-                      className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-xl transition-colors ${wishlist.includes(product.id) ? 'bg-emerald-500 text-white' : 'bg-white text-emerald-900 hover:bg-emerald-50'}`}
+                      className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-xl transition-colors ${wishlist.includes(product.id) ? 'bg-brand-primary text-white' : 'bg-white text-brand-dark hover:bg-brand-surface'}`}
                     >
                       <Heart size={20} fill={wishlist.includes(product.id) ? "currentColor" : "none"} />
                     </button>
                     <button 
                       onClick={() => onAddToCart(product)}
-                      className="w-12 h-12 bg-emerald-600 text-white rounded-2xl flex items-center justify-center shadow-xl hover:bg-emerald-700"
+                      className="w-12 h-12 bg-brand-primary text-white rounded-2xl flex items-center justify-center shadow-xl hover:bg-brand-dark"
                     >
                       <ShoppingBag size={20} />
                     </button>
                   </div>
-                  <div className="absolute top-6 left-6 px-3 py-1 bg-white/90 backdrop-blur-sm rounded-full text-[10px] font-bold uppercase tracking-widest text-emerald-900">
+                  <div className="absolute top-6 left-6 px-3 py-1 bg-white/90 backdrop-blur-sm rounded-full text-[10px] font-bold uppercase tracking-widest text-brand-dark">
                     {product.category}
                   </div>
                   {product.originalPrice && (
@@ -902,23 +1041,23 @@ const ShopView = ({
                 </div>
                 <div className="p-8 flex-1 flex flex-col">
                   <div className="flex justify-between items-start mb-2">
-                    <h3 className="text-xl font-bold text-emerald-950">{product.name}</h3>
+                    <h3 className="text-xl font-bold text-brand-dark">{product.name}</h3>
                   <div className="flex flex-col items-end mb-2">
                     {product.originalPrice && (
                       <span className="text-xs text-red-500 line-through">KES {product.originalPrice.toLocaleString()}</span>
                     )}
-                    <span className="text-emerald-600 font-bold">KES {product.price.toLocaleString()}</span>
+                    <span className="text-brand-primary font-bold">KES {product.price.toLocaleString()}</span>
                   </div>
                   </div>
                   <ExpandableText text={product.description} limit={80} />
                   <div className="mt-auto">
                     <div className="flex items-center gap-1 text-orange-400 mb-6">
                       {[1, 2, 3, 4, 5].map(i => <Star key={i} size={14} fill="currentColor" />)}
-                      <span className="text-xs text-emerald-900/40 ml-2">({product.reviews?.length || 0} reviews)</span>
+                      <span className="text-xs text-brand-dark/40 ml-2">({product.reviews?.length || 0} reviews)</span>
                     </div>
                     <button 
                       onClick={() => onBuyNow(product)}
-                      className="w-full py-3 bg-emerald-50 text-emerald-700 rounded-xl font-bold text-sm hover:bg-emerald-600 hover:text-white transition-all"
+                      className="w-full py-3 bg-brand-surface text-brand-primary rounded-xl font-bold text-sm hover:bg-brand-primary hover:text-white transition-all"
                     >
                       Buy Now
                     </button>
@@ -953,12 +1092,12 @@ const CategorySection = ({ onShop }: { onShop: () => void }) => {
       <div className="max-w-7xl mx-auto px-6">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
           <div>
-            <h2 className="text-4xl font-serif text-emerald-950 mb-4">Shop by Category</h2>
-            <p className="text-emerald-900/60 max-w-md">Find exactly what you need from our curated selection of medical and wellness essentials.</p>
+            <h2 className="text-4xl font-serif text-brand-dark mb-4">Shop by Category</h2>
+            <p className="text-brand-dark/60 max-w-md">Find exactly what you need from our curated selection of medical and wellness essentials.</p>
           </div>
           <button 
             onClick={onShop}
-            className="text-emerald-600 font-bold flex items-center gap-2 hover:gap-3 transition-all"
+            className="text-brand-primary font-bold flex items-center gap-2 hover:gap-3 transition-all"
           >
             View All Categories <ChevronRight size={20} />
           </button>
@@ -970,9 +1109,9 @@ const CategorySection = ({ onShop }: { onShop: () => void }) => {
               key={cat.id}
               whileHover={{ y: -8 }}
               onClick={onShop}
-              className="group p-8 rounded-[2rem] bg-emerald-50/50 border border-emerald-100/50 hover:bg-white hover:shadow-xl hover:shadow-emerald-100 transition-all cursor-pointer"
+              className="group p-8 rounded-[2rem] bg-brand-surface/50 border border-brand-light/50 hover:bg-white hover:shadow-xl hover:shadow-brand-light/10 transition-all cursor-pointer"
             >
-              <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-emerald-600 mb-6 shadow-sm group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+              <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-brand-primary mb-6 shadow-sm group-hover:bg-brand-primary group-hover:text-white transition-colors">
                 {cat.id === 'pharma' && <Pill size={28} />}
                 {cat.id === 'supplements' && <Zap size={28} />}
                 {cat.id === 'wellness' && <Leaf size={28} />}
@@ -980,8 +1119,8 @@ const CategorySection = ({ onShop }: { onShop: () => void }) => {
                 {cat.id === 'personal-care' && <User size={28} />}
                 {cat.id === 'beauty' && <Sparkles size={28} />}
               </div>
-              <h3 className="text-xl font-bold text-emerald-950 mb-2">{cat.name}</h3>
-              <p className="text-sm text-emerald-900/60 leading-relaxed">{cat.description}</p>
+              <h3 className="text-xl font-bold text-brand-dark mb-2">{cat.name}</h3>
+              <p className="text-sm text-brand-dark/60 leading-relaxed">{cat.description}</p>
             </motion.div>
           ))}
         </div>
@@ -1007,22 +1146,36 @@ const FeaturedProducts = ({
   onBuyNow: (p: Product) => void;
   wishlist: string[];
 }) => {
+  const [currentPage, setCurrentPage] = useState(0);
+  const sectionRef = useRef<HTMLElement>(null);
+  const ITEMS_PER_PAGE = 4;
+  const featuredProducts = PRODUCTS.filter(p => p.isFeatured);
+  const totalPages = Math.ceil(featuredProducts.length / ITEMS_PER_PAGE);
+  const paginatedProducts = featuredProducts.slice(currentPage * ITEMS_PER_PAGE, (currentPage + 1) * ITEMS_PER_PAGE);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    if (sectionRef.current) {
+      sectionRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
-    <section className="py-24 bg-[#F9F8F6]">
+    <section ref={sectionRef} className="py-24 bg-[#F9F8F6] scroll-mt-20">
       <div className="max-w-7xl mx-auto px-6">
         <div className="text-center mb-16">
-          <h2 className="text-4xl font-serif text-emerald-950 mb-4">Expert Recommendations</h2>
-          <p className="text-emerald-900/60 max-w-2xl mx-auto">Our top-selling wellness products, hand-picked by our pharmaceutical and psychological experts for their efficacy and quality.</p>
+          <h2 className="text-4xl font-serif text-brand-dark mb-4">Expert Recommendations</h2>
+          <p className="text-brand-dark/60 max-w-2xl mx-auto">Our top-selling wellness products, hand-picked by our pharmaceutical and psychological experts for their efficacy and quality.</p>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-          {PRODUCTS.filter(p => p.isFeatured).map((product) => (
+          {paginatedProducts.map((product) => (
             <motion.div 
               key={product.id}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="bg-white rounded-[2.5rem] overflow-hidden border border-emerald-50 group flex flex-col"
+              className="bg-white rounded-[2.5rem] overflow-hidden border border-brand-surface group flex flex-col"
             >
               <div className="relative aspect-[4/5] overflow-hidden">
                 <img 
@@ -1031,10 +1184,10 @@ const FeaturedProducts = ({
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                   referrerPolicy="no-referrer"
                 />
-                <div className="absolute inset-0 bg-emerald-950/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                <div className="absolute inset-0 bg-brand-dark/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                   <button 
                     onClick={() => onQuickView(product)}
-                    className="px-6 py-2.5 bg-white text-emerald-900 rounded-full font-bold text-sm shadow-xl hover:bg-emerald-50 transition-all translate-y-4 group-hover:translate-y-0 duration-300"
+                    className="px-6 py-2.5 bg-white text-brand-dark rounded-full font-bold text-sm shadow-xl hover:bg-brand-surface transition-all translate-y-4 group-hover:translate-y-0 duration-300"
                   >
                     Quick View
                   </button>
@@ -1042,18 +1195,18 @@ const FeaturedProducts = ({
                 <div className="absolute bottom-6 right-6 flex flex-col gap-2 translate-y-20 group-hover:translate-y-0 transition-transform duration-500">
                   <button 
                     onClick={() => onToggleWishlist(product)}
-                    className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-xl transition-colors ${wishlist.includes(product.id) ? 'bg-emerald-500 text-white' : 'bg-white text-emerald-900 hover:bg-emerald-50'}`}
+                    className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-xl transition-colors ${wishlist.includes(product.id) ? 'bg-brand-primary text-white' : 'bg-white text-brand-dark hover:bg-brand-surface'}`}
                   >
                     <Heart size={20} fill={wishlist.includes(product.id) ? "currentColor" : "none"} />
                   </button>
                   <button 
                     onClick={() => onAddToCart(product)}
-                    className="w-12 h-12 bg-emerald-600 text-white rounded-2xl flex items-center justify-center shadow-xl hover:bg-emerald-700"
+                    className="w-12 h-12 bg-brand-primary text-white rounded-2xl flex items-center justify-center shadow-xl hover:bg-brand-dark"
                   >
                     <ShoppingBag size={20} />
                   </button>
                 </div>
-                <div className="absolute top-6 left-6 px-3 py-1 bg-white/90 backdrop-blur-sm rounded-full text-[10px] font-bold uppercase tracking-widest text-emerald-900">
+                <div className="absolute top-6 left-6 px-3 py-1 bg-white/90 backdrop-blur-sm rounded-full text-[10px] font-bold uppercase tracking-widest text-brand-dark">
                   {product.category}
                 </div>
                 {product.originalPrice && (
@@ -1064,23 +1217,23 @@ const FeaturedProducts = ({
               </div>
               <div className="p-8 flex-1 flex flex-col">
                 <div className="flex justify-between items-start mb-2">
-                  <h3 className="text-xl font-bold text-emerald-950">{product.name}</h3>
+                  <h3 className="text-xl font-bold text-brand-dark">{product.name}</h3>
                   <div className="flex flex-col items-end mb-2">
                     {product.originalPrice && (
                       <span className="text-xs text-red-500 line-through">KES {product.originalPrice.toLocaleString()}</span>
                     )}
-                    <span className="text-emerald-600 font-bold">KES {product.price.toLocaleString()}</span>
+                    <span className="text-brand-primary font-bold">KES {product.price.toLocaleString()}</span>
                   </div>
                 </div>
-                <p className="text-sm text-emerald-900/60 mb-6 line-clamp-2">{product.description}</p>
+                <p className="text-sm text-brand-dark/60 mb-6 line-clamp-2">{product.description}</p>
                 <div className="mt-auto">
                   <div className="flex items-center gap-1 text-orange-400 mb-6">
                     {[1, 2, 3, 4, 5].map(i => <Star key={i} size={14} fill="currentColor" />)}
-                    <span className="text-xs text-emerald-900/40 ml-2">({product.reviews?.length || 0} reviews)</span>
+                    <span className="text-xs text-brand-dark/40 ml-2">({product.reviews?.length || 0} reviews)</span>
                   </div>
                   <button 
                     onClick={() => onBuyNow(product)}
-                    className="w-full py-3 bg-emerald-50 text-emerald-700 rounded-xl font-bold text-sm hover:bg-emerald-600 hover:text-white transition-all"
+                    className="w-full py-3 bg-brand-surface text-brand-primary rounded-xl font-bold text-sm hover:bg-brand-primary hover:text-white transition-all"
                   >
                     Buy Now
                   </button>
@@ -1089,6 +1242,16 @@ const FeaturedProducts = ({
             </motion.div>
           ))}
         </div>
+
+        {totalPages > 1 && (
+          <div className="mt-12">
+            <Pagination 
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+            />
+          </div>
+        )}
       </div>
     </section>
   );
@@ -1104,15 +1267,15 @@ const SocialHub = () => {
               <Video size={14} />
               Join our Community
             </div>
-            <h2 className="text-4xl md:text-5xl font-serif text-emerald-950 mb-6">
+            <h2 className="text-4xl md:text-5xl font-serif text-brand-dark mb-6">
               Wellness Tips & <br />
-              <span className="italic text-emerald-700">Expert Insights.</span>
+              <span className="italic text-brand-primary">Expert Insights.</span>
             </h2>
-            <p className="text-lg text-emerald-900/70 mb-8 leading-relaxed">
+            <p className="text-lg text-brand-dark/70 mb-8 leading-relaxed">
               We're more than just a pharmacy. Follow us on TikTok and Instagram for daily health hacks, mental wellness advice, and product deep-dives from our experts.
             </p>
             
-            <p className="text-sm font-bold text-emerald-900/40 uppercase tracking-widest mb-4">Follow Our Journey</p>
+            <p className="text-sm font-bold text-brand-dark/40 uppercase tracking-widest mb-4">Follow Our Journey</p>
             <div className="flex gap-4 mb-12">
               <a 
                 href="https://www.tiktok.com/@gitaridiana" 
@@ -1135,13 +1298,13 @@ const SocialHub = () => {
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-              <div className="p-6 bg-emerald-50 rounded-3xl border border-emerald-100">
-                <h4 className="text-3xl font-bold text-emerald-950 mb-1">50k+</h4>
-                <p className="text-sm text-emerald-900/60 font-medium uppercase tracking-wider">Followers</p>
+              <div className="p-6 bg-brand-surface rounded-3xl border border-brand-light/20">
+                <h4 className="text-3xl font-bold text-brand-dark mb-1">50k+</h4>
+                <p className="text-sm text-brand-dark/60 font-medium uppercase tracking-wider">Followers</p>
               </div>
               <div className="p-6 bg-orange-50 rounded-3xl border border-orange-100">
-                <h4 className="text-3xl font-bold text-emerald-950 mb-1">1M+</h4>
-                <p className="text-sm text-emerald-900/60 font-medium uppercase tracking-wider">Video Likes</p>
+                <h4 className="text-3xl font-bold text-brand-dark mb-1">1M+</h4>
+                <p className="text-sm text-brand-dark/60 font-medium uppercase tracking-wider">Video Likes</p>
               </div>
             </div>
           </div>
@@ -1186,7 +1349,7 @@ const SocialHub = () => {
               </motion.div>
             </div>
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-20 bg-white rounded-full flex items-center justify-center shadow-2xl z-20">
-              <div className="w-16 h-16 bg-emerald-600 rounded-full flex items-center justify-center text-white animate-pulse">
+              <div className="w-16 h-16 bg-brand-primary rounded-full flex items-center justify-center text-white animate-pulse">
                 <svg className="w-8 h-8 fill-current" viewBox="0 0 24 24"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1.04-.1z"/></svg>
               </div>
             </div>
@@ -1221,7 +1384,7 @@ const QuickViewModal = ({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="absolute inset-0 bg-emerald-950/40 backdrop-blur-sm"
+            className="absolute inset-0 bg-brand-dark/40 backdrop-blur-sm"
           />
           <motion.div 
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
@@ -1231,7 +1394,7 @@ const QuickViewModal = ({
           >
             <button 
               onClick={onClose}
-              className="absolute top-6 right-6 z-10 p-2 bg-white/80 backdrop-blur-md rounded-full text-emerald-900 hover:bg-white transition-colors shadow-sm"
+              className="absolute top-6 right-6 z-10 p-2 bg-white/80 backdrop-blur-md rounded-full text-brand-dark hover:bg-white transition-colors shadow-sm"
             >
               <X size={20} />
             </button>
@@ -1243,7 +1406,7 @@ const QuickViewModal = ({
                 className="w-full h-full object-cover"
                 referrerPolicy="no-referrer"
               />
-              <div className="absolute top-6 left-6 px-4 py-1.5 bg-white/90 backdrop-blur-md rounded-full text-xs font-bold uppercase tracking-widest text-emerald-900 shadow-sm">
+              <div className="absolute top-6 left-6 px-4 py-1.5 bg-white/90 backdrop-blur-md rounded-full text-xs font-bold uppercase tracking-widest text-brand-dark shadow-sm">
                 {product.category}
               </div>
               {product.originalPrice && (
@@ -1255,19 +1418,19 @@ const QuickViewModal = ({
 
             <div className="w-full md:w-1/2 p-8 md:p-12 overflow-y-auto">
               <div className="mb-8">
-                <h2 className="text-3xl font-serif text-emerald-950 mb-4">{product.name}</h2>
+                <h2 className="text-3xl font-serif text-brand-dark mb-4">{product.name}</h2>
                 <div className="flex items-center gap-4 mb-6">
                   <div className="flex flex-col">
                     {product.originalPrice && (
                       <span className="text-sm text-red-500 line-through">KES {product.originalPrice.toLocaleString()}</span>
                     )}
-                    <span className="text-2xl font-bold text-emerald-600">KES {product.price.toLocaleString()}</span>
+                    <span className="text-2xl font-bold text-brand-primary">KES {product.price.toLocaleString()}</span>
                   </div>
-                  <div className="h-8 w-px bg-emerald-100" />
+                  <div className="h-8 w-px bg-brand-light/20" />
                   <div className="flex items-center gap-1 text-orange-400">
                     <Star size={16} fill="currentColor" />
-                    <span className="text-sm font-bold text-emerald-950">4.8</span>
-                    <span className="text-xs text-emerald-900/40 ml-1">({product.reviews?.length || 0} reviews)</span>
+                    <span className="text-sm font-bold text-brand-dark">4.8</span>
+                    <span className="text-xs text-brand-dark/40 ml-1">({product.reviews?.length || 0} reviews)</span>
                   </div>
                 </div>
                 <ExpandableText text={product.longDescription || product.description} limit={200} />
@@ -1276,25 +1439,25 @@ const QuickViewModal = ({
               <div className="flex flex-col gap-3 mb-10">
                 <button 
                   onClick={() => { onBuyNow(product); onClose(); }}
-                  className="w-full py-4 bg-emerald-600 text-white rounded-2xl font-bold hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-100 flex items-center justify-center gap-2"
+                  className="w-full py-4 bg-brand-primary text-white rounded-2xl font-bold hover:bg-brand-dark transition-all shadow-lg shadow-brand-light/20 flex items-center justify-center gap-2"
                 >
                   Buy Now <ArrowRight size={18} />
                 </button>
                 <button 
                   onClick={() => onAddToCart(product)}
-                  className="w-full py-4 bg-white border-2 border-emerald-600 text-emerald-600 rounded-2xl font-bold hover:bg-emerald-50 transition-all flex items-center justify-center gap-2"
+                  className="w-full py-4 bg-white border-2 border-brand-primary text-brand-primary rounded-2xl font-bold hover:bg-brand-surface transition-all flex items-center justify-center gap-2"
                 >
                   <ShoppingBag size={18} /> Add to Cart
                 </button>
               </div>
 
               <div className="grid grid-cols-2 gap-4 mb-10">
-                <div className="p-4 bg-emerald-50 rounded-2xl border border-emerald-100">
-                  <div className="flex items-center gap-2 text-emerald-900 font-bold text-sm mb-2">
-                    <Truck size={16} className="text-emerald-600" />
+                <div className="p-4 bg-brand-surface rounded-2xl border border-brand-light/20">
+                  <div className="flex items-center gap-2 text-brand-dark font-bold text-sm mb-2">
+                    <Truck size={16} className="text-brand-primary" />
                     Delivery
                   </div>
-                  <p className="text-xs text-emerald-900/60 leading-relaxed">
+                  <p className="text-xs text-brand-dark/60 leading-relaxed">
                     Free delivery in Nairobi for orders above KES 5,000. Standard delivery (24-48h) KES 300.
                   </p>
                 </div>
@@ -1311,22 +1474,22 @@ const QuickViewModal = ({
 
               {product.reviews && product.reviews.length > 0 && (
                 <div>
-                  <h3 className="text-lg font-bold text-emerald-950 mb-6 flex items-center gap-2">
-                    Customer Reviews <span className="text-sm font-normal text-emerald-900/40">({product.reviews.length})</span>
+                  <h3 className="text-lg font-bold text-brand-dark mb-6 flex items-center gap-2">
+                    Customer Reviews <span className="text-sm font-normal text-brand-dark/40">({product.reviews.length})</span>
                   </h3>
                   <div className="space-y-6">
                     {product.reviews.map((review) => (
-                      <div key={review.id} className="pb-6 border-b border-emerald-50 last:border-0">
+                      <div key={review.id} className="pb-6 border-b border-brand-surface last:border-0">
                         <div className="flex justify-between items-center mb-2">
-                          <span className="font-bold text-emerald-900">{review.user}</span>
-                          <span className="text-[10px] text-emerald-900/30 uppercase tracking-widest">{review.date}</span>
+                          <span className="font-bold text-brand-dark">{review.user}</span>
+                          <span className="text-[10px] text-brand-dark/30 uppercase tracking-widest">{review.date}</span>
                         </div>
                         <div className="flex gap-0.5 text-orange-400 mb-2">
                           {[...Array(5)].map((_, i) => (
                             <Star key={i} size={12} fill={i < review.rating ? "currentColor" : "none"} />
                           ))}
                         </div>
-                        <p className="text-sm text-emerald-900/60 italic">"{review.comment}"</p>
+                        <p className="text-sm text-brand-dark/60 italic">"{review.comment}"</p>
                       </div>
                     ))}
                   </div>
@@ -1350,7 +1513,7 @@ const StoryModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void 
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="absolute inset-0 bg-emerald-950/40 backdrop-blur-sm"
+            className="absolute inset-0 bg-brand-dark/40 backdrop-blur-sm"
           />
           <motion.div 
             initial={{ scale: 0.9, opacity: 0 }}
@@ -1359,17 +1522,17 @@ const StoryModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void 
             className="relative w-full max-w-2xl bg-white rounded-[3rem] shadow-2xl overflow-hidden"
           >
             <div className="p-8 md:p-12">
-              <button onClick={onClose} className="absolute top-6 right-6 p-2 hover:bg-emerald-50 rounded-full transition-colors text-emerald-900">
+              <button onClick={onClose} className="absolute top-6 right-6 p-2 hover:bg-brand-surface rounded-full transition-colors text-brand-dark">
                 <X size={24} />
               </button>
               
               <div className="text-center">
-                <div className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-600 mx-auto mb-8">
+                <div className="w-20 h-20 bg-brand-surface rounded-full flex items-center justify-center text-brand-primary mx-auto mb-8">
                   <Star size={40} fill="currentColor" />
                 </div>
-                <h2 className="text-4xl font-serif text-emerald-950 mb-6">The Harvianah Spark: <br /><span className="italic text-emerald-700">Where Science Got a Soul</span></h2>
+                <h2 className="text-4xl font-serif text-brand-dark mb-6">The Harvianah Spark: <br /><span className="italic text-brand-primary">Where Science Got a Soul</span></h2>
                 
-                <div className="space-y-6 text-lg text-emerald-900/70 leading-relaxed">
+                <div className="space-y-6 text-lg text-brand-dark/70 leading-relaxed">
                   <p>
                     Once upon a time in Kimbo-Toll, a lab coat met a listening ear. 🧪✨ 
                   </p>
@@ -1377,7 +1540,7 @@ const StoryModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void 
                     Our founders realized that while pills can fix a fever, they can't always fix the "feeling." 
                     We saw people leaving pharmacies with bags of medicine but hearts still heavy with worry.
                   </p>
-                  <p className="font-serif italic text-2xl text-emerald-800">
+                  <p className="font-serif italic text-2xl text-brand-primary">
                     "Why choose between body and mind when you can heal both?"
                   </p>
                   <p>
@@ -1393,7 +1556,7 @@ const StoryModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void 
 
                 <button 
                   onClick={onClose}
-                  className="mt-10 px-10 py-4 bg-emerald-600 text-white rounded-2xl font-bold hover:bg-emerald-700 transition-all shadow-xl"
+                  className="mt-10 px-10 py-4 bg-brand-primary text-white rounded-2xl font-bold hover:bg-brand-dark transition-all shadow-xl"
                 >
                   Let's Get Healthy Together!
                 </button>
@@ -1418,11 +1581,11 @@ const Pagination = ({
   nextLabel?: string;
 }) => {
   return (
-    <div className="max-w-7xl mx-auto px-6 py-12 border-t border-emerald-100 flex items-center justify-between">
+    <div className="max-w-7xl mx-auto px-6 py-12 border-t border-brand-light/20 flex items-center justify-between">
       <button 
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 0}
-        className={`flex items-center gap-2 font-bold transition-all ${currentPage === 0 ? 'opacity-0 pointer-events-none' : 'text-emerald-600 hover:gap-3'}`}
+        className={`flex items-center gap-2 font-bold transition-all ${currentPage === 0 ? 'opacity-0 pointer-events-none' : 'text-brand-primary hover:gap-3'}`}
       >
         <ArrowRight size={18} className="rotate-180" />
         Previous Page
@@ -1433,7 +1596,7 @@ const Pagination = ({
           <button 
             key={i} 
             onClick={() => onPageChange(i)}
-            className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold transition-all ${i === currentPage ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-200' : 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100'}`}
+            className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold transition-all ${i === currentPage ? 'bg-brand-primary text-white shadow-lg shadow-brand-light/20' : 'bg-brand-surface text-brand-primary hover:bg-brand-light/20'}`}
           >
             {i + 1}
           </button>
@@ -1443,7 +1606,7 @@ const Pagination = ({
       <button 
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === totalPages - 1}
-        className={`flex items-center gap-2 font-bold transition-all ${currentPage === totalPages - 1 ? 'opacity-0 pointer-events-none' : 'text-emerald-600 hover:gap-3'}`}
+        className={`flex items-center gap-2 font-bold transition-all ${currentPage === totalPages - 1 ? 'opacity-0 pointer-events-none' : 'text-brand-primary hover:gap-3'}`}
       >
         {nextLabel || 'Next Page'}
         <ArrowRight size={18} />
@@ -1456,7 +1619,7 @@ const ExpertiseView = ({ onBack }: { onBack: () => void }) => {
   return (
     <section id="expertise" className="py-32 bg-white min-h-screen transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-6">
-        <button onClick={onBack} className="flex items-center gap-2 text-emerald-600 font-bold mb-8 hover:gap-3 transition-all">
+        <button onClick={onBack} className="flex items-center gap-2 text-brand-primary font-bold mb-8 hover:gap-3 transition-all">
           <ArrowRight size={18} className="rotate-180" /> Back to Home
         </button>
         <div className="grid lg:grid-cols-2 gap-16 items-center">
@@ -1469,25 +1632,25 @@ const ExpertiseView = ({ onBack }: { onBack: () => void }) => {
                 <img src="https://images.unsplash.com/photo-1559839734-2b71f1536783?auto=format&fit=crop&q=80&w=400" alt="Counseling Psychologist" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
               </div>
             </div>
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white p-8 rounded-[2.5rem] shadow-2xl border border-emerald-50 text-center max-w-[200px]">
-              <h4 className="text-3xl font-serif text-emerald-950 mb-1">Dual</h4>
-              <p className="text-xs text-emerald-900/60 uppercase tracking-widest font-bold">Expertise Model</p>
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white p-8 rounded-[2.5rem] shadow-2xl border border-brand-surface text-center max-w-[200px]">
+              <h4 className="text-3xl font-serif text-brand-dark mb-1">Dual</h4>
+              <p className="text-xs text-brand-dark/60 uppercase tracking-widest font-bold">Expertise Model</p>
             </div>
           </div>
           
           <div className="order-1 lg:order-2">
-            <h2 className="text-4xl md:text-5xl font-serif text-emerald-950 mb-8 leading-tight">
+            <h2 className="text-4xl md:text-5xl font-serif text-brand-dark mb-8 leading-tight">
               Science with a Soul, <br />
-              <span className="italic text-emerald-700">Care with a Smile.</span>
+              <span className="italic text-brand-primary">Care with a Smile.</span>
             </h2>
             <div className="space-y-8">
               <div className="flex gap-6">
-                <div className="w-14 h-14 shrink-0 bg-emerald-100 rounded-2xl flex items-center justify-center text-emerald-700">
+                <div className="w-14 h-14 shrink-0 bg-brand-surface rounded-2xl flex items-center justify-center text-brand-primary">
                   <Pill size={28} />
                 </div>
                 <div>
-                  <h4 className="text-xl font-bold text-emerald-950 mb-2">The Science Squad</h4>
-                  <p className="text-emerald-900/60 leading-relaxed">Our lead Pharmaceutical Technologist ensures every product is safe, effective, and scientifically sound. No guesswork, just results!</p>
+                  <h4 className="text-xl font-bold text-brand-dark mb-2">The Science Squad</h4>
+                  <p className="text-brand-dark/60 leading-relaxed">Our lead Pharmaceutical Technologist ensures every product is safe, effective, and scientifically sound. No guesswork, just results!</p>
                 </div>
               </div>
               <div className="flex gap-6">
@@ -1495,8 +1658,8 @@ const ExpertiseView = ({ onBack }: { onBack: () => void }) => {
                   <Brain size={28} />
                 </div>
                 <div>
-                  <h4 className="text-xl font-bold text-emerald-950 mb-2">The Soul Support</h4>
-                  <p className="text-emerald-900/60 leading-relaxed">Our Counseling Psychologist provides the empathy and mental health support needed for true holistic healing. Because your mind matters too.</p>
+                  <h4 className="text-xl font-bold text-brand-dark mb-2">The Soul Support</h4>
+                  <p className="text-brand-dark/60 leading-relaxed">Our Counseling Psychologist provides the empathy and mental health support needed for true holistic healing. Because your mind matters too.</p>
                 </div>
               </div>
             </div>
@@ -1511,17 +1674,17 @@ const CommunityView = ({ onBack }: { onBack: () => void }) => {
   return (
     <div className="pt-32 pb-24 bg-[#F9F8F6] min-h-screen transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-6">
-        <button onClick={onBack} className="flex items-center gap-2 text-emerald-600 font-bold mb-8 hover:gap-3 transition-all">
+        <button onClick={onBack} className="flex items-center gap-2 text-brand-primary font-bold mb-8 hover:gap-3 transition-all">
           <ArrowRight size={18} className="rotate-180" /> Back to Home
         </button>
         <SocialHub />
         
         {/* Testimonials */}
-        <section className="py-24 bg-emerald-50 rounded-[3rem] mt-12">
+        <section className="py-24 bg-brand-surface rounded-[3rem] mt-12">
           <div className="max-w-7xl mx-auto px-6">
             <div className="text-center mb-16">
-              <h2 className="text-4xl font-serif text-emerald-950 mb-4">What Our Clients Say</h2>
-              <p className="text-emerald-900/60">Real stories from the Harvianah community.</p>
+              <h2 className="text-4xl font-serif text-brand-dark mb-4">What Our Clients Say</h2>
+              <p className="text-brand-dark/60">Real stories from the Harvianah community.</p>
             </div>
             <div className="grid md:grid-cols-3 gap-8">
               {[
@@ -1529,18 +1692,18 @@ const CommunityView = ({ onBack }: { onBack: () => void }) => {
                 { name: "David K.", role: "Fitness Enthusiast", text: "Best supplements in Kimbo-Toll. The quality is unmatched and the delivery is always on time." },
                 { name: "Mercy A.", role: "Wellness Client", text: "I love the holistic approach. They helped me manage my anxiety alongside my physical health." }
               ].map((t, i) => (
-                <div key={i} className="bg-white p-10 rounded-[2.5rem] shadow-sm border border-emerald-100">
+                <div key={i} className="bg-white p-10 rounded-[2.5rem] shadow-sm border border-brand-light/20">
                   <div className="flex text-orange-400 mb-6">
                     {[1, 2, 3, 4, 5].map(j => <Star key={j} size={16} fill="currentColor" />)}
                   </div>
-                  <p className="text-emerald-900/70 italic mb-8 leading-relaxed">"{t.text}"</p>
+                  <p className="text-brand-dark/70 italic mb-8 leading-relaxed">"{t.text}"</p>
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 font-bold">
+                    <div className="w-12 h-12 rounded-full bg-brand-surface flex items-center justify-center text-brand-primary font-bold">
                       {t.name[0]}
                     </div>
                     <div>
-                      <h5 className="font-bold text-emerald-950">{t.name}</h5>
-                      <p className="text-xs text-emerald-900/40 uppercase tracking-widest font-bold">{t.role}</p>
+                      <h5 className="font-bold text-brand-dark">{t.name}</h5>
+                      <p className="text-xs text-brand-dark/40 uppercase tracking-widest font-bold">{t.role}</p>
                     </div>
                   </div>
                 </div>
@@ -1552,19 +1715,19 @@ const CommunityView = ({ onBack }: { onBack: () => void }) => {
         {/* Call to Action */}
         <section id="consultations" className="py-24">
           <div className="max-w-7xl mx-auto px-6">
-            <div className="bg-emerald-600 rounded-[3rem] p-12 md:p-20 text-center text-white relative overflow-hidden">
+            <div className="bg-brand-primary rounded-[3rem] p-12 md:p-20 text-center text-white relative overflow-hidden">
               <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
                 <div className="absolute top-10 left-10 w-64 h-64 bg-white rounded-full blur-3xl" />
                 <div className="absolute bottom-10 right-10 w-64 h-64 bg-white rounded-full blur-3xl" />
               </div>
               <h2 className="text-4xl md:text-6xl font-serif mb-8 relative z-10">Start Your Wellness <br /> Journey Today.</h2>
-              <p className="text-emerald-50 text-lg mb-12 max-w-2xl mx-auto relative z-10">
+              <p className="text-brand-surface text-lg mb-12 max-w-2xl mx-auto relative z-10">
                 Whether you need a prescription filled or a holistic wellness plan, we're here to support you every step of the way.
               </p>
               <div className="flex flex-wrap justify-center gap-4 relative z-10">
                 <button 
                   onClick={() => onBack()}
-                  className="px-10 py-5 bg-white text-emerald-600 rounded-2xl font-bold hover:bg-emerald-50 transition-all shadow-xl"
+                  className="px-10 py-5 bg-white text-brand-primary rounded-2xl font-bold hover:bg-brand-surface transition-all shadow-xl"
                 >
                   Shop Now
                 </button>
@@ -1589,15 +1752,15 @@ const FAQsView = ({ onBack }: { onBack: () => void }) => {
   return (
     <div className="pt-32 pb-24 bg-[#F9F8F6] min-h-screen">
       <div className="max-w-3xl mx-auto px-6">
-        <button onClick={onBack} className="flex items-center gap-2 text-emerald-600 font-bold mb-8 hover:gap-3 transition-all">
+        <button onClick={onBack} className="flex items-center gap-2 text-brand-primary font-bold mb-8 hover:gap-3 transition-all">
           <ArrowRight size={18} className="rotate-180" /> Back to Home
         </button>
-        <h1 className="text-5xl font-serif text-emerald-950 mb-12">Frequently Asked Questions</h1>
+        <h1 className="text-5xl font-serif text-brand-dark mb-12">Frequently Asked Questions</h1>
         <div className="space-y-6">
           {faqs.map((faq, i) => (
-            <div key={i} className="bg-white p-8 rounded-3xl border border-emerald-50 shadow-sm">
-              <h3 className="text-xl font-bold text-emerald-900 mb-3">{faq.q}</h3>
-              <p className="text-emerald-900/70 leading-relaxed">{faq.a}</p>
+            <div key={i} className="bg-white p-8 rounded-3xl border border-brand-surface shadow-sm">
+              <h3 className="text-xl font-bold text-brand-dark mb-3">{faq.q}</h3>
+              <p className="text-brand-dark/70 leading-relaxed">{faq.a}</p>
             </div>
           ))}
         </div>
@@ -1622,25 +1785,25 @@ const OrderTrackingView = ({ onBack }: { onBack: () => void }) => {
   return (
     <div className="pt-32 pb-24 bg-[#F9F8F6] min-h-screen">
       <div className="max-w-xl mx-auto px-6 text-center">
-        <button onClick={onBack} className="flex items-center gap-2 text-emerald-600 font-bold mb-8 hover:gap-3 transition-all mx-auto">
+        <button onClick={onBack} className="flex items-center gap-2 text-brand-primary font-bold mb-8 hover:gap-3 transition-all mx-auto">
           <ArrowRight size={18} className="rotate-180" /> Back to Home
         </button>
-        <h1 className="text-5xl font-serif text-emerald-950 mb-6">Track Your Order</h1>
-        <p className="text-emerald-900/60 mb-12">Enter your order ID below to see the current status of your health and wellness delivery.</p>
+        <h1 className="text-5xl font-serif text-brand-dark mb-6">Track Your Order</h1>
+        <p className="text-brand-dark/60 mb-12">Enter your order ID below to see the current status of your health and wellness delivery.</p>
         
-        <form onSubmit={handleTrack} className="bg-white p-8 rounded-[2.5rem] shadow-xl border border-emerald-50 mb-12">
+        <form onSubmit={handleTrack} className="bg-white p-8 rounded-[2.5rem] shadow-xl border border-brand-surface mb-12">
           <div className="mb-6">
-            <label className="block text-left text-sm font-bold text-emerald-900/40 uppercase tracking-widest mb-2">Order ID</label>
+            <label className="block text-left text-sm font-bold text-brand-dark/40 uppercase tracking-widest mb-2">Order ID</label>
             <input 
               required
               type="text" 
               placeholder="e.g. HV-12345"
               value={orderId}
               onChange={(e) => setOrderId(e.target.value)}
-              className="w-full bg-emerald-50/50 border border-emerald-100 rounded-2xl px-6 py-4 focus:outline-none focus:border-emerald-500"
+              className="w-full bg-brand-surface/50 border border-brand-light/30 rounded-2xl px-6 py-4 focus:outline-none focus:border-brand-primary"
             />
           </div>
-          <button type="submit" className="w-full bg-emerald-600 text-white py-4 rounded-2xl font-bold hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-200">
+          <button type="submit" className="w-full bg-brand-primary text-white py-4 rounded-2xl font-bold hover:bg-brand-dark transition-all shadow-lg shadow-brand-light/20">
             Track Order
           </button>
         </form>
@@ -1648,34 +1811,34 @@ const OrderTrackingView = ({ onBack }: { onBack: () => void }) => {
         <AnimatePresence mode="wait">
           {status === 'loading' && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col items-center gap-4">
-              <div className="w-12 h-12 border-4 border-emerald-200 border-t-emerald-600 rounded-full animate-spin" />
-              <p className="text-emerald-900/60 font-medium">Locating your order...</p>
+              <div className="w-12 h-12 border-4 border-brand-surface border-t-brand-primary rounded-full animate-spin" />
+              <p className="text-brand-dark/60 font-medium">Locating your order...</p>
             </motion.div>
           )}
           {status === 'found' && (
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-emerald-50 p-8 rounded-3xl border border-emerald-100 text-left">
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-brand-surface p-8 rounded-3xl border border-brand-light/20 text-left">
               <div className="flex items-center gap-4 mb-6">
-                <div className="w-12 h-12 bg-emerald-600 text-white rounded-full flex items-center justify-center">
+                <div className="w-12 h-12 bg-brand-primary text-white rounded-full flex items-center justify-center">
                   <Truck size={24} />
                 </div>
                 <div>
-                  <h3 className="font-bold text-emerald-950">Order #{orderId}</h3>
-                  <p className="text-emerald-600 font-bold">In Transit</p>
+                  <h3 className="font-bold text-brand-dark">Order #{orderId}</h3>
+                  <p className="text-brand-primary font-bold">In Transit</p>
                 </div>
               </div>
               <div className="space-y-4">
                 <div className="flex gap-4">
-                  <div className="w-2 bg-emerald-600 rounded-full" />
+                  <div className="w-2 bg-brand-primary rounded-full" />
                   <div>
-                    <p className="font-bold text-emerald-900">Out for Delivery</p>
-                    <p className="text-sm text-emerald-900/60">Today, 10:30 AM - Kimbo-Toll Hub</p>
+                    <p className="font-bold text-brand-dark">Out for Delivery</p>
+                    <p className="text-sm text-brand-dark/60">Today, 10:30 AM - Kimbo-Toll Hub</p>
                   </div>
                 </div>
                 <div className="flex gap-4">
-                  <div className="w-2 bg-emerald-200 rounded-full" />
+                  <div className="w-2 bg-brand-surface rounded-full" />
                   <div>
-                    <p className="font-bold text-emerald-900/40">Processing</p>
-                    <p className="text-sm text-emerald-900/40">Yesterday, 4:15 PM</p>
+                    <p className="font-bold text-brand-dark/40">Processing</p>
+                    <p className="text-sm text-brand-dark/40">Yesterday, 4:15 PM</p>
                   </div>
                 </div>
               </div>
@@ -1704,29 +1867,29 @@ const Footer = ({
   onLegal: (type: string) => void;
 }) => {
   return (
-    <footer className="bg-emerald-950 text-white pt-24 pb-12">
+    <footer className="bg-brand-dark text-white pt-24 pb-12">
       <div className="max-w-7xl mx-auto px-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
           <div className="space-y-6">
             <div className="flex items-center gap-2">
-              <div className="w-10 h-10 bg-emerald-600 rounded-full flex items-center justify-center text-white">
+              <div className="w-10 h-10 bg-brand-primary rounded-full flex items-center justify-center text-white">
                 <Pill size={20} />
               </div>
               <span className="text-2xl font-serif font-bold tracking-tight">Harvianah</span>
             </div>
-            <p className="text-emerald-100/60 leading-relaxed">
+            <p className="text-brand-surface/60 leading-relaxed">
               Premium pharmaceuticals and holistic wellness products delivered with empathy and expertise. Located in Kimbo-Toll, Anchor 2 Building.
             </p>
             <div className="flex gap-4">
-              <a href="https://www.instagram.com/harvianah_pharmacy" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-emerald-600 transition-colors"><Instagram size={18} /></a>
-              <a href="https://www.tiktok.com/@gitaridiana" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-emerald-600 transition-colors"><Video size={18} /></a>
-              <a href="tel:0702759927" className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-emerald-600 transition-colors"><Phone size={18} /></a>
+              <a href="https://www.instagram.com/harvianah_pharmacy" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-brand-primary transition-colors"><Instagram size={18} /></a>
+              <a href="https://www.tiktok.com/@gitaridiana" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-brand-primary transition-colors"><Video size={18} /></a>
+              <a href="tel:0702759927" className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-brand-primary transition-colors"><Phone size={18} /></a>
             </div>
           </div>
 
           <div>
             <h4 className="font-bold text-lg mb-6">Support</h4>
-            <ul className="space-y-4 text-emerald-100/60">
+            <ul className="space-y-4 text-brand-surface/60">
               <li><button onClick={() => onNavigate('tracking')} className="hover:text-white transition-colors text-left">Track Your Order</button></li>
               <li><button onClick={() => onNavigate('faqs')} className="hover:text-white transition-colors text-left">FAQs</button></li>
               <li><button onClick={onConsult} className="hover:text-white transition-colors text-left">Expert Consultations</button></li>
@@ -1737,7 +1900,7 @@ const Footer = ({
 
           <div>
             <h4 className="font-bold text-lg mb-6">Shop Categories</h4>
-            <ul className="space-y-4 text-emerald-100/60">
+            <ul className="space-y-4 text-brand-surface/60">
               {CATEGORIES.map(cat => (
                 <li key={cat.id}><button onClick={onShop} className="hover:text-white transition-colors text-left">{cat.name}</button></li>
               ))}
@@ -1746,22 +1909,22 @@ const Footer = ({
 
           <div>
             <h4 className="font-bold text-lg mb-6">Newsletter</h4>
-            <p className="text-emerald-100/60 mb-6 text-sm">Subscribe for wellness tips and exclusive offers.</p>
+            <p className="text-brand-surface/60 mb-6 text-sm">Subscribe for wellness tips and exclusive offers.</p>
             <form onSubmit={(e) => { e.preventDefault(); onLegal('Newsletter'); }} className="flex gap-2">
               <input 
                 required
                 type="email" 
                 placeholder="Your email" 
-                className="bg-white/10 border border-white/20 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-emerald-500 w-full"
+                className="bg-white/10 border border-white/20 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-brand-primary w-full"
               />
-              <button type="submit" className="bg-emerald-600 text-white px-4 py-2 rounded-xl hover:bg-emerald-700 transition-colors">
+              <button type="submit" className="bg-brand-primary text-white px-4 py-2 rounded-xl hover:bg-brand-dark transition-colors">
                 Join
               </button>
             </form>
           </div>
         </div>
 
-        <div className="pt-12 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-6 text-sm text-emerald-100/40">
+        <div className="pt-12 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-6 text-sm text-brand-surface/40">
           <p>© 2024 Harvianah Pharmacy. All rights reserved.</p>
           <div className="flex gap-8">
             <button onClick={() => onLegal('Privacy Policy')} className="hover:text-white transition-colors">Privacy Policy</button>
@@ -1785,7 +1948,7 @@ export default function App() {
   // Page Navigation State
   // 0: Home, 1: Pharma, 2: Supplements, 3: Mother & Baby, 4: Wellness, 5: Beauty, 6: Expertise, 7: Join Our Community, 8: FAQs, 9: Tracking
   const [currentPage, setCurrentPage] = useState(0);
-  const totalPages = 10;
+  const totalPages = 9;
   const pageNames = [
     'Home', 
     'Pharmaceuticals', 
@@ -1877,7 +2040,7 @@ export default function App() {
   const wishlistItems = PRODUCTS.filter(p => wishlist.includes(p.id));
 
   return (
-    <div className="min-h-screen font-sans selection:bg-emerald-100 selection:text-emerald-900 bg-white transition-colors duration-300">
+    <div className="min-h-screen font-sans selection:bg-brand-surface selection:text-brand-dark bg-white transition-colors duration-300">
       <Navbar 
           cartCount={cartCount} 
           wishlistCount={wishlist.length}
@@ -1915,22 +2078,22 @@ export default function App() {
                 />
                 
                 {/* Trust Bar */}
-                <div className="bg-emerald-900 py-10">
+                <div className="bg-brand-dark py-10">
                   <div className="max-w-7xl mx-auto px-6 grid grid-cols-2 lg:grid-cols-4 gap-8 text-white/80 text-sm font-medium">
                     <div className="flex items-center gap-3">
-                      <Truck className="text-emerald-400" size={24} />
+                      <Truck className="text-brand-light" size={24} />
                       <span>Fast Delivery in Kimbo-Toll & Beyond</span>
                     </div>
                     <div className="flex items-center gap-3">
-                      <ShieldCheck className="text-emerald-400" size={24} />
+                      <ShieldCheck className="text-brand-light" size={24} />
                       <span>100% Authentic Products</span>
                     </div>
                     <div className="flex items-center gap-3">
-                      <Clock className="text-emerald-400" size={24} />
+                      <Clock className="text-brand-light" size={24} />
                       <span>Expert Advice Available 24/7</span>
                     </div>
                     <div className="flex items-center gap-3">
-                      <Heart className="text-emerald-400" size={24} />
+                      <Heart className="text-brand-light" size={24} />
                       <span>Compassionate Holistic Care</span>
                     </div>
                   </div>
@@ -1972,13 +2135,6 @@ export default function App() {
             {currentPage === 7 && <CommunityView onBack={() => goToPage(0)} />}
             {currentPage === 8 && <FAQsView onBack={() => goToPage(0)} />}
             {currentPage === 9 && <OrderTrackingView onBack={() => goToPage(0)} />}
-
-            <Pagination 
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={goToPage}
-              nextLabel={currentPage < totalPages - 1 ? `Next: ${pageNames[currentPage + 1]}` : undefined}
-            />
           </motion.div>
         </AnimatePresence>
       </main>
@@ -2042,14 +2198,14 @@ export default function App() {
               if (toastMessage.includes('cart')) setIsCartOpen(true);
               if (toastMessage.includes('wishlist')) setIsWishlistOpen(true);
             }}
-            className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[100] bg-emerald-950 text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-4 cursor-pointer"
+            className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[100] bg-brand-dark text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-4 cursor-pointer"
           >
-            <div className="w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center">
+            <div className="w-8 h-8 bg-brand-primary rounded-full flex items-center justify-center">
               {toastMessage.includes('wishlist') ? <Heart size={16} fill="currentColor" /> : <ShoppingBag size={16} />}
             </div>
             <p className="font-medium">{toastMessage}</p>
-            {toastMessage.includes('cart') && <button className="text-emerald-400 font-bold text-sm ml-4">View Cart</button>}
-            {toastMessage.includes('wishlist') && <button className="text-emerald-400 font-bold text-sm ml-4">View Wishlist</button>}
+            {toastMessage.includes('cart') && <button className="text-brand-light font-bold text-sm ml-4">View Cart</button>}
+            {toastMessage.includes('wishlist') && <button className="text-brand-light font-bold text-sm ml-4">View Wishlist</button>}
           </motion.div>
         )}
       </AnimatePresence>
