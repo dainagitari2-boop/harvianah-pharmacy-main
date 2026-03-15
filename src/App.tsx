@@ -28,7 +28,8 @@ import {
   CheckCircle2,
   HelpCircle,
   MapPin,
-  Sparkles
+  Sparkles,
+  MessageCircle
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { CATEGORIES, PRODUCTS, Product } from './types';
@@ -1860,6 +1861,41 @@ const OrderTrackingView = ({ onBack }: { onBack: () => void }) => {
   );
 };
 
+const FloatingContactButtons = () => {
+  return (
+    <div className="fixed bottom-8 left-8 z-[90] flex flex-col gap-4">
+      <motion.a
+        href="https://wa.me/254702759927"
+        target="_blank"
+        rel="noopener noreferrer"
+        initial={{ scale: 0, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.9 }}
+        className="w-16 h-16 bg-[#25D366] text-white rounded-full flex items-center justify-center shadow-2xl hover:opacity-90 transition-opacity group relative"
+      >
+        <MessageCircle size={28} />
+        <span className="absolute left-full ml-4 px-4 py-2 bg-brand-dark text-white text-xs font-bold rounded-xl opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none shadow-xl">
+          WhatsApp Us
+        </span>
+      </motion.a>
+      <motion.a
+        href="tel:0702759927"
+        initial={{ scale: 0, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.9 }}
+        className="w-16 h-16 bg-brand-primary text-white rounded-full flex items-center justify-center shadow-2xl hover:bg-brand-dark transition-colors group relative"
+      >
+        <Phone size={28} className="group-hover:animate-bounce" />
+        <span className="absolute left-full ml-4 px-4 py-2 bg-brand-dark text-white text-xs font-bold rounded-xl opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none shadow-xl">
+          Call Us: 0702759927
+        </span>
+      </motion.a>
+    </div>
+  );
+};
+
 const Footer = ({ 
   onShop, 
   onConsult, 
@@ -1887,6 +1923,7 @@ const Footer = ({
               <a href="https://www.instagram.com/harvianah_pharmacy" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-brand-primary transition-colors"><Instagram size={18} /></a>
               <a href="https://www.tiktok.com/@gitaridiana" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-brand-primary transition-colors"><Video size={18} /></a>
               <a href="tel:0702759927" className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-brand-primary transition-colors"><Phone size={18} /></a>
+              <a href="https://wa.me/254702759927" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-[#25D366] transition-colors"><MessageCircle size={18} /></a>
             </div>
           </div>
 
@@ -2149,6 +2186,7 @@ export default function App() {
         </AnimatePresence>
       </main>
 
+      <FloatingContactButtons />
       <Footer 
         onShop={() => { setSearchQuery(''); goToPage(1); }} 
         onConsult={() => setIsConsultationOpen(true)} 
