@@ -132,6 +132,105 @@ async function startServer() {
     }
   });
 
+  // API Route for Order Placement
+  app.post("/api/place-order", async (req, res) => {
+    console.log("Received order request:", req.body);
+    const { name, phone, location, items, total } = req.body;
+
+    if (!name || !phone || !location || !items || items.length === 0) {
+      return res.status(400).json({ error: "Missing required fields for order" });
+    }
+
+    try {
+      if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
+        const transporter = nodemailer.createTransport({
+          service: 'gmail',
+          auth: {
+            user: process.env.EMAIL_USER,
+            pass: process.env.EMAIL_PASS,
+          },
+        });
+
+        const itemsList = items.map((item: any) => 
+          `- ${item.product.name} (x${item.quantity}) - KES ${(item.product.price * item.quantity).toLocaleString()}`
+        ).join('\n');
+
+        const itemsHtml = items.map((item: any) => `
+          <tr>
+            <td style="padding: 8px 0; border-bottom: 1px solid #eee;">${item.product.name}</td>
+            <td style="padding: 8px 0; border-bottom: 1px solid #eee; text-align: center;">x${item.quantity}</td>
+            <td style="padding: 8px 0; border-bottom: 1px solid #eee; text-align: right;">KES ${(item.product.price * item.quantity).toLocaleString()}</td>
+          </tr>
+        `).join('');
+
+        const mailOptions = {
+          from: `"Harvianah Orders" <${process.env.EMAIL_USER}>`,
+          to: "dainagitari2@gmail.com",
+          subject: `New Order Received from ${name}`,
+          text: `
+            New Order Received!
+            
+            Customer Details:
+            - Name: ${name}
+            - Phone: ${phone}
+            - Delivery Location: ${location}
+            
+            Order Summary:
+            ${itemsList}
+            
+            Total Amount: KES ${total.toLocaleString()}
+            
+            ---
+            This email was sent from the Harvianah Pharmacy Order System.
+          `,
+          html: `
+            <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #EFF5D2; border-radius: 16px; overflow: hidden;">
+              <div style="background-color: #8FA31E; padding: 24px; text-align: center;">
+                <h1 style="color: white; margin: 0; font-size: 24px;">New Order Received</h1>
+              </div>
+              <div style="padding: 32px; background-color: white;">
+                <h2 style="color: #556B2F; margin-top: 0;">Customer Details</h2>
+                <p><strong>Name:</strong> ${name}</p>
+                <p><strong>Phone:</strong> ${phone}</p>
+                <p><strong>Location:</strong> ${location}</p>
+                
+                <h2 style="color: #556B2F; margin-top: 24px;">Order Summary</h2>
+                <table style="width: 100%; border-collapse: collapse;">
+                  <thead>
+                    <tr style="border-bottom: 2px solid #8FA31E;">
+                      <th style="text-align: left; padding-bottom: 8px;">Item</th>
+                      <th style="text-align: center; padding-bottom: 8px;">Qty</th>
+                      <th style="text-align: right; padding-bottom: 8px;">Price</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${itemsHtml}
+                  </tbody>
+                  <tfoot>
+                    <tr>
+                      <td colspan="2" style="padding-top: 16px; font-weight: bold; font-size: 18px;">Total</td>
+                      <td style="padding-top: 16px; font-weight: bold; font-size: 18px; text-align: right; color: #8FA31E;">KES ${total.toLocaleString()}</td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+              <div style="background-color: #F9F8F6; padding: 16px; text-align: center; font-size: 12px; color: #999;">
+                &copy; ${new Date().getFullYear()} Harvianah Pharmacy. All rights reserved.
+              </div>
+            </div>
+          `
+        };
+
+        transporter.sendMail(mailOptions).catch(err => console.error("Order email failed:", err));
+      }
+
+      return res.status(200).json({ message: "Order placed successfully" });
+    } catch (error) {
+      console.error("Order error:", error);
+      return res.status(500).json({ error: "Failed to place order" });
+    }
+  });
+
   // Vite middleware for development
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({

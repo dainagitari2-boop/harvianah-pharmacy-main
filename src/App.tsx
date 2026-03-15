@@ -32,6 +32,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { CATEGORIES, PRODUCTS, Product } from './types';
+import Logo from './components/Logo';
 
 // --- Utilities ---
 
@@ -146,9 +147,7 @@ const Navbar = ({
     <nav className={`fixed top-0 w-full z-50 transition-all duration-300 ${isScrolled ? 'bg-brand-primary shadow-lg py-3' : 'bg-brand-primary py-6'}`}>
       <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
         <div className="flex items-center gap-2 cursor-pointer" onClick={onHome}>
-          <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-brand-primary">
-            <Pill size={20} />
-          </div>
+          <Logo className="w-10 h-10" />
           <span className="text-xl font-serif font-bold tracking-tight text-white">
             Harvianah
           </span>
@@ -166,7 +165,6 @@ const Navbar = ({
               >
                 <button onClick={onHome} className={`transition-colors ${currentPage === 0 ? 'text-white font-bold underline underline-offset-8' : 'hover:text-white'}`}>Home</button>
                 <button onClick={onShop} className={`transition-colors ${currentPage >= 1 && currentPage <= 6 ? 'text-white font-bold underline underline-offset-8' : 'hover:text-white'}`}>Shop</button>
-                <button onClick={() => onNavigate('expertise')} className={`transition-colors ${currentPage === 6 ? 'text-white font-bold underline underline-offset-8' : 'hover:text-white'}`}>Expertise</button>
                 <button onClick={onConsult} className="hover:text-white transition-colors">Consultations</button>
                 <button onClick={() => onNavigate('tracking')} className={`transition-colors ${currentPage === 9 ? 'text-white font-bold underline underline-offset-8' : 'hover:text-white'}`}>Track Order</button>
                 <button onClick={() => onNavigate('community')} className={`transition-colors ${currentPage === 7 ? 'text-white font-bold underline underline-offset-8' : 'hover:text-white'}`}>Join Our Community</button>
@@ -246,7 +244,6 @@ const Navbar = ({
             className="absolute top-full left-0 w-full bg-brand-primary border-t border-white/10 p-6 flex flex-col gap-4 md:hidden shadow-xl"
           >
             <button onClick={() => { onShop(); setIsMobileMenuOpen(false); }} className="text-left text-lg font-medium text-white">Shop</button>
-            <button onClick={() => { onNavigate('expertise'); setIsMobileMenuOpen(false); }} className="text-left text-lg font-medium text-white">Expertise</button>
             <button onClick={() => { onConsult(); setIsMobileMenuOpen(false); }} className="text-left text-lg font-medium text-white">Consultations</button>
             <button onClick={() => { onNavigate('community'); setIsMobileMenuOpen(false); }} className="text-left text-lg font-medium text-white">Join Our Community</button>
             <button onClick={() => { onNavigate('faqs'); setIsMobileMenuOpen(false); }} className="text-left text-lg font-medium text-white">FAQs</button>
@@ -376,20 +373,47 @@ const CartModal = ({
 }) => {
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [showCheckoutForm, setShowCheckoutForm] = useState(false);
+  const [checkoutData, setCheckoutData] = useState({
+    name: '',
+    phone: '',
+    location: ''
+  });
 
   const total = cart.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
 
-  const handleCheckout = () => {
+  const handleCheckout = async (e: React.FormEvent) => {
+    e.preventDefault();
     setIsCheckingOut(true);
-    setTimeout(() => {
+    
+    try {
+      const response = await fetch('/api/place-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...checkoutData,
+          items: cart,
+          total
+        })
+      });
+
+      if (response.ok) {
+        setIsSuccess(true);
+        onClearCart();
+        setTimeout(() => {
+          setIsSuccess(false);
+          setShowCheckoutForm(false);
+          onClose();
+        }, 3000);
+      } else {
+        alert('Failed to place order. Please try again.');
+      }
+    } catch (error) {
+      console.error('Checkout error:', error);
+      alert('An error occurred. Please try again.');
+    } finally {
       setIsCheckingOut(false);
-      setIsSuccess(true);
-      onClearCart();
-      setTimeout(() => {
-        setIsSuccess(false);
-        onClose();
-      }, 3000);
-    }, 2000);
+    }
   };
 
   return (
@@ -418,7 +442,7 @@ const CartModal = ({
             </div>
 
             <div className="flex-1 overflow-y-auto p-6 space-y-6">
-              {cart.length === 0 ? (
+              {cart.length === 0 && !isSuccess ? (
                 <div className="h-full flex flex-col items-center justify-center text-center">
                   <div className="w-20 h-20 bg-brand-surface rounded-full flex items-center justify-center text-brand-light mb-4">
                     <ShoppingBag size={40} />
@@ -426,6 +450,60 @@ const CartModal = ({
                   <h3 className="text-xl font-bold text-brand-dark mb-2">Your cart is empty</h3>
                   <p className="text-brand-dark/60 mb-8">Looks like you haven't added anything yet.</p>
                   <button onClick={onClose} className="px-8 py-3 bg-brand-primary text-white rounded-xl font-bold">Start Shopping</button>
+                </div>
+              ) : isSuccess ? (
+                <div className="h-full flex flex-col items-center justify-center text-center">
+                  <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center text-green-600 mb-4">
+                    <CheckCircle2 size={40} />
+                  </div>
+                  <h3 className="text-2xl font-serif text-brand-dark mb-2">Order Placed!</h3>
+                  <p className="text-brand-dark/60 mb-4">Thank you for shopping with Harvianah. We'll contact you shortly for delivery.</p>
+                  <p className="text-sm font-bold text-brand-primary">Redirecting you back...</p>
+                </div>
+              ) : showCheckoutForm ? (
+                <div className="space-y-6">
+                  <button 
+                    onClick={() => setShowCheckoutForm(false)}
+                    className="flex items-center gap-2 text-brand-primary font-bold text-sm mb-4"
+                  >
+                    <ArrowRight size={16} className="rotate-180" /> Back to Cart
+                  </button>
+                  <h3 className="text-xl font-serif text-brand-dark mb-6">Delivery Details</h3>
+                  <form id="checkout-form" onSubmit={handleCheckout} className="space-y-4">
+                    <div>
+                      <label className="block text-xs font-bold uppercase tracking-widest text-brand-dark/40 mb-2">Full Name</label>
+                      <input 
+                        required
+                        type="text" 
+                        value={checkoutData.name}
+                        onChange={(e) => setCheckoutData({...checkoutData, name: e.target.value})}
+                        className="w-full bg-brand-surface border border-brand-light rounded-xl px-4 py-3 focus:outline-none focus:border-brand-primary" 
+                        placeholder="Your name"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold uppercase tracking-widest text-brand-dark/40 mb-2">Phone Number</label>
+                      <input 
+                        required
+                        type="tel" 
+                        value={checkoutData.phone}
+                        onChange={(e) => setCheckoutData({...checkoutData, phone: e.target.value})}
+                        className="w-full bg-brand-surface border border-brand-light rounded-xl px-4 py-3 focus:outline-none focus:border-brand-primary" 
+                        placeholder="07XX XXX XXX"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold uppercase tracking-widest text-brand-dark/40 mb-2">Delivery Location</label>
+                      <textarea 
+                        required
+                        rows={3}
+                        value={checkoutData.location}
+                        onChange={(e) => setCheckoutData({...checkoutData, location: e.target.value})}
+                        className="w-full bg-brand-surface border border-brand-light rounded-xl px-4 py-3 focus:outline-none focus:border-brand-primary resize-none" 
+                        placeholder="e.g. Kimbo, Toll, Anchor 2 Building, Room 4"
+                      />
+                    </div>
+                  </form>
                 </div>
               ) : (
                 cart.map((item) => (
@@ -472,30 +550,37 @@ const CartModal = ({
               )}
             </div>
 
-            {cart.length > 0 && (
+            {cart.length > 0 && !isSuccess && (
               <div className="p-6 border-t border-brand-surface bg-brand-surface/30">
                 <div className="flex justify-between mb-6">
-                  <span className="text-brand-dark/60 font-medium">Subtotal</span>
+                  <span className="text-brand-dark/60 font-medium">Total</span>
                   <span className="text-2xl font-bold text-brand-dark">KES {total.toLocaleString()}</span>
                 </div>
-                <button 
-                  onClick={handleCheckout}
-                  disabled={isCheckingOut || isSuccess}
-                  className={`w-full py-4 rounded-2xl font-bold text-white transition-all flex items-center justify-center gap-2 ${
-                    isSuccess ? 'bg-brand-primary' : 'bg-brand-primary hover:bg-brand-dark'
-                  }`}
-                >
-                  {isCheckingOut ? (
-                    <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  ) : isSuccess ? (
-                    <>
-                      <CheckCircle2 size={20} />
-                      Order Placed!
-                    </>
-                  ) : (
-                    'Buy Now'
-                  )}
-                </button>
+                {showCheckoutForm ? (
+                  <button 
+                    form="checkout-form"
+                    type="submit"
+                    disabled={isCheckingOut}
+                    className="w-full py-4 bg-brand-primary text-white rounded-2xl font-bold hover:bg-brand-dark transition-all flex items-center justify-center gap-2"
+                  >
+                    {isCheckingOut ? (
+                      <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    ) : (
+                      <>
+                        Confirm Order
+                        <CheckCircle2 size={20} />
+                      </>
+                    )}
+                  </button>
+                ) : (
+                  <button 
+                    onClick={() => setShowCheckoutForm(true)}
+                    className="w-full py-4 bg-brand-primary text-white rounded-2xl font-bold hover:bg-brand-dark transition-all flex items-center justify-center gap-2"
+                  >
+                    Proceed to Checkout
+                    <ArrowRight size={20} />
+                  </button>
+                )}
               </div>
             )}
           </motion.div>
@@ -1038,13 +1123,19 @@ const ShopView = ({
                     </button>
                     <button 
                       onClick={() => onAddToCart(product)}
-                      className="w-12 h-12 bg-brand-primary text-white rounded-2xl flex items-center justify-center shadow-xl hover:bg-brand-dark"
+                      disabled={!product.inStock}
+                      className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-xl transition-all ${!product.inStock ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-brand-primary text-white hover:bg-brand-dark'}`}
                     >
                       <ShoppingBag size={20} />
                     </button>
                   </div>
-                  <div className="absolute top-6 left-6 px-3 py-1 bg-white/90 backdrop-blur-sm rounded-full text-[10px] font-bold uppercase tracking-widest text-brand-dark">
-                    {product.category}
+                  <div className="absolute top-6 left-6 flex flex-col gap-2">
+                    <div className="px-3 py-1 bg-white/90 backdrop-blur-sm rounded-full text-[10px] font-bold uppercase tracking-widest text-brand-dark shadow-sm">
+                      {product.category}
+                    </div>
+                    <div className={`px-3 py-1 backdrop-blur-sm rounded-full text-[10px] font-bold uppercase tracking-widest shadow-sm ${product.inStock ? 'bg-green-100/90 text-green-700' : 'bg-red-100/90 text-red-700'}`}>
+                      {product.inStock ? 'In Stock' : 'Out of Stock'}
+                    </div>
                   </div>
                   {product.originalPrice && (
                     <div className="absolute top-6 right-6 px-3 py-1 bg-red-500 text-white rounded-full text-[10px] font-bold uppercase tracking-widest shadow-lg">
@@ -1070,9 +1161,10 @@ const ShopView = ({
                     </div>
                     <button 
                       onClick={() => onBuyNow(product)}
-                      className="w-full py-3 bg-brand-surface text-brand-primary rounded-xl font-bold text-sm hover:bg-brand-primary hover:text-white transition-all"
+                      disabled={!product.inStock}
+                      className={`w-full py-3 rounded-xl font-bold text-sm transition-all ${!product.inStock ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-brand-surface text-brand-primary hover:bg-brand-primary hover:text-white'}`}
                     >
-                      Buy Now
+                      {product.inStock ? 'Buy Now' : 'Out of Stock'}
                     </button>
                   </div>
                 </div>
@@ -1214,13 +1306,19 @@ const FeaturedProducts = ({
                   </button>
                   <button 
                     onClick={() => onAddToCart(product)}
-                    className="w-12 h-12 bg-brand-primary text-white rounded-2xl flex items-center justify-center shadow-xl hover:bg-brand-dark"
+                    disabled={!product.inStock}
+                    className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-xl transition-all ${!product.inStock ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-brand-primary text-white hover:bg-brand-dark'}`}
                   >
                     <ShoppingBag size={20} />
                   </button>
                 </div>
-                <div className="absolute top-6 left-6 px-3 py-1 bg-white/90 backdrop-blur-sm rounded-full text-[10px] font-bold uppercase tracking-widest text-brand-dark">
-                  {product.category}
+                <div className="absolute top-6 left-6 flex flex-col gap-2">
+                  <div className="px-3 py-1 bg-white/90 backdrop-blur-sm rounded-full text-[10px] font-bold uppercase tracking-widest text-brand-dark shadow-sm">
+                    {product.category}
+                  </div>
+                  <div className={`px-3 py-1 backdrop-blur-sm rounded-full text-[10px] font-bold uppercase tracking-widest shadow-sm ${product.inStock ? 'bg-green-100/90 text-green-700' : 'bg-red-100/90 text-red-700'}`}>
+                    {product.inStock ? 'In Stock' : 'Out of Stock'}
+                  </div>
                 </div>
                 {product.originalPrice && (
                   <div className="absolute top-6 right-6 px-3 py-1 bg-red-500 text-white rounded-full text-[10px] font-bold uppercase tracking-widest shadow-lg">
@@ -1246,9 +1344,10 @@ const FeaturedProducts = ({
                   </div>
                   <button 
                     onClick={() => onBuyNow(product)}
-                    className="w-full py-3 bg-brand-surface text-brand-primary rounded-xl font-bold text-sm hover:bg-brand-primary hover:text-white transition-all"
+                    disabled={!product.inStock}
+                    className={`w-full py-3 rounded-xl font-bold text-sm transition-all ${!product.inStock ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-brand-surface text-brand-primary hover:bg-brand-primary hover:text-white'}`}
                   >
-                    Buy Now
+                    {product.inStock ? 'Buy Now' : 'Out of Stock'}
                   </button>
                 </div>
               </div>
@@ -1419,8 +1518,13 @@ const QuickViewModal = ({
                 className="w-full h-full object-cover"
                 referrerPolicy="no-referrer"
               />
-              <div className="absolute top-6 left-6 px-4 py-1.5 bg-white/90 backdrop-blur-md rounded-full text-xs font-bold uppercase tracking-widest text-brand-dark shadow-sm">
-                {product.category}
+              <div className="absolute top-6 left-6 flex flex-col gap-2">
+                <div className="px-4 py-1.5 bg-white/90 backdrop-blur-md rounded-full text-xs font-bold uppercase tracking-widest text-brand-dark shadow-sm">
+                  {product.category}
+                </div>
+                <div className={`px-4 py-1.5 backdrop-blur-md rounded-full text-xs font-bold uppercase tracking-widest shadow-sm ${product.inStock ? 'bg-green-100/90 text-green-700' : 'bg-red-100/90 text-red-700'}`}>
+                  {product.inStock ? 'In Stock' : 'Out of Stock'}
+                </div>
               </div>
               {product.originalPrice && (
                 <div className="absolute top-6 right-6 px-4 py-1.5 bg-red-500 text-white rounded-full text-xs font-bold uppercase tracking-widest shadow-lg">
@@ -1452,13 +1556,15 @@ const QuickViewModal = ({
               <div className="flex flex-col gap-3 mb-10">
                 <button 
                   onClick={() => { onBuyNow(product); onClose(); }}
-                  className="w-full py-4 bg-brand-primary text-white rounded-2xl font-bold hover:bg-brand-dark transition-all shadow-lg shadow-brand-light/20 flex items-center justify-center gap-2"
+                  disabled={!product.inStock}
+                  className={`w-full py-4 rounded-2xl font-bold transition-all shadow-lg flex items-center justify-center gap-2 ${!product.inStock ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-brand-primary text-white hover:bg-brand-dark shadow-brand-light/20'}`}
                 >
-                  Buy Now <ArrowRight size={18} />
+                  {product.inStock ? 'Buy Now' : 'Out of Stock'} <ArrowRight size={18} />
                 </button>
                 <button 
                   onClick={() => onAddToCart(product)}
-                  className="w-full py-4 bg-white border-2 border-brand-primary text-brand-primary rounded-2xl font-bold hover:bg-brand-surface transition-all flex items-center justify-center gap-2"
+                  disabled={!product.inStock}
+                  className={`w-full py-4 rounded-2xl font-bold transition-all flex items-center justify-center gap-2 border-2 ${!product.inStock ? 'bg-white border-gray-200 text-gray-400 cursor-not-allowed' : 'bg-white border-brand-primary text-brand-primary hover:bg-brand-surface'}`}
                 >
                   <ShoppingBag size={18} /> Add to Cart
                 </button>
@@ -1625,61 +1731,6 @@ const Pagination = ({
         <ArrowRight size={18} />
       </button>
     </div>
-  );
-};
-
-const ExpertiseView = ({ onBack }: { onBack: () => void }) => {
-  return (
-    <section id="expertise" className="py-32 bg-white min-h-screen transition-colors duration-300">
-      <div className="max-w-7xl mx-auto px-6">
-        <button onClick={onBack} className="flex items-center gap-2 text-brand-primary font-bold mb-8 hover:gap-3 transition-all">
-          <ArrowRight size={18} className="rotate-180" /> Back to Home
-        </button>
-        <div className="grid lg:grid-cols-2 gap-16 items-center">
-          <div className="order-2 lg:order-1 relative">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="aspect-square rounded-[2rem] overflow-hidden shadow-xl">
-                <img src="https://images.unsplash.com/photo-1594824476967-48c8b964273f?auto=format&fit=crop&q=80&w=400" alt="Pharmaceutical Technologist" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
-              </div>
-              <div className="aspect-square rounded-[2rem] overflow-hidden shadow-xl mt-12">
-                <img src="https://images.unsplash.com/photo-1559839734-2b71f1536783?auto=format&fit=crop&q=80&w=400" alt="Counseling Psychologist" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
-              </div>
-            </div>
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white p-8 rounded-[2.5rem] shadow-2xl border border-brand-surface text-center max-w-[200px]">
-              <h4 className="text-3xl font-serif text-brand-dark mb-1">Dual</h4>
-              <p className="text-xs text-brand-dark/60 uppercase tracking-widest font-bold">Expertise Model</p>
-            </div>
-          </div>
-          
-          <div className="order-1 lg:order-2">
-            <h2 className="text-4xl md:text-5xl font-serif text-brand-dark mb-8 leading-tight">
-              Science with a Soul, <br />
-              <span className="italic text-brand-primary">Care with a Smile.</span>
-            </h2>
-            <div className="space-y-8">
-              <div className="flex gap-6">
-                <div className="w-14 h-14 shrink-0 bg-brand-surface rounded-2xl flex items-center justify-center text-brand-primary">
-                  <Pill size={28} />
-                </div>
-                <div>
-                  <h4 className="text-xl font-bold text-brand-dark mb-2">The Science Squad</h4>
-                  <p className="text-brand-dark/60 leading-relaxed">Our lead Pharmaceutical Technologist ensures every product is safe, effective, and scientifically sound. No guesswork, just results!</p>
-                </div>
-              </div>
-              <div className="flex gap-6">
-                <div className="w-14 h-14 shrink-0 bg-orange-100 rounded-2xl flex items-center justify-center text-orange-700">
-                  <Brain size={28} />
-                </div>
-                <div>
-                  <h4 className="text-xl font-bold text-brand-dark mb-2">The Soul Support</h4>
-                  <p className="text-brand-dark/60 leading-relaxed">Our Counseling Psychologist provides the empathy and mental health support needed for true holistic healing. Because your mind matters too.</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
   );
 };
 
@@ -1885,9 +1936,7 @@ const Footer = ({
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
           <div className="space-y-6">
             <div className="flex items-center gap-2">
-              <div className="w-10 h-10 bg-brand-primary rounded-full flex items-center justify-center text-white">
-                <Pill size={20} />
-              </div>
+              <Logo className="w-10 h-10" />
               <span className="text-2xl font-serif font-bold tracking-tight">Harvianah</span>
             </div>
             <p className="text-brand-surface/60 leading-relaxed">
@@ -2071,10 +2120,9 @@ export default function App() {
             if (id === 'mother-baby') goToPage(4);
             if (id === 'wellness') goToPage(5);
             if (id === 'beauty') goToPage(6);
-            if (id === 'expertise') goToPage(7);
-            if (id === 'community') goToPage(8);
-            if (id === 'faqs') goToPage(9);
-            if (id === 'tracking') goToPage(10);
+            if (id === 'community') goToPage(7);
+            if (id === 'faqs') goToPage(8);
+            if (id === 'tracking') goToPage(9);
             if (id === 'consultations') goToPage(0);
           }}
           currentPage={currentPage}
@@ -2160,10 +2208,9 @@ export default function App() {
               />
             )}
 
-            {currentPage === 7 && <ExpertiseView onBack={() => goToPage(0)} />}
-            {currentPage === 8 && <CommunityView onBack={() => goToPage(0)} />}
-            {currentPage === 9 && <FAQsView onBack={() => goToPage(0)} />}
-            {currentPage === 10 && <OrderTrackingView onBack={() => goToPage(0)} />}
+            {currentPage === 7 && <CommunityView onBack={() => goToPage(0)} />}
+            {currentPage === 8 && <FAQsView onBack={() => goToPage(0)} />}
+            {currentPage === 9 && <OrderTrackingView onBack={() => goToPage(0)} />}
           </motion.div>
         </AnimatePresence>
       </main>
@@ -2179,10 +2226,9 @@ export default function App() {
           if (id === 'mother-baby') goToPage(4);
           if (id === 'wellness') goToPage(5);
           if (id === 'beauty') goToPage(6);
-          if (id === 'expertise') goToPage(7);
-          if (id === 'community') goToPage(8);
-          if (id === 'faqs') goToPage(9);
-          if (id === 'tracking') goToPage(10);
+          if (id === 'community') goToPage(7);
+          if (id === 'faqs') goToPage(8);
+          if (id === 'tracking') goToPage(9);
         }}
         onLegal={handleLegal}
       />
