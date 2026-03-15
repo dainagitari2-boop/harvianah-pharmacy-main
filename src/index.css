@@ -14,6 +14,7 @@
 @layer base {
   html {
     scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
   }
   body {
     @apply bg-brand-surface text-brand-dark antialiased;

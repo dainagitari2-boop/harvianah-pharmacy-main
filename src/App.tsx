@@ -113,6 +113,7 @@ const Navbar = ({
   onShop,
   onConsult,
   onNavigate,
+  onWellnessHub,
   currentPage
 }: { 
   cartCount: number; 
@@ -124,6 +125,7 @@ const Navbar = ({
   onShop: () => void;
   onConsult: () => void;
   onNavigate: (sectionId: string) => void;
+  onWellnessHub: () => void;
   currentPage: number;
 }) => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -166,6 +168,12 @@ const Navbar = ({
               >
                 <button onClick={onHome} className={`transition-colors ${currentPage === 0 ? 'text-white font-bold underline underline-offset-8' : 'hover:text-white'}`}>Home</button>
                 <button onClick={onShop} className={`transition-colors ${currentPage >= 1 && currentPage <= 6 ? 'text-white font-bold underline underline-offset-8' : 'hover:text-white'}`}>Shop</button>
+                <button 
+                  onClick={onWellnessHub} 
+                  className="hover:text-white transition-colors"
+                >
+                  Wellness Hub
+                </button>
                 <button onClick={onConsult} className="hover:text-white transition-colors">Consultations</button>
                 <button onClick={() => onNavigate('tracking')} className={`transition-colors ${currentPage === 9 ? 'text-white font-bold underline underline-offset-8' : 'hover:text-white'}`}>Track Order</button>
                 <button onClick={() => onNavigate('community')} className={`transition-colors ${currentPage === 7 ? 'text-white font-bold underline underline-offset-8' : 'hover:text-white'}`}>Join Our Community</button>
@@ -245,6 +253,15 @@ const Navbar = ({
             className="absolute top-full left-0 w-full bg-brand-primary border-t border-white/10 p-6 flex flex-col gap-4 md:hidden shadow-xl"
           >
             <button onClick={() => { onShop(); setIsMobileMenuOpen(false); }} className="text-left text-lg font-medium text-white">Shop</button>
+            <button 
+              onClick={() => { 
+                setIsMobileMenuOpen(false);
+                onWellnessHub();
+              }} 
+              className="text-left text-lg font-medium text-white"
+            >
+              Wellness Hub
+            </button>
             <button onClick={() => { onConsult(); setIsMobileMenuOpen(false); }} className="text-left text-lg font-medium text-white">Consultations</button>
             <button onClick={() => { onNavigate('community'); setIsMobileMenuOpen(false); }} className="text-left text-lg font-medium text-white">Join Our Community</button>
             <button onClick={() => { onNavigate('faqs'); setIsMobileMenuOpen(false); }} className="text-left text-lg font-medium text-white">FAQs</button>
@@ -1861,6 +1878,46 @@ const OrderTrackingView = ({ onBack }: { onBack: () => void }) => {
   );
 };
 
+const ScrollToTop = () => {
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const toggleVisibility = () => {
+      if (window.pageYOffset > 300) {
+        setIsVisible(true);
+      } else {
+        setIsVisible(false);
+      }
+    };
+
+    window.addEventListener('scroll', toggleVisibility);
+    return () => window.removeEventListener('scroll', toggleVisibility);
+  }, []);
+
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth',
+    });
+  };
+
+  return (
+    <AnimatePresence>
+      {isVisible && (
+        <motion.button
+          initial={{ opacity: 0, scale: 0.5, y: 20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.5, y: 20 }}
+          onClick={scrollToTop}
+          className="fixed bottom-8 right-8 z-[90] w-14 h-14 bg-white text-brand-primary rounded-full flex items-center justify-center shadow-2xl border border-brand-surface hover:bg-brand-primary hover:text-white transition-all group"
+        >
+          <ChevronRight size={24} className="-rotate-90 group-hover:-translate-y-1 transition-transform" />
+        </motion.button>
+      )}
+    </AnimatePresence>
+  );
+};
+
 const FloatingContactButtons = () => {
   return (
     <div className="fixed bottom-8 left-8 z-[90] flex flex-col gap-4">
@@ -2090,6 +2147,16 @@ export default function App() {
           onHome={() => goToPage(0)}
           onShop={() => { setSearchQuery(''); goToPage(1); }}
           onConsult={() => setIsConsultationOpen(true)}
+          onWellnessHub={() => {
+            if (currentPage !== 0) {
+              goToPage(0);
+              setTimeout(() => {
+                document.getElementById('wellness-hub')?.scrollIntoView({ behavior: 'smooth' });
+              }, 500);
+            } else {
+              document.getElementById('wellness-hub')?.scrollIntoView({ behavior: 'smooth' });
+            }
+          }}
           onNavigate={(id) => {
             setSearchQuery('');
             if (id === 'all') goToPage(1);
@@ -2187,6 +2254,7 @@ export default function App() {
       </main>
 
       <FloatingContactButtons />
+      <ScrollToTop />
       <Footer 
         onShop={() => { setSearchQuery(''); goToPage(1); }} 
         onConsult={() => setIsConsultationOpen(true)} 
