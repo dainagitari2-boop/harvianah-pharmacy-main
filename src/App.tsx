@@ -20,6 +20,7 @@ import {
   Truck, 
   Clock,
   ArrowRight,
+  ArrowUp,
   User,
   Phone,
   Trash2,
@@ -113,7 +114,6 @@ const Navbar = ({
   onShop,
   onConsult,
   onNavigate,
-  onWellnessHub,
   currentPage
 }: { 
   cartCount: number; 
@@ -125,7 +125,6 @@ const Navbar = ({
   onShop: () => void;
   onConsult: () => void;
   onNavigate: (sectionId: string) => void;
-  onWellnessHub: () => void;
   currentPage: number;
 }) => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -168,12 +167,6 @@ const Navbar = ({
               >
                 <button onClick={onHome} className={`transition-colors ${currentPage === 0 ? 'text-white font-bold underline underline-offset-8' : 'hover:text-white'}`}>Home</button>
                 <button onClick={onShop} className={`transition-colors ${currentPage >= 1 && currentPage <= 6 ? 'text-white font-bold underline underline-offset-8' : 'hover:text-white'}`}>Shop</button>
-                <button 
-                  onClick={onWellnessHub} 
-                  className="hover:text-white transition-colors"
-                >
-                  Wellness Hub
-                </button>
                 <button onClick={onConsult} className="hover:text-white transition-colors">Consultations</button>
                 <button onClick={() => onNavigate('tracking')} className={`transition-colors ${currentPage === 9 ? 'text-white font-bold underline underline-offset-8' : 'hover:text-white'}`}>Track Order</button>
                 <button onClick={() => onNavigate('community')} className={`transition-colors ${currentPage === 7 ? 'text-white font-bold underline underline-offset-8' : 'hover:text-white'}`}>Join Our Community</button>
@@ -253,15 +246,6 @@ const Navbar = ({
             className="absolute top-full left-0 w-full bg-brand-primary border-t border-white/10 p-6 flex flex-col gap-4 md:hidden shadow-xl"
           >
             <button onClick={() => { onShop(); setIsMobileMenuOpen(false); }} className="text-left text-lg font-medium text-white">Shop</button>
-            <button 
-              onClick={() => { 
-                setIsMobileMenuOpen(false);
-                onWellnessHub();
-              }} 
-              className="text-left text-lg font-medium text-white"
-            >
-              Wellness Hub
-            </button>
             <button onClick={() => { onConsult(); setIsMobileMenuOpen(false); }} className="text-left text-lg font-medium text-white">Consultations</button>
             <button onClick={() => { onNavigate('community'); setIsMobileMenuOpen(false); }} className="text-left text-lg font-medium text-white">Join Our Community</button>
             <button onClick={() => { onNavigate('faqs'); setIsMobileMenuOpen(false); }} className="text-left text-lg font-medium text-white">FAQs</button>
@@ -1883,7 +1867,7 @@ const ScrollToTop = () => {
 
   useEffect(() => {
     const toggleVisibility = () => {
-      if (window.pageYOffset > 300) {
+      if (window.scrollY > 300) {
         setIsVisible(true);
       } else {
         setIsVisible(false);
@@ -1908,10 +1892,13 @@ const ScrollToTop = () => {
           initial={{ opacity: 0, scale: 0.5, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.5, y: 20 }}
+          whileHover={{ y: -5 }}
+          whileTap={{ scale: 0.9 }}
           onClick={scrollToTop}
-          className="fixed bottom-8 right-8 z-[90] w-14 h-14 bg-white text-brand-primary rounded-full flex items-center justify-center shadow-2xl border border-brand-surface hover:bg-brand-primary hover:text-white transition-all group"
+          className="fixed bottom-8 right-8 z-[90] w-14 h-14 bg-brand-primary text-white rounded-2xl flex items-center justify-center shadow-2xl hover:bg-brand-dark transition-all group"
+          aria-label="Scroll to top"
         >
-          <ChevronRight size={24} className="-rotate-90 group-hover:-translate-y-1 transition-transform" />
+          <ArrowUp size={24} className="group-hover:-translate-y-1 transition-transform" />
         </motion.button>
       )}
     </AnimatePresence>
@@ -2004,20 +1991,30 @@ const Footer = ({
             </ul>
           </div>
 
-          <div>
-            <h4 className="font-bold text-lg mb-6">Newsletter</h4>
-            <p className="text-brand-surface/60 mb-6 text-sm">Subscribe for wellness tips and exclusive offers.</p>
-            <form onSubmit={(e) => { e.preventDefault(); onLegal('Newsletter'); }} className="flex gap-2">
-              <input 
-                required
-                type="email" 
-                placeholder="Your email" 
-                className="bg-white/10 border border-white/20 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-brand-primary w-full"
-              />
-              <button type="submit" className="bg-brand-primary text-white px-4 py-2 rounded-xl hover:bg-brand-dark transition-colors">
-                Join
-              </button>
-            </form>
+          <div className="lg:col-span-1">
+            <div className="bg-white/5 p-8 rounded-[2rem] border border-white/10 relative overflow-hidden group">
+              <div className="absolute -top-12 -right-12 w-32 h-32 bg-brand-primary/10 rounded-full blur-3xl group-hover:bg-brand-primary/20 transition-colors" />
+              <h4 className="font-bold text-xl mb-4 relative z-10">Stay Healthy & Informed</h4>
+              <p className="text-brand-surface/60 mb-6 text-sm leading-relaxed relative z-10">
+                Join our community for expert wellness tips, new arrivals, and exclusive pharmacy offers.
+              </p>
+              <form onSubmit={(e) => { e.preventDefault(); onLegal('Newsletter'); }} className="space-y-3 relative z-10">
+                <div className="relative">
+                  <input 
+                    required
+                    type="email" 
+                    placeholder="Enter your email" 
+                    className="w-full bg-white/10 border border-white/20 rounded-xl px-5 py-3 text-sm focus:outline-none focus:border-brand-primary focus:bg-white/20 transition-all"
+                  />
+                </div>
+                <button type="submit" className="w-full bg-brand-primary text-white py-3 rounded-xl font-bold hover:bg-brand-light hover:text-brand-dark transition-all shadow-lg shadow-brand-primary/20">
+                  Subscribe Now
+                </button>
+              </form>
+              <p className="mt-4 text-[10px] text-brand-surface/30 text-center">
+                By subscribing, you agree to our Privacy Policy.
+              </p>
+            </div>
           </div>
         </div>
 
@@ -2147,16 +2144,6 @@ export default function App() {
           onHome={() => goToPage(0)}
           onShop={() => { setSearchQuery(''); goToPage(1); }}
           onConsult={() => setIsConsultationOpen(true)}
-          onWellnessHub={() => {
-            if (currentPage !== 0) {
-              goToPage(0);
-              setTimeout(() => {
-                document.getElementById('wellness-hub')?.scrollIntoView({ behavior: 'smooth' });
-              }, 500);
-            } else {
-              document.getElementById('wellness-hub')?.scrollIntoView({ behavior: 'smooth' });
-            }
-          }}
           onNavigate={(id) => {
             setSearchQuery('');
             if (id === 'all') goToPage(1);
