@@ -10,13 +10,13 @@ const Logo = ({ className = "w-10 h-10" }: { className?: string }) => {
         {/* Stylized 'H' Logo */}
         <path 
           d="M30 25V75M70 25V75" 
-          stroke="#00CED1" 
+          stroke="currentColor" 
           strokeWidth="12" 
           strokeLinecap="round"
         />
         <path 
           d="M30 50C30 50 40 55 50 50C60 45 70 50 70 50" 
-          stroke="#00CED1" 
+          stroke="currentColor" 
           strokeWidth="12" 
           strokeLinecap="round"
           fill="none"

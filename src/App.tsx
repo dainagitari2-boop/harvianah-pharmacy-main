@@ -147,7 +147,7 @@ const Navbar = ({
     <nav className={`fixed top-0 w-full z-50 transition-all duration-300 ${isScrolled ? 'bg-brand-primary shadow-lg py-3' : 'bg-brand-primary py-6'}`}>
       <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
         <div className="flex items-center gap-2 cursor-pointer" onClick={onHome}>
-          <Logo className="w-10 h-10" />
+          <Logo className="w-10 h-10 text-brand-primary" />
           <span className="text-xl font-serif font-bold tracking-tight text-white">
             Harvianah
           </span>
@@ -1090,79 +1090,82 @@ const ShopView = ({
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
             {paginatedProducts.map((product) => (
               <motion.div 
                 key={product.id}
                 layout
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="bg-white rounded-[2.5rem] overflow-hidden border border-brand-surface group flex flex-col"
+                whileHover={{ y: -12 }}
+                className="bg-white rounded-[3rem] overflow-hidden border border-brand-surface group flex flex-col hover:shadow-2xl hover:shadow-brand-dark/5 transition-all duration-500"
               >
                 <div className="relative aspect-[4/5] overflow-hidden">
                   <img 
                     src={product.image} 
                     alt={product.name} 
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000"
                     referrerPolicy="no-referrer"
                   />
-                  <div className="absolute inset-0 bg-brand-dark/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                  <div className="absolute inset-0 bg-brand-dark/40 opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-center justify-center backdrop-blur-[2px]">
                     <button 
                       onClick={() => onQuickView(product)}
-                      className="px-6 py-2.5 bg-white text-brand-dark rounded-full font-bold text-sm shadow-xl hover:bg-brand-surface transition-all translate-y-4 group-hover:translate-y-0 duration-300"
+                      className="px-8 py-3 bg-white text-brand-dark rounded-full font-bold text-sm shadow-2xl hover:bg-brand-primary hover:text-white transition-all translate-y-8 group-hover:translate-y-0 duration-500"
                     >
                       Quick View
                     </button>
                   </div>
-                  <div className="absolute bottom-6 right-6 flex flex-col gap-2 translate-y-20 group-hover:translate-y-0 transition-transform duration-500">
+                  <div className="absolute bottom-8 right-8 flex flex-col gap-3 translate-y-24 group-hover:translate-y-0 transition-transform duration-700 delay-100">
                     <button 
                       onClick={() => onToggleWishlist(product)}
-                      className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-xl transition-colors ${wishlist.includes(product.id) ? 'bg-brand-primary text-white' : 'bg-white text-brand-dark hover:bg-brand-surface'}`}
+                      className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-2xl transition-all duration-300 ${wishlist.includes(product.id) ? 'bg-brand-primary text-white' : 'bg-white text-brand-dark hover:bg-brand-surface'}`}
                     >
-                      <Heart size={20} fill={wishlist.includes(product.id) ? "currentColor" : "none"} />
+                      <Heart size={24} fill={wishlist.includes(product.id) ? "currentColor" : "none"} />
                     </button>
                     <button 
                       onClick={() => onAddToCart(product)}
                       disabled={!product.inStock}
-                      className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-xl transition-all ${!product.inStock ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-brand-primary text-white hover:bg-brand-dark'}`}
+                      className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-2xl transition-all duration-300 ${!product.inStock ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-brand-primary text-white hover:bg-brand-dark'}`}
                     >
-                      <ShoppingBag size={20} />
+                      <ShoppingBag size={24} />
                     </button>
                   </div>
-                  <div className="absolute top-6 left-6 flex flex-col gap-2">
-                    <div className="px-3 py-1 bg-white/90 backdrop-blur-sm rounded-full text-[10px] font-bold uppercase tracking-widest text-brand-dark shadow-sm">
+                  <div className="absolute top-8 left-8 flex flex-col gap-2">
+                    <div className="px-4 py-1.5 bg-white/95 backdrop-blur-md rounded-full text-[10px] font-bold uppercase tracking-[0.2em] text-brand-dark shadow-sm border border-brand-surface/50">
                       {product.category}
                     </div>
-                    <div className={`px-3 py-1 backdrop-blur-sm rounded-full text-[10px] font-bold uppercase tracking-widest shadow-sm ${product.inStock ? 'bg-green-100/90 text-green-700' : 'bg-red-100/90 text-red-700'}`}>
+                    <div className={`px-4 py-1.5 backdrop-blur-md rounded-full text-[10px] font-bold uppercase tracking-[0.15em] shadow-sm border border-white/20 ${product.inStock ? 'bg-green-500/10 text-green-600' : 'bg-red-500/10 text-red-600'}`}>
                       {product.inStock ? 'In Stock' : 'Out of Stock'}
                     </div>
                   </div>
                   {product.originalPrice && (
-                    <div className="absolute top-6 right-6 px-3 py-1 bg-red-500 text-white rounded-full text-[10px] font-bold uppercase tracking-widest shadow-lg">
+                    <div className="absolute top-8 right-8 px-4 py-1.5 bg-red-500 text-white rounded-full text-[10px] font-bold uppercase tracking-widest shadow-xl animate-pulse">
                       Sale
                     </div>
                   )}
                 </div>
-                <div className="p-8 flex-1 flex flex-col">
-                  <div className="flex justify-between items-start mb-2">
-                    <h3 className="text-xl font-bold text-brand-dark">{product.name}</h3>
-                  <div className="flex flex-col items-end mb-2">
-                    {product.originalPrice && (
-                      <span className="text-xs text-red-500 line-through">KES {product.originalPrice.toLocaleString()}</span>
-                    )}
-                    <span className="text-brand-primary font-bold">KES {product.price.toLocaleString()}</span>
-                  </div>
+                <div className="p-10 flex-1 flex flex-col">
+                  <div className="flex justify-between items-start mb-4">
+                    <div>
+                      <h3 className="text-2xl font-serif text-brand-dark group-hover:text-brand-primary transition-colors duration-300">{product.name}</h3>
+                      <div className="flex items-center gap-1 text-orange-400 mt-2">
+                        {[1, 2, 3, 4, 5].map(i => <Star key={i} size={12} fill="currentColor" />)}
+                        <span className="text-[10px] text-brand-dark/40 ml-2 uppercase tracking-widest font-bold">{product.reviews?.length || 0} reviews</span>
+                      </div>
+                    </div>
+                    <div className="flex flex-col items-end">
+                      {product.originalPrice && (
+                        <span className="text-xs text-red-500 line-through mb-1">KES {product.originalPrice.toLocaleString()}</span>
+                      )}
+                      <span className="text-xl font-bold text-brand-primary">KES {product.price.toLocaleString()}</span>
+                    </div>
                   </div>
                   <ExpandableText text={product.description} limit={80} />
                   <div className="mt-auto">
-                    <div className="flex items-center gap-1 text-orange-400 mb-6">
-                      {[1, 2, 3, 4, 5].map(i => <Star key={i} size={14} fill="currentColor" />)}
-                      <span className="text-xs text-brand-dark/40 ml-2">({product.reviews?.length || 0} reviews)</span>
-                    </div>
                     <button 
                       onClick={() => onBuyNow(product)}
                       disabled={!product.inStock}
-                      className={`w-full py-3 rounded-xl font-bold text-sm transition-all ${!product.inStock ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-brand-surface text-brand-primary hover:bg-brand-primary hover:text-white'}`}
+                      className={`w-full py-4 rounded-2xl font-bold text-sm tracking-widest uppercase transition-all duration-500 ${!product.inStock ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-brand-surface text-brand-primary hover:bg-brand-primary hover:text-white hover:shadow-xl hover:shadow-brand-primary/20'}`}
                     >
                       {product.inStock ? 'Buy Now' : 'Out of Stock'}
                     </button>
@@ -1253,7 +1256,7 @@ const FeaturedProducts = ({
 }) => {
   const [currentPage, setCurrentPage] = useState(0);
   const sectionRef = useRef<HTMLElement>(null);
-  const ITEMS_PER_PAGE = 4;
+  const ITEMS_PER_PAGE = 3;
   const featuredProducts = PRODUCTS.filter(p => p.isFeatured);
   const totalPages = Math.ceil(featuredProducts.length / ITEMS_PER_PAGE);
   const paginatedProducts = featuredProducts.slice(currentPage * ITEMS_PER_PAGE, (currentPage + 1) * ITEMS_PER_PAGE);
@@ -1273,79 +1276,82 @@ const FeaturedProducts = ({
           <p className="text-brand-dark/60 max-w-2xl mx-auto">Our top-selling wellness products, hand-picked by our pharmaceutical and psychological experts for their efficacy and quality.</p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
           {paginatedProducts.map((product) => (
             <motion.div 
               key={product.id}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
+              whileHover={{ y: -12 }}
               viewport={{ once: true }}
-              className="bg-white rounded-[2.5rem] overflow-hidden border border-brand-surface group flex flex-col"
+              className="bg-white rounded-[3rem] overflow-hidden border border-brand-surface group flex flex-col hover:shadow-2xl hover:shadow-brand-dark/5 transition-all duration-500"
             >
               <div className="relative aspect-[4/5] overflow-hidden">
                 <img 
                   src={product.image} 
                   alt={product.name} 
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000"
                   referrerPolicy="no-referrer"
                 />
-                <div className="absolute inset-0 bg-brand-dark/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                <div className="absolute inset-0 bg-brand-dark/40 opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-center justify-center backdrop-blur-[2px]">
                   <button 
                     onClick={() => onQuickView(product)}
-                    className="px-6 py-2.5 bg-white text-brand-dark rounded-full font-bold text-sm shadow-xl hover:bg-brand-surface transition-all translate-y-4 group-hover:translate-y-0 duration-300"
+                    className="px-8 py-3 bg-white text-brand-dark rounded-full font-bold text-sm shadow-2xl hover:bg-brand-primary hover:text-white transition-all translate-y-8 group-hover:translate-y-0 duration-500"
                   >
                     Quick View
                   </button>
                 </div>
-                <div className="absolute bottom-6 right-6 flex flex-col gap-2 translate-y-20 group-hover:translate-y-0 transition-transform duration-500">
+                <div className="absolute bottom-8 right-8 flex flex-col gap-3 translate-y-24 group-hover:translate-y-0 transition-transform duration-700 delay-100">
                   <button 
                     onClick={() => onToggleWishlist(product)}
-                    className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-xl transition-colors ${wishlist.includes(product.id) ? 'bg-brand-primary text-white' : 'bg-white text-brand-dark hover:bg-brand-surface'}`}
+                    className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-2xl transition-all duration-300 ${wishlist.includes(product.id) ? 'bg-brand-primary text-white' : 'bg-white text-brand-dark hover:bg-brand-surface'}`}
                   >
-                    <Heart size={20} fill={wishlist.includes(product.id) ? "currentColor" : "none"} />
+                    <Heart size={24} fill={wishlist.includes(product.id) ? "currentColor" : "none"} />
                   </button>
                   <button 
                     onClick={() => onAddToCart(product)}
                     disabled={!product.inStock}
-                    className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-xl transition-all ${!product.inStock ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-brand-primary text-white hover:bg-brand-dark'}`}
+                    className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-2xl transition-all duration-300 ${!product.inStock ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-brand-primary text-white hover:bg-brand-dark'}`}
                   >
-                    <ShoppingBag size={20} />
+                    <ShoppingBag size={24} />
                   </button>
                 </div>
-                <div className="absolute top-6 left-6 flex flex-col gap-2">
-                  <div className="px-3 py-1 bg-white/90 backdrop-blur-sm rounded-full text-[10px] font-bold uppercase tracking-widest text-brand-dark shadow-sm">
+                <div className="absolute top-8 left-8 flex flex-col gap-2">
+                  <div className="px-4 py-1.5 bg-white/95 backdrop-blur-md rounded-full text-[10px] font-bold uppercase tracking-[0.2em] text-brand-dark shadow-sm border border-brand-surface/50">
                     {product.category}
                   </div>
-                  <div className={`px-3 py-1 backdrop-blur-sm rounded-full text-[10px] font-bold uppercase tracking-widest shadow-sm ${product.inStock ? 'bg-green-100/90 text-green-700' : 'bg-red-100/90 text-red-700'}`}>
+                  <div className={`px-4 py-1.5 backdrop-blur-md rounded-full text-[10px] font-bold uppercase tracking-[0.15em] shadow-sm border border-white/20 ${product.inStock ? 'bg-green-500/10 text-green-600' : 'bg-red-500/10 text-red-600'}`}>
                     {product.inStock ? 'In Stock' : 'Out of Stock'}
                   </div>
                 </div>
                 {product.originalPrice && (
-                  <div className="absolute top-6 right-6 px-3 py-1 bg-red-500 text-white rounded-full text-[10px] font-bold uppercase tracking-widest shadow-lg">
+                  <div className="absolute top-8 right-8 px-4 py-1.5 bg-red-500 text-white rounded-full text-[10px] font-bold uppercase tracking-widest shadow-xl animate-pulse">
                     Sale
                   </div>
                 )}
               </div>
-              <div className="p-8 flex-1 flex flex-col">
-                <div className="flex justify-between items-start mb-2">
-                  <h3 className="text-xl font-bold text-brand-dark">{product.name}</h3>
-                  <div className="flex flex-col items-end mb-2">
+              <div className="p-10 flex-1 flex flex-col">
+                <div className="flex justify-between items-start mb-4">
+                  <div>
+                    <h3 className="text-2xl font-serif text-brand-dark group-hover:text-brand-primary transition-colors duration-300">{product.name}</h3>
+                    <div className="flex items-center gap-1 text-orange-400 mt-2">
+                      {[1, 2, 3, 4, 5].map(i => <Star key={i} size={12} fill="currentColor" />)}
+                      <span className="text-[10px] text-brand-dark/40 ml-2 uppercase tracking-widest font-bold">{product.reviews?.length || 0} reviews</span>
+                    </div>
+                  </div>
+                  <div className="flex flex-col items-end">
                     {product.originalPrice && (
-                      <span className="text-xs text-red-500 line-through">KES {product.originalPrice.toLocaleString()}</span>
+                      <span className="text-xs text-red-500 line-through mb-1">KES {product.originalPrice.toLocaleString()}</span>
                     )}
-                    <span className="text-brand-primary font-bold">KES {product.price.toLocaleString()}</span>
+                    <span className="text-xl font-bold text-brand-primary">KES {product.price.toLocaleString()}</span>
                   </div>
                 </div>
-                <p className="text-sm text-brand-dark/60 mb-6 line-clamp-2">{product.description}</p>
+                <p className="text-sm text-brand-dark/60 mb-8 line-clamp-2 leading-relaxed">{product.description}</p>
                 <div className="mt-auto">
-                  <div className="flex items-center gap-1 text-orange-400 mb-6">
-                    {[1, 2, 3, 4, 5].map(i => <Star key={i} size={14} fill="currentColor" />)}
-                    <span className="text-xs text-brand-dark/40 ml-2">({product.reviews?.length || 0} reviews)</span>
-                  </div>
                   <button 
                     onClick={() => onBuyNow(product)}
                     disabled={!product.inStock}
-                    className={`w-full py-3 rounded-xl font-bold text-sm transition-all ${!product.inStock ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-brand-surface text-brand-primary hover:bg-brand-primary hover:text-white'}`}
+                    className={`w-full py-4 rounded-2xl font-bold text-sm tracking-widest uppercase transition-all duration-500 ${!product.inStock ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-brand-surface text-brand-primary hover:bg-brand-primary hover:text-white hover:shadow-xl hover:shadow-brand-primary/20'}`}
                   >
                     {product.inStock ? 'Buy Now' : 'Out of Stock'}
                   </button>
@@ -1485,6 +1491,8 @@ const QuickViewModal = ({
   onAddToCart: (p: Product) => void;
   onBuyNow: (p: Product) => void;
 }) => {
+  const [activeTab, setActiveTab] = useState<'description' | 'reviews' | 'returns'>('description');
+
   if (!product) return null;
 
   return (
@@ -1550,7 +1558,6 @@ const QuickViewModal = ({
                     <span className="text-xs text-brand-dark/40 ml-1">({product.reviews?.length || 0} reviews)</span>
                   </div>
                 </div>
-                <ExpandableText text={product.longDescription || product.description} limit={200} />
               </div>
 
               <div className="flex flex-col gap-3 mb-10">
@@ -1570,50 +1577,118 @@ const QuickViewModal = ({
                 </button>
               </div>
 
-              <div className="grid grid-cols-2 gap-4 mb-10">
-                <div className="p-4 bg-brand-surface rounded-2xl border border-brand-light/20">
-                  <div className="flex items-center gap-2 text-brand-dark font-bold text-sm mb-2">
-                    <Truck size={16} className="text-brand-primary" />
-                    Delivery
-                  </div>
-                  <p className="text-xs text-brand-dark/60 leading-relaxed">
-                    Free delivery in Nairobi for orders above KES 5,000. Standard delivery (24-48h) KES 300.
-                  </p>
-                </div>
-                <div className="p-4 bg-orange-50 rounded-2xl border border-orange-100">
-                  <div className="flex items-center gap-2 text-orange-900 font-bold text-sm mb-2">
-                    <ShieldCheck size={16} className="text-orange-600" />
-                    Returns
-                  </div>
-                  <p className="text-xs text-orange-900/60 leading-relaxed">
-                    7-day return policy for unopened items. Medical products are non-returnable once opened.
-                  </p>
-                </div>
+              {/* Tabs */}
+              <div className="flex border-b border-brand-surface mb-8">
+                <button 
+                  onClick={() => setActiveTab('description')}
+                  className={`pb-4 px-4 text-sm font-bold transition-all relative ${activeTab === 'description' ? 'text-brand-primary' : 'text-brand-dark/40 hover:text-brand-dark'}`}
+                >
+                  Description
+                  {activeTab === 'description' && <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-primary" />}
+                </button>
+                <button 
+                  onClick={() => setActiveTab('reviews')}
+                  className={`pb-4 px-4 text-sm font-bold transition-all relative ${activeTab === 'reviews' ? 'text-brand-primary' : 'text-brand-dark/40 hover:text-brand-dark'}`}
+                >
+                  Reviews ({product.reviews?.length || 0})
+                  {activeTab === 'reviews' && <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-primary" />}
+                </button>
+                <button 
+                  onClick={() => setActiveTab('returns')}
+                  className={`pb-4 px-4 text-sm font-bold transition-all relative ${activeTab === 'returns' ? 'text-brand-primary' : 'text-brand-dark/40 hover:text-brand-dark'}`}
+                >
+                  Return Policy
+                  {activeTab === 'returns' && <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-primary" />}
+                </button>
               </div>
 
-              {product.reviews && product.reviews.length > 0 && (
-                <div>
-                  <h3 className="text-lg font-bold text-brand-dark mb-6 flex items-center gap-2">
-                    Customer Reviews <span className="text-sm font-normal text-brand-dark/40">({product.reviews.length})</span>
-                  </h3>
-                  <div className="space-y-6">
-                    {product.reviews.map((review) => (
-                      <div key={review.id} className="pb-6 border-b border-brand-surface last:border-0">
-                        <div className="flex justify-between items-center mb-2">
-                          <span className="font-bold text-brand-dark">{review.user}</span>
-                          <span className="text-[10px] text-brand-dark/30 uppercase tracking-widest">{review.date}</span>
+              {/* Tab Content */}
+              <div className="min-h-[200px]">
+                {activeTab === 'description' && (
+                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+                    <ExpandableText text={product.longDescription || product.description} limit={300} />
+                    <div className="grid grid-cols-2 gap-4 mt-8">
+                      <div className="p-4 bg-brand-surface rounded-2xl border border-brand-light/20">
+                        <div className="flex items-center gap-2 text-brand-dark font-bold text-sm mb-2">
+                          <Truck size={16} className="text-brand-primary" />
+                          Delivery
                         </div>
-                        <div className="flex gap-0.5 text-orange-400 mb-2">
-                          {[...Array(5)].map((_, i) => (
-                            <Star key={i} size={12} fill={i < review.rating ? "currentColor" : "none"} />
-                          ))}
-                        </div>
-                        <p className="text-sm text-brand-dark/60 italic">"{review.comment}"</p>
+                        <p className="text-xs text-brand-dark/60 leading-relaxed">
+                          Free delivery in Nairobi for orders above KES 5,000. Standard delivery (24-48h) KES 300.
+                        </p>
                       </div>
-                    ))}
-                  </div>
-                </div>
-              )}
+                      <div className="p-4 bg-orange-50 rounded-2xl border border-orange-100">
+                        <div className="flex items-center gap-2 text-orange-900 font-bold text-sm mb-2">
+                          <ShieldCheck size={16} className="text-orange-600" />
+                          Returns
+                        </div>
+                        <p className="text-xs text-orange-900/60 leading-relaxed">
+                          7-day return policy for unopened items. Medical products are non-returnable once opened.
+                        </p>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+
+                {activeTab === 'reviews' && (
+                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+                    {product.reviews && product.reviews.length > 0 ? (
+                      <div className="space-y-6">
+                        {product.reviews.map((review) => (
+                          <div key={review.id} className="pb-6 border-b border-brand-surface last:border-0">
+                            <div className="flex justify-between items-center mb-2">
+                              <span className="font-bold text-brand-dark">{review.user}</span>
+                              <span className="text-[10px] text-brand-dark/30 uppercase tracking-widest">{review.date}</span>
+                            </div>
+                            <div className="flex gap-0.5 text-orange-400 mb-2">
+                              {[...Array(5)].map((_, i) => (
+                                <Star key={i} size={12} fill={i < review.rating ? "currentColor" : "none"} />
+                              ))}
+                            </div>
+                            <p className="text-sm text-brand-dark/60 italic">"{review.comment}"</p>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="text-center py-12 text-brand-dark/40 italic">
+                        No reviews yet for this product.
+                      </div>
+                    )}
+                  </motion.div>
+                )}
+
+                {activeTab === 'returns' && (
+                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+                    <div className="flex items-start gap-4 p-6 bg-brand-surface rounded-3xl border border-brand-light/10">
+                      <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-brand-primary shadow-sm flex-shrink-0">
+                        <ShieldCheck size={24} />
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-brand-dark mb-2">7-Day Return Policy</h4>
+                        <p className="text-sm text-brand-dark/60 leading-relaxed">
+                          We offer a 7-day return window for items that are in their original, unopened packaging.
+                        </p>
+                      </div>
+                    </div>
+                    <div className="space-y-4">
+                      <h4 className="font-bold text-brand-dark text-sm uppercase tracking-widest">Important Notes:</h4>
+                      <ul className="space-y-3">
+                        {[
+                          "Pharmaceutical products cannot be returned once the seal is broken.",
+                          "Personal care items must be unused and in original condition.",
+                          "Refunds are processed within 3-5 business days after inspection.",
+                          "Delivery charges for returns are the responsibility of the customer unless the item was damaged upon arrival."
+                        ].map((note, i) => (
+                          <li key={i} className="flex items-start gap-3 text-sm text-brand-dark/60">
+                            <div className="w-1.5 h-1.5 rounded-full bg-brand-primary mt-1.5 flex-shrink-0" />
+                            {note}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </motion.div>
+                )}
+              </div>
             </div>
           </motion.div>
         </div>
@@ -1936,7 +2011,7 @@ const Footer = ({
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
           <div className="space-y-6">
             <div className="flex items-center gap-2">
-              <Logo className="w-10 h-10" />
+              <Logo className="w-10 h-10 text-brand-primary" />
               <span className="text-2xl font-serif font-bold tracking-tight">Harvianah</span>
             </div>
             <p className="text-brand-surface/60 leading-relaxed">
