@@ -402,11 +402,7 @@ const CartModal = ({
       if (response.ok) {
         setIsSuccess(true);
         onClearCart();
-        setTimeout(() => {
-          setIsSuccess(false);
-          setShowCheckoutForm(false);
-          onClose();
-        }, 3000);
+        // Remove automatic redirect to let user read payment info
       } else {
         alert('Failed to place order. Please try again.');
       }
@@ -454,13 +450,62 @@ const CartModal = ({
                   <button onClick={onClose} className="px-8 py-3 bg-brand-primary text-white rounded-xl font-bold">Start Shopping</button>
                 </div>
               ) : isSuccess ? (
-                <div className="h-full flex flex-col items-center justify-center text-center">
-                  <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center text-green-600 mb-4">
+                <div className="h-full flex flex-col items-center justify-center text-center p-4">
+                  <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center text-green-600 mb-6">
                     <CheckCircle2 size={40} />
                   </div>
-                  <h3 className="text-2xl font-serif text-brand-dark mb-2">Order Placed!</h3>
-                  <p className="text-brand-dark/60 mb-4">Thank you for shopping with Harvianah. We'll contact you shortly for delivery.</p>
-                  <p className="text-sm font-bold text-brand-primary">Redirecting you back...</p>
+                  <h2 className="text-3xl font-serif text-brand-dark mb-2">Order Received!</h2>
+                  <p className="text-brand-dark/60 mb-6 font-medium">Order ID: <span className="text-brand-primary">HV-{Math.floor(10000 + Math.random() * 90000)}</span></p>
+                  
+                  <div className="w-full bg-brand-surface border border-brand-primary/20 rounded-[2.5rem] p-8 mb-8 text-left shadow-inner">
+                    <div className="flex justify-between items-center mb-6 pb-6 border-b border-brand-primary/10">
+                      <span className="text-brand-dark/60 font-bold uppercase tracking-widest text-xs">Total to Pay</span>
+                      <span className="text-3xl font-bold text-brand-primary">KES {total.toLocaleString()}</span>
+                    </div>
+
+                    <h4 className="text-brand-primary font-bold text-sm uppercase tracking-wider mb-4 flex items-center gap-2">
+                      <Sparkles size={16} /> Payment Instructions
+                    </h4>
+                    <p className="text-brand-dark text-sm mb-4 leading-relaxed">
+                      Please pay the total amount via <strong>Pochi la Biashara</strong> to the number below:
+                    </p>
+                    <div className="bg-white rounded-2xl p-5 border border-brand-light flex items-center justify-between group">
+                      <div>
+                        <p className="text-[10px] text-brand-dark/40 uppercase font-bold mb-1">Phone Number</p>
+                        <p className="text-xl font-mono font-bold text-brand-dark tracking-wider">0702 759 927</p>
+                      </div>
+                      <div className="w-10 h-10 bg-brand-surface rounded-full flex items-center justify-center text-brand-primary group-hover:scale-110 transition-transform">
+                        <Phone size={20} />
+                      </div>
+                    </div>
+                    
+                    <div className="mt-6 p-4 bg-white/50 rounded-xl border border-brand-primary/5">
+                      <p className="text-[11px] text-brand-dark/60 leading-relaxed italic">
+                        * Once you have sent the money, our team will verify the transaction and update your order status to <strong>"Payment Cleared"</strong>.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col gap-3 w-full">
+                    <button 
+                      onClick={() => {
+                        alert('Payment notification sent to our team! We will verify and call you shortly.');
+                      }}
+                      className="w-full py-4 bg-brand-primary text-white rounded-2xl font-bold hover:bg-brand-dark transition-all shadow-lg shadow-brand-primary/20 flex items-center justify-center gap-2"
+                    >
+                      <CheckCircle2 size={18} /> I Have Sent the Payment
+                    </button>
+                    <button 
+                      onClick={() => {
+                        setIsSuccess(false);
+                        setShowCheckoutForm(false);
+                        onClose();
+                      }}
+                      className="w-full py-4 bg-white border-2 border-brand-surface text-brand-dark rounded-2xl font-bold hover:bg-brand-surface transition-all"
+                    >
+                      Close & Return to Shop
+                    </button>
+                  </div>
                 </div>
               ) : showCheckoutForm ? (
                 <div className="space-y-6">
@@ -1356,12 +1401,15 @@ const QuickViewModal = ({
   product: Product | null; 
   isOpen: boolean; 
   onClose: () => void;
-  onAddToCart: (p: Product) => void;
-  onBuyNow: (p: Product) => void;
+  onAddToCart: (p: Product, q?: number) => void;
+  onBuyNow: (p: Product, q?: number) => void;
 }) => {
-  const [activeTab, setActiveTab] = useState<'description' | 'reviews' | 'returns'>('description');
+  const [activeTab, setActiveTab] = useState<'description' | 'reviews' | 'returns' | 'payment'>('description');
+  const [quantity, setQuantity] = useState(1);
 
   if (!product) return null;
+
+  const totalToPay = product.price * quantity;
 
   return (
     <AnimatePresence>
@@ -1428,16 +1476,42 @@ const QuickViewModal = ({
                 </div>
               </div>
 
+              {/* Quantity Selector */}
+              <div className="mb-8 p-6 bg-brand-surface rounded-[2rem] border border-brand-light/20">
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-sm font-bold text-brand-dark uppercase tracking-widest">Select Quantity</span>
+                  <div className="flex items-center border-2 border-brand-light rounded-xl bg-white overflow-hidden">
+                    <button 
+                      onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                      className="p-2 hover:bg-brand-surface text-brand-primary transition-colors"
+                    >
+                      <Minus size={18} />
+                    </button>
+                    <span className="w-12 text-center font-bold text-brand-dark">{quantity}</span>
+                    <button 
+                      onClick={() => setQuantity(quantity + 1)}
+                      className="p-2 hover:bg-brand-surface text-brand-primary transition-colors"
+                    >
+                      <Plus size={18} />
+                    </button>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between pt-4 border-t border-brand-light/20">
+                  <span className="text-sm font-bold text-brand-dark/40 uppercase tracking-widest">Total to Pay</span>
+                  <span className="text-xl font-bold text-brand-primary">KES {totalToPay.toLocaleString()}</span>
+                </div>
+              </div>
+
               <div className="flex flex-col gap-3 mb-10">
                 <button 
-                  onClick={() => { onBuyNow(product); onClose(); }}
+                  onClick={() => { onBuyNow(product, quantity); onClose(); }}
                   disabled={!product.inStock}
                   className={`w-full py-4 rounded-2xl font-bold transition-all shadow-lg flex items-center justify-center gap-2 ${!product.inStock ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-brand-primary text-white hover:bg-brand-dark shadow-brand-light/20'}`}
                 >
                   {product.inStock ? 'Buy Now' : 'Out of Stock'} <ArrowRight size={18} />
                 </button>
                 <button 
-                  onClick={() => onAddToCart(product)}
+                  onClick={() => onAddToCart(product, quantity)}
                   disabled={!product.inStock}
                   className={`w-full py-4 rounded-2xl font-bold transition-all flex items-center justify-center gap-2 border-2 ${!product.inStock ? 'bg-white border-gray-200 text-gray-400 cursor-not-allowed' : 'bg-white border-brand-primary text-brand-primary hover:bg-brand-surface'}`}
                 >
@@ -1467,6 +1541,13 @@ const QuickViewModal = ({
                 >
                   Return Policy
                   {activeTab === 'returns' && <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-primary" />}
+                </button>
+                <button 
+                  onClick={() => setActiveTab('payment')}
+                  className={`pb-4 px-4 text-sm font-bold transition-all relative ${activeTab === 'payment' ? 'text-brand-primary' : 'text-brand-dark/40 hover:text-brand-dark'}`}
+                >
+                  Payment
+                  {activeTab === 'payment' && <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-primary" />}
                 </button>
               </div>
 
@@ -1553,6 +1634,51 @@ const QuickViewModal = ({
                           </li>
                         ))}
                       </ul>
+                    </div>
+                  </motion.div>
+                )}
+
+                {activeTab === 'payment' && (
+                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+                    <div className="bg-brand-surface p-6 rounded-3xl border border-brand-primary/10">
+                      <h4 className="font-bold text-brand-dark mb-4 flex items-center gap-2">
+                        <Sparkles size={18} className="text-brand-primary" /> How to Pay
+                      </h4>
+                      <p className="text-sm text-brand-dark/60 mb-6 leading-relaxed">
+                        We use <strong>Pochi la Biashara</strong> for secure and direct payments. This ensures your payment is received instantly and your order is processed immediately.
+                      </p>
+                      
+                      <div className="space-y-4">
+                        <div className="bg-white p-4 rounded-2xl border border-brand-light flex items-center justify-between">
+                          <div>
+                            <p className="text-[10px] text-brand-dark/40 uppercase font-bold mb-1">Payment Method</p>
+                            <p className="font-bold text-brand-dark">Pochi la Biashara</p>
+                          </div>
+                          <div className="w-10 h-10 bg-brand-surface rounded-full flex items-center justify-center text-brand-primary">
+                            <ShieldCheck size={20} />
+                          </div>
+                        </div>
+                        
+                        <div className="bg-white p-4 rounded-2xl border border-brand-light flex items-center justify-between">
+                          <div>
+                            <p className="text-[10px] text-brand-dark/40 uppercase font-bold mb-1">Phone Number</p>
+                            <p className="text-xl font-mono font-bold text-brand-dark tracking-wider">0702 759 927</p>
+                          </div>
+                          <button 
+                            onClick={() => {
+                              navigator.clipboard.writeText('0702759927');
+                              alert('Phone number copied to clipboard!');
+                            }}
+                            className="p-2 hover:bg-brand-surface rounded-xl text-brand-primary transition-colors"
+                          >
+                            <Plus size={20} className="rotate-45" />
+                          </button>
+                        </div>
+                      </div>
+                      
+                      <p className="mt-6 text-[11px] text-brand-dark/40 italic leading-relaxed">
+                        * After placing your order, please send the total amount to the number above. We will call you to confirm delivery once payment is received.
+                      </p>
                     </div>
                   </motion.div>
                 )}
@@ -1823,31 +1949,83 @@ const OrderTrackingView = ({ onBack }: { onBack: () => void }) => {
             </motion.div>
           )}
           {status === 'found' && (
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-brand-surface p-8 rounded-3xl border border-brand-light/20 text-left">
-              <div className="flex items-center gap-4 mb-6">
-                <div className="w-12 h-12 bg-brand-primary text-white rounded-full flex items-center justify-center">
-                  <Truck size={24} />
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+              <div className="bg-white p-8 rounded-[2.5rem] border border-brand-surface text-left shadow-xl">
+                <div className="flex items-center justify-between mb-8">
+                  <div className="flex items-center gap-4">
+                    <div className="w-14 h-14 bg-brand-primary text-white rounded-2xl flex items-center justify-center shadow-lg shadow-brand-primary/20">
+                      <Truck size={28} />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-brand-dark text-xl">Order #{orderId}</h3>
+                      <p className="text-brand-primary font-bold">In Transit</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-[10px] text-brand-dark/40 uppercase font-bold tracking-widest mb-1">Total Amount</p>
+                    <p className="text-xl font-bold text-brand-dark">KES 4,500</p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-bold text-brand-dark">Order #{orderId}</h3>
-                  <p className="text-brand-primary font-bold">In Transit</p>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                  <div className="p-6 bg-green-50 rounded-3xl border border-green-100 flex items-center gap-4">
+                    <div className="w-10 h-10 bg-green-500 text-white rounded-full flex items-center justify-center shadow-md">
+                      <ShieldCheck size={20} />
+                    </div>
+                    <div>
+                      <p className="text-xs text-green-600 font-bold uppercase tracking-widest mb-1">Payment Status</p>
+                      <p className="text-green-700 font-bold">Cleared & Verified</p>
+                    </div>
+                  </div>
+                  <div className="p-6 bg-brand-surface rounded-3xl border border-brand-light/20 flex items-center gap-4">
+                    <div className="w-10 h-10 bg-brand-primary text-white rounded-full flex items-center justify-center shadow-md">
+                      <Clock size={20} />
+                    </div>
+                    <div>
+                      <p className="text-xs text-brand-dark/40 font-bold uppercase tracking-widest mb-1">Est. Delivery</p>
+                      <p className="text-brand-dark font-bold">Today, 4:00 PM</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-6 relative before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-0.5 before:bg-brand-surface">
+                  <div className="flex gap-6 relative z-10">
+                    <div className="w-6 h-6 bg-brand-primary rounded-full border-4 border-white shadow-sm" />
+                    <div>
+                      <p className="font-bold text-brand-dark">Out for Delivery</p>
+                      <p className="text-sm text-brand-dark/60">Today, 10:30 AM - Kimbo-Toll Hub</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-6 relative z-10">
+                    <div className="w-6 h-6 bg-brand-primary rounded-full border-4 border-white shadow-sm" />
+                    <div>
+                      <p className="font-bold text-brand-dark">Payment Verified</p>
+                      <p className="text-sm text-brand-dark/60">Today, 09:15 AM</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-6 relative z-10 opacity-50">
+                    <div className="w-6 h-6 bg-brand-surface rounded-full border-4 border-white shadow-sm" />
+                    <div>
+                      <p className="font-bold text-brand-dark">Order Processed</p>
+                      <p className="text-sm text-brand-dark/60">Yesterday, 4:15 PM</p>
+                    </div>
+                  </div>
                 </div>
               </div>
-              <div className="space-y-4">
-                <div className="flex gap-4">
-                  <div className="w-2 bg-brand-primary rounded-full" />
-                  <div>
-                    <p className="font-bold text-brand-dark">Out for Delivery</p>
-                    <p className="text-sm text-brand-dark/60">Today, 10:30 AM - Kimbo-Toll Hub</p>
+
+              <div className="bg-brand-primary text-white p-8 rounded-[2.5rem] flex items-center justify-between gap-6 shadow-xl shadow-brand-primary/20">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center">
+                    <HelpCircle size={24} />
+                  </div>
+                  <div className="text-left">
+                    <p className="font-bold">Need help with your order?</p>
+                    <p className="text-sm text-white/70">Contact our support team anytime.</p>
                   </div>
                 </div>
-                <div className="flex gap-4">
-                  <div className="w-2 bg-brand-surface rounded-full" />
-                  <div>
-                    <p className="font-bold text-brand-dark/40">Processing</p>
-                    <p className="text-sm text-brand-dark/40">Yesterday, 4:15 PM</p>
-                  </div>
-                </div>
+                <a href="tel:0702759927" className="px-6 py-3 bg-white text-brand-primary rounded-xl font-bold hover:bg-brand-surface transition-colors">
+                  Call Us
+                </a>
               </div>
             </motion.div>
           )}
@@ -1951,6 +2129,19 @@ const Footer = ({
   onNavigate: (id: string) => void;
   onLegal: (type: string) => void;
 }) => {
+  const [email, setEmail] = useState('');
+  const [isSubscribed, setIsSubscribed] = useState(false);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (email) {
+      setIsSubscribed(true);
+      setEmail('');
+      // Reset after 5 seconds to allow another subscription or just keep it
+      setTimeout(() => setIsSubscribed(false), 5000);
+    }
+  };
+
   return (
     <footer className="bg-brand-dark text-white pt-24 pb-12">
       <div className="max-w-7xl mx-auto px-6">
@@ -1998,19 +2189,48 @@ const Footer = ({
               <p className="text-brand-surface/60 mb-6 text-sm leading-relaxed relative z-10">
                 Join our community for expert wellness tips, new arrivals, and exclusive pharmacy offers.
               </p>
-              <form onSubmit={(e) => { e.preventDefault(); onLegal('Newsletter'); }} className="space-y-3 relative z-10">
-                <div className="relative">
-                  <input 
-                    required
-                    type="email" 
-                    placeholder="Enter your email" 
-                    className="w-full bg-white/10 border border-white/20 rounded-xl px-5 py-3 text-sm focus:outline-none focus:border-brand-primary focus:bg-white/20 transition-all"
-                  />
-                </div>
-                <button type="submit" className="w-full bg-brand-primary text-white py-3 rounded-xl font-bold hover:bg-brand-light hover:text-brand-dark transition-all shadow-lg shadow-brand-primary/20">
-                  Subscribe Now
-                </button>
-              </form>
+              
+              <AnimatePresence mode="wait">
+                {isSubscribed ? (
+                  <motion.div 
+                    key="success"
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.9 }}
+                    className="bg-brand-primary/20 border border-brand-primary/30 rounded-2xl p-4 text-center relative z-10"
+                  >
+                    <div className="w-10 h-10 bg-brand-primary rounded-full flex items-center justify-center mx-auto mb-3">
+                      <CheckCircle2 size={20} className="text-white" />
+                    </div>
+                    <p className="text-white font-bold text-sm">Thank you for subscribing!</p>
+                    <p className="text-brand-surface/60 text-[10px] mt-1">Check your inbox for a welcome gift.</p>
+                  </motion.div>
+                ) : (
+                  <motion.form 
+                    key="form"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    onSubmit={handleSubmit} 
+                    className="space-y-3 relative z-10"
+                  >
+                    <div className="relative">
+                      <input 
+                        required
+                        type="email" 
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="Enter your email" 
+                        className="w-full bg-white/10 border border-white/20 rounded-xl px-5 py-3 text-sm focus:outline-none focus:border-brand-primary focus:bg-white/20 transition-all"
+                      />
+                    </div>
+                    <button type="submit" className="w-full bg-brand-primary text-white py-3 rounded-xl font-bold hover:bg-brand-light hover:text-brand-dark transition-all shadow-lg shadow-brand-primary/20">
+                      Subscribe Now
+                    </button>
+                  </motion.form>
+                )}
+              </AnimatePresence>
+              
               <p className="mt-4 text-[10px] text-brand-surface/30 text-center">
                 By subscribing, you agree to our Privacy Policy.
               </p>
@@ -2064,19 +2284,19 @@ export default function App() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
 
-  const addToCart = (product: Product) => {
+  const addToCart = (product: Product, quantity: number = 1) => {
     setCart(prev => {
       const existing = prev.find(item => item.product.id === product.id);
       if (existing) {
         return prev.map(item => 
           item.product.id === product.id 
-            ? { ...item, quantity: item.quantity + 1 } 
+            ? { ...item, quantity: item.quantity + quantity } 
             : item
         );
       }
-      return [...prev, { product, quantity: 1 }];
+      return [...prev, { product, quantity }];
     });
-    setToastMessage('Item added to your cart!');
+    setToastMessage(`${quantity} ${quantity > 1 ? 'items' : 'item'} added to your cart!`);
     setShowToast(true);
     setTimeout(() => setShowToast(false), 3000);
   };
@@ -2114,8 +2334,8 @@ export default function App() {
     setIsQuickViewOpen(true);
   };
 
-  const handleBuyNow = (product: Product) => {
-    addToCart(product);
+  const handleBuyNow = (product: Product, quantity: number = 1) => {
+    addToCart(product, quantity);
     setIsCartOpen(true);
   };
 
