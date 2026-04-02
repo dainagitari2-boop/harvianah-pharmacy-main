@@ -30,7 +30,9 @@ import {
   HelpCircle,
   MapPin,
   Sparkles,
-  MessageCircle
+  MessageCircle,
+  ClipboardList,
+  Bell
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { CATEGORIES, PRODUCTS, Product } from './types';
@@ -364,7 +366,8 @@ const CartModal = ({
   cart, 
   onRemove, 
   onUpdateQuantity,
-  onClearCart
+  onClearCart,
+  onPaymentSubmitted
 }: { 
   isOpen: boolean; 
   onClose: () => void; 
@@ -372,10 +375,14 @@ const CartModal = ({
   onRemove: (id: string) => void;
   onUpdateQuantity: (id: string, delta: number) => void;
   onClearCart: () => void;
+  onPaymentSubmitted: (order: any) => void;
 }) => {
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [showCheckoutForm, setShowCheckoutForm] = useState(false);
+  const [paymentStep, setPaymentStep] = useState<'idle' | 'entering-code' | 'notifying' | 'verifying' | 'received' | 'pushing'>('idle');
+  const [transactionCode, setTransactionCode] = useState('');
+  const [mpesaPushStatus, setMpesaPushStatus] = useState<'waiting' | 'success' | 'failed' | null>(null);
   const [checkoutData, setCheckoutData] = useState({
     name: '',
     phone: '',
@@ -387,6 +394,7 @@ const CartModal = ({
   const handleCheckout = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsCheckingOut(true);
+    setPaymentStep('idle');
     
     try {
       const response = await fetch('/api/place-order', {
@@ -402,7 +410,6 @@ const CartModal = ({
       if (response.ok) {
         setIsSuccess(true);
         onClearCart();
-        // Remove automatic redirect to let user read payment info
       } else {
         alert('Failed to place order. Please try again.');
       }
@@ -411,6 +418,65 @@ const CartModal = ({
       alert('An error occurred. Please try again.');
     } finally {
       setIsCheckingOut(false);
+    }
+  };
+
+  const handlePaymentSent = () => {
+    if (!transactionCode || transactionCode.length < 10) {
+      alert('Please enter a valid M-Pesa Transaction Code (e.g. RCK1234567)');
+      return;
+    }
+    
+    // Notify Admin (Checker)
+    onPaymentSubmitted({
+      ...checkoutData,
+      transactionCode,
+      total,
+      date: new Date().toISOString()
+    });
+
+    setPaymentStep('notifying');
+    setTimeout(() => {
+      setPaymentStep('verifying');
+      setTimeout(() => {
+        setPaymentStep('received');
+      }, 4000);
+    }, 2000);
+  };
+
+  const handleMpesaPush = async () => {
+    setPaymentStep('pushing');
+    setMpesaPushStatus('waiting');
+    
+    try {
+      // In a real app, this would call your backend which then calls Safaricom Daraja API
+      // const response = await fetch('/api/mpesa/stk-push', {
+      //   method: 'POST',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify({ phone: checkoutData.phone, amount: total })
+      // });
+      
+      // Simulating M-Pesa STK Push
+      setTimeout(() => {
+        // Simulate user entering PIN
+        setMpesaPushStatus('success');
+        setPaymentStep('received');
+        
+        // Notify Admin (Checker)
+        onPaymentSubmitted({
+          ...checkoutData,
+          transactionCode: `PUSH-${Math.floor(100000 + Math.random() * 900000)}`,
+          total,
+          date: new Date().toISOString(),
+          method: 'STK_PUSH'
+        });
+      }, 8000); // 8 seconds for PIN entry simulation
+      
+    } catch (error) {
+      console.error('M-Pesa Push error:', error);
+      setMpesaPushStatus('failed');
+      setPaymentStep('idle');
+      alert('Failed to trigger M-Pesa Push. Please try manual payment.');
     }
   };
 
@@ -487,23 +553,109 @@ const CartModal = ({
                   </div>
 
                   <div className="flex flex-col gap-3 w-full">
-                    <button 
-                      onClick={() => {
-                        alert('Payment notification sent to our team! We will verify and call you shortly.');
-                      }}
-                      className="w-full py-4 bg-brand-primary text-white rounded-2xl font-bold hover:bg-brand-dark transition-all shadow-lg shadow-brand-primary/20 flex items-center justify-center gap-2"
-                    >
-                      <CheckCircle2 size={18} /> I Have Sent the Payment
-                    </button>
+                    {paymentStep === 'idle' && (
+                      <>
+                        <button 
+                          onClick={handleMpesaPush}
+                          className="w-full py-4 bg-green-600 text-white rounded-2xl font-bold hover:bg-green-700 transition-all shadow-lg shadow-green-200 flex items-center justify-center gap-2"
+                        >
+                          <Phone size={18} /> Pay Now via M-Pesa Push
+                        </button>
+                        <div className="flex items-center gap-4 my-2">
+                          <div className="flex-1 h-px bg-brand-surface" />
+                          <span className="text-[10px] font-bold text-brand-dark/30 uppercase tracking-widest">OR</span>
+                          <div className="flex-1 h-px bg-brand-surface" />
+                        </div>
+                        <button 
+                          onClick={() => setPaymentStep('entering-code')}
+                          className="w-full py-4 bg-brand-primary text-white rounded-2xl font-bold hover:bg-brand-dark transition-all shadow-lg shadow-brand-primary/20 flex items-center justify-center gap-2"
+                        >
+                          <CheckCircle2 size={18} /> I Have Sent the Payment
+                        </button>
+                      </>
+                    )}
+
+                    {paymentStep === 'pushing' && (
+                      <div className="w-full py-6 bg-green-50 text-green-700 rounded-2xl font-bold flex flex-col items-center gap-3 border border-green-200">
+                        <div className="flex items-center gap-3">
+                          <div className="w-6 h-6 border-3 border-green-600 border-t-transparent rounded-full animate-spin" />
+                          <span className="text-lg">Waiting for PIN...</span>
+                        </div>
+                        <p className="text-xs font-medium opacity-80 px-8 text-center">
+                          Check your phone for the M-Pesa prompt and enter your PIN to authorize KES {total.toLocaleString()}.
+                        </p>
+                      </div>
+                    )}
+
+                    {paymentStep === 'entering-code' && (
+                      <motion.div 
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="w-full space-y-4"
+                      >
+                        <div className="text-left">
+                          <label className="block text-[10px] font-bold uppercase tracking-widest text-brand-dark/40 mb-2">M-Pesa Transaction Code</label>
+                          <input 
+                            type="text"
+                            value={transactionCode}
+                            onChange={(e) => setTransactionCode(e.target.value.toUpperCase())}
+                            placeholder="e.g. RCK1234567"
+                            className="w-full bg-white border-2 border-brand-primary/20 rounded-xl px-4 py-3 focus:outline-none focus:border-brand-primary font-mono uppercase tracking-widest"
+                          />
+                        </div>
+                        <button 
+                          onClick={handlePaymentSent}
+                          className="w-full py-4 bg-brand-primary text-white rounded-2xl font-bold hover:bg-brand-dark transition-all shadow-lg shadow-brand-primary/20"
+                        >
+                          Submit for Verification
+                        </button>
+                        <button 
+                          onClick={() => setPaymentStep('idle')}
+                          className="w-full py-2 text-brand-dark/40 text-xs font-bold uppercase hover:text-brand-dark transition-colors"
+                        >
+                          Cancel
+                        </button>
+                      </motion.div>
+                    )}
+
+                    {paymentStep === 'notifying' && (
+                      <div className="w-full py-4 bg-brand-surface text-brand-primary rounded-2xl font-bold flex items-center justify-center gap-3 border border-brand-primary/20">
+                        <div className="w-5 h-5 border-2 border-brand-primary border-t-transparent rounded-full animate-spin" />
+                        Notifying Team...
+                      </div>
+                    )}
+
+                    {paymentStep === 'verifying' && (
+                      <div className="w-full py-4 bg-orange-50 text-orange-600 rounded-2xl font-bold flex flex-col items-center gap-2 border border-orange-200">
+                        <div className="flex items-center gap-3">
+                          <div className="w-5 h-5 border-2 border-orange-600 border-t-transparent rounded-full animate-spin" />
+                          Verifying Transaction...
+                        </div>
+                        <p className="text-[10px] font-medium opacity-70">This usually takes 1-2 minutes</p>
+                      </div>
+                    )}
+
+                    {paymentStep === 'received' && (
+                      <motion.div 
+                        initial={{ scale: 0.9, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        className="w-full py-4 bg-green-500 text-white rounded-2xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-green-200"
+                      >
+                        <CheckCircle2 size={18} /> Payment Received!
+                      </motion.div>
+                    )}
+
                     <button 
                       onClick={() => {
                         setIsSuccess(false);
                         setShowCheckoutForm(false);
+                        setPaymentStep('idle');
+                        setTransactionCode('');
                         onClose();
                       }}
                       className="w-full py-4 bg-white border-2 border-brand-surface text-brand-dark rounded-2xl font-bold hover:bg-brand-surface transition-all"
                     >
-                      Close & Return to Shop
+                      {paymentStep === 'received' ? 'Finish & Return' : 'Close & Return to Shop'}
                     </button>
                   </div>
                 </div>
@@ -947,11 +1099,12 @@ const WishlistModal = ({
                         <p className="text-sm font-bold text-brand-primary">KES {product.price.toLocaleString()}</p>
                       </div>
                       <button 
-                        onClick={() => { onAddToCart(product); onRemove(product.id); }}
-                        className="w-full py-2 bg-brand-primary text-white rounded-lg text-sm font-bold hover:bg-brand-dark transition-colors flex items-center justify-center gap-2"
+                        onClick={() => { if (product.stockQuantity > 0) { onAddToCart(product); onRemove(product.id); } }}
+                        disabled={product.stockQuantity <= 0}
+                        className={`w-full py-2 rounded-lg text-sm font-bold transition-colors flex items-center justify-center gap-2 ${product.stockQuantity <= 0 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-brand-primary text-white hover:bg-brand-dark'}`}
                       >
                         <ShoppingBag size={16} />
-                        Add to Cart
+                        {product.stockQuantity > 0 ? 'Add to Cart' : 'Out of Order'}
                       </button>
                     </div>
                   </div>
@@ -966,20 +1119,24 @@ const WishlistModal = ({
 };
 
 const ShopView = ({ 
+  products,
   onAddToCart, 
   onToggleWishlist,
   onQuickView,
   onBuyNow,
+  onNotifyMe,
   wishlist,
   searchQuery, 
   onSearch,
   onBack,
   activeCategoryOverride
 }: { 
+  products: Product[];
   onAddToCart: (p: Product) => void; 
   onToggleWishlist: (p: Product) => void;
   onQuickView: (p: Product) => void;
   onBuyNow: (p: Product) => void;
+  onNotifyMe: (p: Product) => void;
   wishlist: string[];
   searchQuery: string;
   onSearch: (q: string) => void;
@@ -1002,26 +1159,26 @@ const ShopView = ({
   }, [selectedCategory, searchQuery]);
 
   const filteredProducts = useMemo(() => {
-    return PRODUCTS.filter(p => {
+    return products.filter(p => {
       const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
                            p.description.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesCategory = selectedCategory === 'all' || p.category === selectedCategory;
       return matchesSearch && matchesCategory;
     });
-  }, [searchQuery, selectedCategory]);
+  }, [searchQuery, selectedCategory, products]);
 
   const suggestions = useMemo(() => {
     if (!searchQuery || searchQuery.length < 2) return [];
-    return PRODUCTS.filter(p => 
+    return products.filter(p => 
       p.name.toLowerCase().includes(searchQuery.toLowerCase())
     ).slice(0, 5);
-  }, [searchQuery]);
+  }, [searchQuery, products]);
 
   const didYouMean = useMemo(() => {
     if (filteredProducts.length > 0 || !searchQuery) return null;
-    const productNames = PRODUCTS.map(p => p.name);
+    const productNames = products.map(p => p.name);
     return findDidYouMean(searchQuery, productNames);
-  }, [filteredProducts, searchQuery]);
+  }, [filteredProducts, searchQuery, products]);
 
   const paginatedProducts = useMemo(() => {
     const start = shopPage * ITEMS_PER_PAGE;
@@ -1162,6 +1319,19 @@ const ShopView = ({
                       Quick View
                     </button>
                   </div>
+                  {product.stockQuantity <= 0 && (
+                    <div className="absolute inset-0 bg-white/60 backdrop-blur-[1px] flex flex-col items-center justify-center z-10 p-6">
+                      <div className="px-6 py-3 bg-red-600 text-white rounded-full font-bold text-sm uppercase tracking-widest shadow-xl transform -rotate-12 border-2 border-white mb-4">
+                        Out of Stock
+                      </div>
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); onNotifyMe(product); }}
+                        className="px-6 py-2 bg-brand-dark text-white rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-brand-primary transition-all flex items-center gap-2 shadow-lg"
+                      >
+                        <Bell size={14} /> Notify Me
+                      </button>
+                    </div>
+                  )}
                   <div className="absolute bottom-8 right-8 flex flex-col gap-3 translate-y-24 group-hover:translate-y-0 transition-transform duration-700 delay-100">
                     <button 
                       onClick={() => onToggleWishlist(product)}
@@ -1171,8 +1341,8 @@ const ShopView = ({
                     </button>
                     <button 
                       onClick={() => onAddToCart(product)}
-                      disabled={!product.inStock}
-                      className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-2xl transition-all duration-300 ${!product.inStock ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-brand-primary text-white hover:bg-brand-dark'}`}
+                      disabled={product.stockQuantity <= 0}
+                      className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-2xl transition-all duration-300 ${product.stockQuantity <= 0 ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-brand-primary text-white hover:bg-brand-dark'}`}
                     >
                       <ShoppingBag size={24} />
                     </button>
@@ -1181,8 +1351,8 @@ const ShopView = ({
                     <div className="px-4 py-1.5 bg-white/95 backdrop-blur-md rounded-full text-[10px] font-bold uppercase tracking-[0.2em] text-brand-dark shadow-sm border border-brand-surface/50">
                       {product.category}
                     </div>
-                    <div className={`px-4 py-1.5 backdrop-blur-md rounded-full text-[10px] font-bold uppercase tracking-[0.15em] shadow-sm border border-white/20 ${product.inStock ? 'bg-green-500/10 text-green-600' : 'bg-red-500/10 text-red-600'}`}>
-                      {product.inStock ? 'In Stock' : 'Out of Stock'}
+                    <div className={`px-4 py-1.5 backdrop-blur-md rounded-full text-[10px] font-bold uppercase tracking-[0.15em] shadow-sm border border-white/20 ${product.stockQuantity > 0 ? 'bg-green-500/10 text-green-600' : 'bg-red-500/10 text-red-600'}`}>
+                      {product.stockQuantity > 0 ? 'In Stock' : 'Out of Stock'}
                     </div>
                   </div>
                   {product.originalPrice && (
@@ -1211,10 +1381,10 @@ const ShopView = ({
                   <div className="mt-auto">
                     <button 
                       onClick={() => onBuyNow(product)}
-                      disabled={!product.inStock}
-                      className={`w-full py-4 rounded-2xl font-bold text-sm tracking-widest uppercase transition-all duration-500 ${!product.inStock ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-brand-surface text-brand-primary hover:bg-brand-primary hover:text-white hover:shadow-xl hover:shadow-brand-primary/20'}`}
+                      disabled={product.stockQuantity <= 0}
+                      className={`w-full py-4 rounded-2xl font-bold text-sm tracking-widest uppercase transition-all duration-500 ${product.stockQuantity <= 0 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-brand-surface text-brand-primary hover:bg-brand-primary hover:text-white hover:shadow-xl hover:shadow-brand-primary/20'}`}
                     >
-                      {product.inStock ? 'Buy Now' : 'Out of Stock'}
+                      {product.stockQuantity > 0 ? 'Buy Now' : 'Out of Stock'}
                     </button>
                   </div>
                 </div>
@@ -1396,13 +1566,15 @@ const QuickViewModal = ({
   isOpen, 
   onClose, 
   onAddToCart,
-  onBuyNow
+  onBuyNow,
+  onNotifyMe
 }: { 
   product: Product | null; 
   isOpen: boolean; 
   onClose: () => void;
   onAddToCart: (p: Product, q?: number) => void;
   onBuyNow: (p: Product, q?: number) => void;
+  onNotifyMe: (p: Product) => void;
 }) => {
   const [activeTab, setActiveTab] = useState<'description' | 'reviews' | 'returns' | 'payment'>('description');
   const [quantity, setQuantity] = useState(1);
@@ -1442,12 +1614,25 @@ const QuickViewModal = ({
                 className="w-full h-full object-cover"
                 referrerPolicy="no-referrer"
               />
+              {product.stockQuantity <= 0 && (
+                <div className="absolute inset-0 bg-white/40 backdrop-blur-[1px] flex flex-col items-center justify-center p-8">
+                  <div className="px-8 py-4 bg-red-600 text-white rounded-full font-bold text-lg uppercase tracking-widest shadow-2xl transform -rotate-12 border-4 border-white mb-6">
+                    Out of Stock
+                  </div>
+                  <button 
+                    onClick={() => onNotifyMe(product)}
+                    className="px-8 py-4 bg-brand-dark text-white rounded-2xl font-bold uppercase tracking-[0.2em] hover:bg-brand-primary transition-all flex items-center gap-3 shadow-2xl"
+                  >
+                    <Bell size={20} /> Notify Me When Available
+                  </button>
+                </div>
+              )}
               <div className="absolute top-6 left-6 flex flex-col gap-2">
                 <div className="px-4 py-1.5 bg-white/90 backdrop-blur-md rounded-full text-xs font-bold uppercase tracking-widest text-brand-dark shadow-sm">
                   {product.category}
                 </div>
-                <div className={`px-4 py-1.5 backdrop-blur-md rounded-full text-xs font-bold uppercase tracking-widest shadow-sm ${product.inStock ? 'bg-green-100/90 text-green-700' : 'bg-red-100/90 text-red-700'}`}>
-                  {product.inStock ? 'In Stock' : 'Out of Stock'}
+                <div className={`px-4 py-1.5 backdrop-blur-md rounded-full text-xs font-bold uppercase tracking-widest shadow-sm ${product.stockQuantity > 0 ? 'bg-green-100/90 text-green-700' : 'bg-red-100/90 text-red-700'}`}>
+                  {product.stockQuantity > 0 ? 'In Stock' : 'Out of Stock'}
                 </div>
               </div>
               {product.originalPrice && (
@@ -1505,15 +1690,15 @@ const QuickViewModal = ({
               <div className="flex flex-col gap-3 mb-10">
                 <button 
                   onClick={() => { onBuyNow(product, quantity); onClose(); }}
-                  disabled={!product.inStock}
-                  className={`w-full py-4 rounded-2xl font-bold transition-all shadow-lg flex items-center justify-center gap-2 ${!product.inStock ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-brand-primary text-white hover:bg-brand-dark shadow-brand-light/20'}`}
+                  disabled={product.stockQuantity <= 0}
+                  className={`w-full py-4 rounded-2xl font-bold transition-all shadow-lg flex items-center justify-center gap-2 ${product.stockQuantity <= 0 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-brand-primary text-white hover:bg-brand-dark shadow-brand-light/20'}`}
                 >
-                  {product.inStock ? 'Buy Now' : 'Out of Stock'} <ArrowRight size={18} />
+                  {product.stockQuantity > 0 ? 'Buy Now' : 'Out of Stock'} <ArrowRight size={18} />
                 </button>
                 <button 
                   onClick={() => onAddToCart(product, quantity)}
-                  disabled={!product.inStock}
-                  className={`w-full py-4 rounded-2xl font-bold transition-all flex items-center justify-center gap-2 border-2 ${!product.inStock ? 'bg-white border-gray-200 text-gray-400 cursor-not-allowed' : 'bg-white border-brand-primary text-brand-primary hover:bg-brand-surface'}`}
+                  disabled={product.stockQuantity <= 0}
+                  className={`w-full py-4 rounded-2xl font-bold transition-all flex items-center justify-center gap-2 border-2 ${product.stockQuantity <= 0 ? 'bg-white border-gray-200 text-gray-400 cursor-not-allowed' : 'bg-white border-brand-primary text-brand-primary hover:bg-brand-surface'}`}
                 >
                   <ShoppingBag size={18} /> Add to Cart
                 </button>
@@ -2122,12 +2307,14 @@ const Footer = ({
   onShop, 
   onConsult, 
   onNavigate,
-  onLegal 
+  onLegal,
+  onStaffLogin
 }: { 
   onShop: () => void; 
   onConsult: () => void;
   onNavigate: (id: string) => void;
   onLegal: (type: string) => void;
+  onStaffLogin: () => void;
 }) => {
   const [email, setEmail] = useState('');
   const [isSubscribed, setIsSubscribed] = useState(false);
@@ -2251,9 +2438,334 @@ const Footer = ({
   );
 };
 
+const NotifyMeModal = ({ 
+  isOpen, 
+  onClose, 
+  product, 
+  onNotify 
+}: { 
+  isOpen: boolean; 
+  onClose: () => void; 
+  product: Product | null;
+  onNotify: (productId: string, email: string) => void;
+}) => {
+  const [email, setEmail] = useState('');
+  const [isSubmitted, setIsSubmitted] = useState(false);
+
+  if (!product) return null;
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onNotify(product.id, email);
+    setIsSubmitted(true);
+    setTimeout(() => {
+      setIsSubmitted(false);
+      setEmail('');
+      onClose();
+    }, 2500);
+  };
+
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={onClose}
+            className="absolute inset-0 bg-brand-dark/60 backdrop-blur-sm"
+          />
+          <motion.div 
+            initial={{ scale: 0.9, opacity: 0, y: 20 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            exit={{ scale: 0.9, opacity: 0, y: 20 }}
+            className="relative w-full max-w-md bg-white rounded-[2.5rem] shadow-2xl p-8 md:p-10 overflow-hidden"
+          >
+            <div className="absolute top-0 left-0 w-full h-2 bg-brand-primary" />
+            <button 
+              onClick={onClose}
+              className="absolute top-6 right-6 p-2 hover:bg-brand-surface rounded-full transition-colors"
+            >
+              <X size={20} />
+            </button>
+
+            {isSubmitted ? (
+              <div className="text-center py-8">
+                <div className="w-20 h-20 bg-green-50 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <CheckCircle2 size={40} />
+                </div>
+                <h3 className="text-2xl font-serif text-brand-dark mb-3">You're on the list!</h3>
+                <p className="text-brand-dark/60 leading-relaxed">
+                  We'll send an alert to <strong>{email}</strong> as soon as <strong>{product.name}</strong> is back in stock.
+                </p>
+              </div>
+            ) : (
+              <>
+                <div className="w-16 h-16 bg-brand-surface text-brand-primary rounded-2xl flex items-center justify-center mb-6">
+                  <Bell size={32} />
+                </div>
+                <h2 className="text-3xl font-serif text-brand-dark mb-3">Notify Me</h2>
+                <p className="text-brand-dark/60 mb-8 leading-relaxed">
+                  This item is currently popular! Leave your email and we'll let you know the moment it's available again.
+                </p>
+                
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  <div className="space-y-2">
+                    <label className="block text-[10px] font-bold text-brand-dark/40 uppercase tracking-[0.2em]">Email Address</label>
+                    <input 
+                      type="email" 
+                      required
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="Enter your email..."
+                      className="w-full px-6 py-4 rounded-2xl border-2 border-brand-surface focus:outline-none focus:border-brand-primary transition-all bg-brand-surface/30"
+                    />
+                  </div>
+                  <button 
+                    type="submit"
+                    className="w-full py-5 bg-brand-dark text-white rounded-2xl font-bold hover:bg-brand-primary transition-all shadow-xl shadow-brand-dark/10 flex items-center justify-center gap-2"
+                  >
+                    Notify Me When Available <ArrowRight size={18} />
+                  </button>
+                </form>
+              </>
+            )}
+          </motion.div>
+        </div>
+      )}
+    </AnimatePresence>
+  );
+};
+
+const InventoryItem = ({ 
+  product, 
+  onUpdate 
+}: any) => {
+  const [localStock, setLocalStock] = useState(product.stockQuantity);
+  const [isUpdating, setIsUpdating] = useState(false);
+
+  useEffect(() => {
+    setLocalStock(product.stockQuantity);
+  }, [product.stockQuantity]);
+
+  const handleUpdate = async () => {
+    setIsUpdating(true);
+    // Simulate a small delay for "push" feel
+    await new Promise(resolve => setTimeout(resolve, 500));
+    onUpdate(product.id, localStock);
+    setIsUpdating(false);
+  };
+
+  const hasChanged = localStock !== product.stockQuantity;
+
+  return (
+    <div className="p-4 bg-white border border-brand-surface rounded-2xl flex flex-col sm:flex-row items-center gap-4 hover:shadow-md transition-all">
+      <div className="w-16 h-16 rounded-xl overflow-hidden bg-brand-surface shrink-0">
+        <img src={product.image} alt={product.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+      </div>
+      <div className="flex-1 text-center sm:text-left">
+        <h4 className="font-bold text-brand-dark">{product.name}</h4>
+        <p className="text-xs text-brand-dark/40 uppercase tracking-wider font-bold">{product.category}</p>
+      </div>
+      <div className="flex flex-wrap items-center justify-center gap-6">
+        <div className="text-center">
+          <p className="text-[10px] text-brand-dark/40 font-bold uppercase tracking-widest mb-1">Stock Level</p>
+          <div className="flex items-center gap-3">
+            <button 
+              onClick={() => setLocalStock(Math.max(0, localStock - 1))}
+              className="w-8 h-8 flex items-center justify-center bg-brand-surface rounded-lg text-brand-primary hover:bg-brand-primary hover:text-white transition-all"
+            >
+              <Minus size={14} />
+            </button>
+            <span className={`text-xl font-bold w-12 text-center ${localStock < 5 ? 'text-red-500' : 'text-brand-dark'}`}>
+              {localStock}
+            </span>
+            <button 
+              onClick={() => setLocalStock(localStock + 1)}
+              className="w-8 h-8 flex items-center justify-center bg-brand-surface rounded-lg text-brand-primary hover:bg-brand-primary hover:text-white transition-all"
+            >
+              <Plus size={14} />
+            </button>
+          </div>
+        </div>
+        
+        <div className="flex flex-col gap-2">
+          <button 
+            onClick={handleUpdate}
+            disabled={!hasChanged || isUpdating}
+            className={`px-6 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-all flex items-center gap-2 ${
+              !hasChanged 
+                ? 'bg-brand-surface text-brand-dark/20 cursor-default' 
+                : 'bg-brand-primary text-white hover:bg-brand-dark shadow-lg shadow-brand-primary/20'
+            }`}
+          >
+            {isUpdating ? (
+              <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+            ) : (
+              <Sparkles size={14} />
+            )}
+            {hasChanged ? 'Update Stock' : 'Synced'}
+          </button>
+          <div className={`px-4 py-1 rounded-lg text-[10px] font-bold uppercase tracking-widest text-center ${product.stockQuantity > 0 ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'}`}>
+            {product.stockQuantity > 0 ? 'In Stock' : 'Out of Stock'}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const AdminDashboard = ({ 
+  isOpen, 
+  onClose, 
+  orders, 
+  onVerify,
+  onReject,
+  products,
+  onUpdateStock
+}: { 
+  isOpen: boolean; 
+  onClose: () => void; 
+  orders: any[]; 
+  onVerify: (id: string) => void;
+  onReject: (id: string) => void;
+  products: Product[];
+  onUpdateStock: (id: string, newStock: number) => void;
+}) => {
+  const [activeTab, setActiveTab] = useState<'orders' | 'inventory'>('orders');
+
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 md:p-8">
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={onClose}
+            className="absolute inset-0 bg-brand-dark/80 backdrop-blur-md"
+          />
+          <motion.div 
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.9, opacity: 0 }}
+            className="relative w-full max-w-4xl bg-white rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
+          >
+            <div className="p-8 border-b border-brand-surface flex items-center justify-between bg-brand-dark text-white">
+              <div>
+                <h2 className="text-3xl font-serif font-bold">Staff Portal</h2>
+                <div className="flex gap-4 mt-4">
+                  <button 
+                    onClick={() => setActiveTab('orders')}
+                    className={`px-4 py-2 rounded-xl text-sm font-bold transition-all ${activeTab === 'orders' ? 'bg-brand-primary text-white' : 'bg-white/10 text-white/60 hover:bg-white/20'}`}
+                  >
+                    Orders & Payments
+                  </button>
+                  <button 
+                    onClick={() => setActiveTab('inventory')}
+                    className={`px-4 py-2 rounded-xl text-sm font-bold transition-all ${activeTab === 'inventory' ? 'bg-brand-primary text-white' : 'bg-white/10 text-white/60 hover:bg-white/20'}`}
+                  >
+                    Inventory Management
+                  </button>
+                </div>
+              </div>
+              <button onClick={onClose} className="p-3 hover:bg-white/10 rounded-full transition-colors">
+                <X size={24} />
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-8">
+              {activeTab === 'orders' ? (
+                orders.length === 0 ? (
+                  <div className="h-64 flex flex-col items-center justify-center text-center">
+                    <div className="w-16 h-16 bg-brand-surface rounded-full flex items-center justify-center text-brand-light mb-4">
+                      <ClipboardList size={32} />
+                    </div>
+                    <h3 className="text-xl font-bold text-brand-dark">No pending verifications</h3>
+                    <p className="text-brand-dark/60">All payments are currently up to date.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="font-bold text-brand-dark uppercase tracking-widest text-xs">Pending Payments ({orders.filter(o => o.status === 'pending_verification').length})</h3>
+                    </div>
+                    <div className="grid gap-4">
+                      {orders.map((order) => (
+                        <div key={order.id} className={`p-6 rounded-2xl border transition-all ${order.status === 'verified' ? 'bg-green-50 border-green-200 opacity-60' : 'bg-white border-brand-surface shadow-sm hover:shadow-md'}`}>
+                          <div className="flex flex-wrap items-start justify-between gap-4">
+                            <div className="space-y-1">
+                              <div className="flex items-center gap-3">
+                                <span className="text-lg font-bold text-brand-dark">{order.id}</span>
+                                {order.status === 'verified' ? (
+                                  <span className="px-3 py-1 bg-green-500 text-white text-[10px] font-bold rounded-full uppercase tracking-widest">Verified</span>
+                                ) : (
+                                  <span className="px-3 py-1 bg-orange-500 text-white text-[10px] font-bold rounded-full uppercase tracking-widest animate-pulse">Pending</span>
+                                )}
+                              </div>
+                              <p className="text-sm text-brand-dark/60">{order.name} • {order.phone}</p>
+                              <p className="text-xs text-brand-dark/40">{new Date(order.date).toLocaleString()}</p>
+                            </div>
+                            
+                            <div className="text-right">
+                              <p className="text-2xl font-bold text-brand-primary">KES {order.total.toLocaleString()}</p>
+                              <div className="mt-2 flex items-center gap-2 justify-end">
+                                <span className="text-[10px] font-bold text-brand-dark/40 uppercase tracking-widest">M-Pesa Code:</span>
+                                <span className="font-mono font-bold text-brand-dark bg-brand-surface px-2 py-1 rounded text-sm tracking-widest">{order.transactionCode}</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          {order.status !== 'verified' && (
+                            <div className="mt-6 pt-6 border-t border-brand-surface flex gap-3">
+                              <button 
+                                onClick={() => onVerify(order.id)}
+                                className="flex-1 py-3 bg-green-600 text-white rounded-xl font-bold hover:bg-green-700 transition-all flex items-center justify-center gap-2"
+                              >
+                                <CheckCircle2 size={18} /> Verify & Clear Payment
+                              </button>
+                              <button 
+                                onClick={() => onReject(order.id)}
+                                className="px-6 py-3 bg-red-50 text-red-600 rounded-xl font-bold hover:bg-red-100 transition-all"
+                              >
+                                Reject
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )
+              ) : (
+                <div className="space-y-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="font-bold text-brand-dark uppercase tracking-widest text-xs">Inventory Status</h3>
+                    <span className="text-xs text-brand-dark/40 font-bold uppercase tracking-widest">{products.length} Products</span>
+                  </div>
+                  <div className="grid gap-4">
+                    {products.map((product) => (
+                      <InventoryItem 
+                        key={product.id} 
+                        product={product} 
+                        onUpdate={onUpdateStock} 
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </motion.div>
+        </div>
+      )}
+    </AnimatePresence>
+  );
+};
+
 // --- Main App ---
 
 export default function App() {
+  const [products, setProducts] = useState<Product[]>(PRODUCTS);
   const [cart, setCart] = useState<{ product: Product; quantity: number }[]>([]);
   const [wishlist, setWishlist] = useState<string[]>([]);
   const [showToast, setShowToast] = useState(false);
@@ -2262,7 +2774,21 @@ export default function App() {
   // Page Navigation State
   // 0: Home, 1: Pharma, 2: Supplements, 3: Mother & Baby, 4: Wellness, 5: Beauty, 6: Expertise, 7: Join Our Community, 8: FAQs, 9: Tracking
   const [currentPage, setCurrentPage] = useState(0);
+  const [showAdminDashboard, setShowAdminDashboard] = useState(false);
+  const [pendingOrders, setPendingOrders] = useState<any[]>([]);
   const totalPages = 9;
+
+  // Check for direct link access to Staff Portal
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('staff') === 'true') {
+      setShowAdminDashboard(true);
+      // Clean up URL without refreshing
+      const newUrl = window.location.pathname;
+      window.history.replaceState({}, '', newUrl);
+    }
+  }, []);
+
   const pageNames = [
     'Home', 
     'Pharmaceuticals', 
@@ -2281,12 +2807,40 @@ export default function App() {
   const [isConsultationOpen, setIsConsultationOpen] = useState(false);
   const [isStoryOpen, setIsStoryOpen] = useState(false);
   const [isQuickViewOpen, setIsQuickViewOpen] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isNotifyModalOpen, setIsNotifyModalOpen] = useState(false);
+  const [notifyProductId, setNotifyProductId] = useState<string | null>(null);
+  const [restockNotifications, setRestockNotifications] = useState<{ productId: string, email: string }[]>([]);
+
+  const selectedProduct = useMemo(() => 
+    selectedProductId ? products.find(p => p.id === selectedProductId) || null : null
+  , [selectedProductId, products]);
+
+  const notifyProduct = useMemo(() => 
+    notifyProductId ? products.find(p => p.id === notifyProductId) || null : null
+  , [notifyProductId, products]);
 
   const addToCart = (product: Product, quantity: number = 1) => {
+    if (product.stockQuantity <= 0) {
+      setToastMessage('Sorry, this product is currently out of order.');
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 3000);
+      return;
+    }
+    const currentStock = products.find(p => p.id === product.id)?.stockQuantity || 0;
+    
     setCart(prev => {
       const existing = prev.find(item => item.product.id === product.id);
+      const totalRequested = (existing?.quantity || 0) + quantity;
+      
+      if (totalRequested > currentStock) {
+        setToastMessage(`Sorry, only ${currentStock} units available in stock.`);
+        setShowToast(true);
+        setTimeout(() => setShowToast(false), 3000);
+        return prev;
+      }
+
       if (existing) {
         return prev.map(item => 
           item.product.id === product.id 
@@ -2296,9 +2850,12 @@ export default function App() {
       }
       return [...prev, { product, quantity }];
     });
-    setToastMessage(`${quantity} ${quantity > 1 ? 'items' : 'item'} added to your cart!`);
-    setShowToast(true);
-    setTimeout(() => setShowToast(false), 3000);
+    
+    if ((cart.find(item => item.product.id === product.id)?.quantity || 0) + quantity <= currentStock) {
+      setToastMessage(`${quantity} ${quantity > 1 ? 'items' : 'item'} added to your cart!`);
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 3000);
+    }
   };
 
   const toggleWishlist = (product: Product) => {
@@ -2320,9 +2877,18 @@ export default function App() {
   };
 
   const updateQuantity = (id: string, delta: number) => {
+    const product = products.find(p => p.id === id);
+    if (!product) return;
+
     setCart(prev => prev.map(item => {
       if (item.product.id === id) {
         const newQty = Math.max(1, item.quantity + delta);
+        if (newQty > product.stockQuantity) {
+          setToastMessage(`Only ${product.stockQuantity} units available in stock.`);
+          setShowToast(true);
+          setTimeout(() => setShowToast(false), 3000);
+          return item;
+        }
         return { ...item, quantity: newQty };
       }
       return item;
@@ -2330,8 +2896,13 @@ export default function App() {
   };
 
   const handleQuickView = (product: Product) => {
-    setSelectedProduct(product);
+    setSelectedProductId(product.id);
     setIsQuickViewOpen(true);
+  };
+
+  const handleNotifyRequest = (productId: string, email: string) => {
+    setRestockNotifications(prev => [...prev, { productId, email }]);
+    console.log(`Notification request for ${productId} from ${email}`);
   };
 
   const handleBuyNow = (product: Product, quantity: number = 1) => {
@@ -2350,8 +2921,63 @@ export default function App() {
     setTimeout(() => setShowToast(false), 3000);
   };
 
+  const addPendingOrder = (order: any) => {
+    // Decrement stock for each item in the order
+    setProducts(prevProducts => {
+      const updatedProducts = [...prevProducts];
+      order.items.forEach((item: any) => {
+        const productIndex = updatedProducts.findIndex(p => p.id === item.product.id);
+        if (productIndex !== -1) {
+          const newStock = Math.max(0, updatedProducts[productIndex].stockQuantity - item.quantity);
+          updatedProducts[productIndex] = {
+            ...updatedProducts[productIndex],
+            stockQuantity: newStock,
+            inStock: newStock > 0
+          };
+        }
+      });
+      return updatedProducts;
+    });
+
+    setPendingOrders(prev => [...prev, { ...order, status: 'pending_verification', id: `HV-${Math.floor(10000 + Math.random() * 90000)}` }]);
+  };
+
+  const verifyOrder = (orderId: string) => {
+    setPendingOrders(prev => prev.map(o => o.id === orderId ? { ...o, status: 'verified' } : o));
+    setToastMessage('Payment verified successfully!');
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 3000);
+  };
+
+  const rejectOrder = (orderId: string) => {
+    const order = pendingOrders.find(o => o.id === orderId);
+    if (!order) return;
+
+    // Restore stock if order is rejected
+    setProducts(prevProducts => {
+      const updatedProducts = [...prevProducts];
+      order.items.forEach((item: any) => {
+        const productIndex = updatedProducts.findIndex(p => p.id === item.product.id);
+        if (productIndex !== -1) {
+          const newStock = updatedProducts[productIndex].stockQuantity + item.quantity;
+          updatedProducts[productIndex] = {
+            ...updatedProducts[productIndex],
+            stockQuantity: newStock,
+            inStock: newStock > 0
+          };
+        }
+      });
+      return updatedProducts;
+    });
+
+    setPendingOrders(prev => prev.filter(o => o.id !== orderId));
+    setToastMessage('Order rejected and stock restored.');
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 3000);
+  };
+
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
-  const wishlistItems = PRODUCTS.filter(p => wishlist.includes(p.id));
+  const wishlistItems = products.filter(p => wishlist.includes(p.id));
 
   return (
     <div className="min-h-screen font-sans selection:bg-brand-surface selection:text-brand-dark bg-white transition-colors duration-300">
@@ -2433,10 +3059,12 @@ export default function App() {
 
             {currentPage >= 1 && currentPage <= 6 && (
               <ShopView 
+                products={products}
                 onAddToCart={addToCart} 
                 onToggleWishlist={toggleWishlist}
                 onQuickView={handleQuickView}
                 onBuyNow={handleBuyNow}
+                onNotifyMe={(p) => { setNotifyProductId(p.id); setIsNotifyModalOpen(true); }}
                 wishlist={wishlist}
                 searchQuery={searchQuery}
                 onSearch={setSearchQuery}
@@ -2478,6 +3106,7 @@ export default function App() {
           if (id === 'tracking') goToPage(9);
         }}
         onLegal={handleLegal}
+        onStaffLogin={() => setShowAdminDashboard(true)}
       />
 
       <CartModal 
@@ -2487,6 +3116,29 @@ export default function App() {
         onRemove={removeFromCart}
         onUpdateQuantity={updateQuantity}
         onClearCart={() => setCart([])}
+        onPaymentSubmitted={addPendingOrder}
+      />
+
+      <AdminDashboard 
+        isOpen={showAdminDashboard}
+        onClose={() => setShowAdminDashboard(false)}
+        orders={pendingOrders}
+        onVerify={verifyOrder}
+        onReject={rejectOrder}
+        products={products}
+        onUpdateStock={(id, newStock) => {
+          setProducts(prev => prev.map(p => p.id === id ? { ...p, stockQuantity: newStock, inStock: newStock > 0 } : p));
+          setToastMessage('Inventory updated successfully! Shop display refreshed.');
+          setShowToast(true);
+          setTimeout(() => setShowToast(false), 3000);
+        }}
+      />
+
+      <NotifyMeModal 
+        isOpen={isNotifyModalOpen}
+        onClose={() => setIsNotifyModalOpen(false)}
+        product={notifyProduct}
+        onNotify={handleNotifyRequest}
       />
 
       <WishlistModal 
@@ -2513,6 +3165,7 @@ export default function App() {
         onClose={() => setIsQuickViewOpen(false)}
         onAddToCart={addToCart}
         onBuyNow={handleBuyNow}
+        onNotifyMe={(p) => { setNotifyProductId(p.id); setIsNotifyModalOpen(true); }}
       />
 
       {/* Toast Notification */}
