@@ -91,8 +91,8 @@ export const PRODUCTS: Product[] = [
     description: '100% micronized creatine monohydrate for improved muscle recovery and explosive power during workouts.',
     longDescription: 'Harvianah Pure Creatine Monohydrate is the gold standard for athletes looking to increase strength, power, and muscle mass. Our creatine is micronized to ensure it mixes easily and absorbs quickly without causing bloating. It works by increasing the body\'s phosphocreatine stores, allowing for more ATP production during high-intensity exercise. This leads to better performance, more reps, and faster recovery between sets.',
     isFeatured: true,
-    inStock: false,
-    stockQuantity: 0,
+    inStock: true,
+    stockQuantity: 120,
     reviews: [
       { id: 'r3', user: 'Mike T.', rating: 5, comment: 'Best creatine I\'ve used. No stomach issues and definitely seeing strength gains.', date: '2024-02-20' }
     ]
