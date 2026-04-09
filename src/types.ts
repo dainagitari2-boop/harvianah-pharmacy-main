@@ -719,5 +719,115 @@ export const PRODUCTS: Product[] = [
     longDescription: 'Critical Whey has been developed using a unique blend of Whey Protein Concentrate, Whey Protein Isolate, and Hydrolyzed Whey Protein. It provides high levels of protein and BCAAs to support muscle growth and maintenance.',
     inStock: true,
     stockQuantity: 15
+  },
+  {
+    id: '56',
+    name: 'Afterave Essentials VaginalGuard',
+    category: 'supplements',
+    price: 2800,
+    image: 'https://picsum.photos/seed/vaginal-guard/800/800',
+    description: 'Advanced Vaginal Health Formula with Enzymatic and Herbal Blend.',
+    longDescription: 'Afterave Essentials VaginalGuard is an advanced formula designed to support vaginal health. It features a unique enzymatic and herbal blend providing Protease and Cellulase, along with probiotic bacteria for digestive support. Supports Intestinal & Digestive Health. 60 Capsules | 30 Days Dietary Supplement.',
+    inStock: true,
+    stockQuantity: 40
+  },
+  {
+    id: '57',
+    name: "Nature's Truth Ashwagandha Root",
+    category: 'supplements',
+    price: 2200,
+    image: 'https://picsum.photos/seed/ashwagandha-root/800/800',
+    description: '920 mg equivalent per serving of pure Ashwagandha root.',
+    longDescription: "Nature's Truth Ashwagandha Root provides 920 mg equivalent per serving of this traditional herbal supplement. These 90 quick-release capsules are non-GMO and gluten-free. Herbal Supplement.",
+    inStock: true,
+    stockQuantity: 50
+  },
+  {
+    id: '58',
+    name: 'Body Builder Joint Flex',
+    category: 'supplements',
+    price: 3200,
+    image: 'https://picsum.photos/seed/joint-flex/800/800',
+    description: 'Glucosamine, Chondroitin, and Vitamin C for cartilage support and joint lubrication.',
+    longDescription: 'Body Builder Joint Flex is formulated to provide comprehensive cartilage support and joint lubrication. With a blend of Glucosamine, Chondroitin, and Vitamin C, it promotes collagen production and offers anti-inflammatory benefits. 30 Capsules Dietary Supplement.',
+    inStock: true,
+    stockQuantity: 35
+  },
+  {
+    id: '59',
+    name: 'Laperva Glyco Ginkgo Biloba Extract',
+    category: 'supplements',
+    price: 2500,
+    image: 'https://picsum.photos/seed/ginkgo-biloba/800/800',
+    description: '60 mg extract standardized to contain 24% Ginkgo Flavone Glycosides.',
+    longDescription: 'Laperva Glyco Ginkgo Biloba Extract is standardized to contain 24% Ginkgo Flavone Glycosides for maximum efficacy. Enhances Memory, Blood Circulation, Mental Boost, and Antioxidant support. 30 Veggie Capsules Dietary Supplement.',
+    inStock: true,
+    stockQuantity: 45
+  },
+  {
+    id: '60',
+    name: 'Shred-X Extreme Thermogenic',
+    category: 'supplements',
+    price: 4500,
+    image: 'https://picsum.photos/seed/shred-x/800/800',
+    description: 'Extreme Thermogenic and Focus Enhancer in Super Berry Blast flavor.',
+    longDescription: 'Shred-X Extreme Thermogenic is a powerful formula designed to enhance focus and support thermogenesis. Super Berry Blast flavor. 30 Servings.',
+    inStock: true,
+    stockQuantity: 20
+  },
+  {
+    id: '61',
+    name: 'Protein Pancake Mix (Double Chocolate)',
+    category: 'supplements',
+    price: 3500,
+    image: 'https://picsum.photos/seed/protein-pancake/800/800',
+    description: 'High-protein pancake mix with delicious double chocolate flavor.',
+    longDescription: 'Enjoy a delicious and nutritious breakfast with our Protein Pancake Mix in Double Chocolate flavor. 500g pack.',
+    inStock: true,
+    stockQuantity: 30
+  },
+  {
+    id: '62',
+    name: "Body Builder Men's Bomb",
+    category: 'supplements',
+    price: 3800,
+    image: 'https://picsum.photos/seed/mens-bomb/800/800',
+    description: 'Enhances Libido & Fertility while promoting athletic performance.',
+    longDescription: "Body Builder Men's Bomb is specifically formulated for men's health. Enhances Libido & Fertility, Promotes Athletic Performance, Explosive Vitality, and Proves Prostate Health. 60 Tablets Dietary Supplement.",
+    inStock: true,
+    stockQuantity: 25
+  },
+  {
+    id: '63',
+    name: 'Laperva Magnesium Bisglycinate',
+    category: 'supplements',
+    price: 2400,
+    image: 'https://picsum.photos/seed/magnesium-bisglycinate/800/800',
+    description: '400 mg of highly bioavailable magnesium for stress relief and muscle function.',
+    longDescription: 'Laperva Magnesium Bisglycinate provides 400 mg of highly bioavailable magnesium per serving. Stress Relief, Supports Muscle Function, Reduces Inflammation, and Supports Normal Mood. 60 Veggie Capsules Dietary Supplement.',
+    inStock: true,
+    stockQuantity: 55
+  },
+  {
+    id: '64',
+    name: 'Natural Factors Calcium & Magnesium 2:1',
+    category: 'supplements',
+    price: 1800,
+    image: 'https://picsum.photos/seed/calcium-magnesium/800/800',
+    description: 'Balanced 2:1 ratio of Calcium and Magnesium plus Vitamin D3.',
+    longDescription: 'Natural Factors Calcium & Magnesium 2:1 provides a balanced ratio of these essential minerals, enhanced with Vitamin D3 for optimal absorption. Supports bone health and muscle function. 90 Capsules.',
+    inStock: true,
+    stockQuantity: 60
+  },
+  {
+    id: '65',
+    name: 'Swanson Triple Magnesium Complex',
+    category: 'supplements',
+    price: 2200,
+    image: 'https://picsum.photos/seed/triple-magnesium-swanson/800/800',
+    description: '400 mg per capsule for muscle and bone health.',
+    longDescription: 'Swanson Triple Magnesium Complex delivers 400 mg of magnesium per vegan capsule to support muscle and bone health. 30 Vegan Capsules Mineral Supplement.',
+    inStock: true,
+    stockQuantity: 35
   }
 ];
