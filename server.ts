@@ -11,25 +11,36 @@ dotenv.config();
 const orders = new Map<string, any>();
 const paymentToOrder = new Map<string, string>();
 
+// Helper to sanitize environment variables (removes whitespace and quotes)
+const sanitizeEnv = (val: string | undefined) => {
+  if (!val) return val;
+  return val.trim().replace(/^["']|["']$/g, "");
+};
+
 // M-Pesa Access Token Helper
 async function getMpesaAccessToken() {
-  const consumerKey = process.env.MPESA_CONSUMER_KEY;
-  const consumerSecret = process.env.MPESA_CONSUMER_SECRET;
-  const shortCode = process.env.MPESA_SHORTCODE || "174379";
-  const env = process.env.MPESA_ENVIRONMENT || (shortCode === "174379" ? "sandbox" : "production");
+  const consumerKey = sanitizeEnv(process.env.MPESA_CONSUMER_KEY);
+  const consumerSecret = sanitizeEnv(process.env.MPESA_CONSUMER_SECRET);
+  const shortCode = sanitizeEnv(process.env.MPESA_SHORTCODE) || "174379";
+  
+  // Robust environment detection
+  let env = sanitizeEnv(process.env.MPESA_ENVIRONMENT)?.toLowerCase();
+  if (!env) {
+    env = shortCode === "174379" ? "sandbox" : "production";
+  }
   
   if (!consumerKey || !consumerSecret) {
     throw new Error("M-Pesa credentials missing (MPESA_CONSUMER_KEY/SECRET)");
   }
 
-  const auth = Buffer.from(`${consumerKey}:${consumerSecret}`).toString("base64");
+  const auth = Buffer.from(`${consumerKey}:${consumerSecret}`, 'utf-8').toString("base64");
   
   const isProduction = env === "production";
   const url = isProduction 
     ? "https://api.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials"
     : "https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials";
   
-  console.log(`Fetching M-Pesa token from ${isProduction ? 'Production' : 'Sandbox'} URL...`);
+  console.log(`[M-Pesa] Fetching token from ${isProduction ? 'Production' : 'Sandbox'} URL...`);
   
   try {
     const response = await axios.get(url, {
@@ -39,8 +50,9 @@ async function getMpesaAccessToken() {
     });
     return response.data.access_token;
   } catch (error: any) {
-    console.error("M-Pesa Token Error:", error.response?.data || error.message);
-    throw new Error(`Failed to get M-Pesa access token: ${JSON.stringify(error.response?.data || error.message)}`);
+    const errorData = error.response?.data || error.message;
+    console.error("[M-Pesa] Token Error:", errorData);
+    throw new Error(`Failed to get M-Pesa access token: ${JSON.stringify(errorData)}`);
   }
 }
 
@@ -158,23 +170,54 @@ async function startServer() {
 
     try {
       const accessToken = await getMpesaAccessToken();
-      const shortCode = process.env.MPESA_SHORTCODE || "174379";
-      const passKey = process.env.MPESA_PASSKEY;
-      const callbackUrl = process.env.MPESA_CALLBACK_URL;
-      const env = process.env.MPESA_ENVIRONMENT || (shortCode === "174379" ? "sandbox" : "production");
+      const shortCode = sanitizeEnv(process.env.MPESA_SHORTCODE) || "174379";
+      let passKey = sanitizeEnv(process.env.MPESA_PASSKEY);
+      const callbackUrl = sanitizeEnv(process.env.MPESA_CALLBACK_URL);
       
-      if (!passKey || !callbackUrl) {
-        console.error("M-Pesa Configuration Missing: PASSKEY or CALLBACK_URL");
-        return res.status(500).json({ error: "M-Pesa configuration missing (PASSKEY/CALLBACK_URL)" });
+      let env = sanitizeEnv(process.env.MPESA_ENVIRONMENT)?.toLowerCase();
+      if (!env) {
+        env = shortCode === "174379" ? "sandbox" : "production";
+      }
+      
+      // Fallback for sandbox passkey if missing or using default test shortcode
+      if (shortCode === "174379" && (!passKey || passKey.length < 10)) {
+        console.log("[M-Pesa] Using default sandbox PassKey for shortcode 174379");
+        passKey = "bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919";
       }
 
-      const timestamp = new Date().toISOString().replace(/[-:T.Z]/g, "").slice(0, 14);
-      const password = Buffer.from(`${shortCode}${passKey}${timestamp}`).toString("base64");
+      if (!passKey) {
+        console.error("[M-Pesa] Configuration Missing: MPESA_PASSKEY is required for STK Push");
+        return res.status(500).json({ error: "M-Pesa configuration missing (MPESA_PASSKEY)" });
+      }
+
+      if (!callbackUrl) {
+        console.error("[M-Pesa] Configuration Missing: MPESA_CALLBACK_URL is required");
+        return res.status(500).json({ error: "M-Pesa configuration missing (MPESA_CALLBACK_URL)" });
+      }
+
+      // Generate Timestamp (YYYYMMDDHHMMSS)
+      // We'll use local time as it's often more reliable with Safaricom's EAT servers
+      const date = new Date();
+      // Add 3 hours to UTC to get EAT (East African Time) which Safaricom uses
+      const eatDate = new Date(date.getTime() + (3 * 60 * 60 * 1000));
+      
+      const timestamp = 
+        eatDate.getUTCFullYear().toString() +
+        (eatDate.getUTCMonth() + 1).toString().padStart(2, '0') +
+        eatDate.getUTCDate().toString().padStart(2, '0') +
+        eatDate.getUTCHours().toString().padStart(2, '0') +
+        eatDate.getUTCMinutes().toString().padStart(2, '0') +
+        eatDate.getUTCSeconds().toString().padStart(2, '0');
+
+      // Password = base64(ShortCode + PassKey + Timestamp)
+      const password = Buffer.from(`${shortCode}${passKey}${timestamp}`, 'utf-8').toString("base64");
 
       // Format phone number to 254XXXXXXXXX
       let formattedPhone = phone.replace(/\D/g, "");
       if (formattedPhone.startsWith("0")) {
         formattedPhone = "254" + formattedPhone.slice(1);
+      } else if (formattedPhone.startsWith("+254")) {
+        formattedPhone = formattedPhone.slice(1);
       } else if (formattedPhone.startsWith("254")) {
         // Already correct
       } else if (formattedPhone.length === 9) {
@@ -186,10 +229,16 @@ async function startServer() {
         ? "https://api.safaricom.co.ke/mpesa/stkpush/v1/processrequest"
         : "https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest";
 
-      // Determine TransactionType: CustomerPayBillOnline for Paybill, CustomerBuyGoodsOnline for Till
-      // Sandbox 174379 is a Paybill.
-      // For production, we'll try to guess or default to Paybill.
-      const transactionType = isProduction && shortCode.length >= 6 ? "CustomerBuyGoodsOnline" : "CustomerPayBillOnline";
+      // Determine TransactionType
+      let transactionType = sanitizeEnv(process.env.MPESA_TRANSACTION_TYPE);
+      if (!transactionType) {
+        transactionType = "CustomerPayBillOnline";
+      }
+      
+      // Force Paybill for sandbox test shortcode
+      if (shortCode === "174379") {
+        transactionType = "CustomerPayBillOnline";
+      }
 
       const stkPushData = {
         BusinessShortCode: shortCode,
@@ -201,13 +250,13 @@ async function startServer() {
         PartyB: shortCode,
         PhoneNumber: formattedPhone,
         CallBackURL: callbackUrl,
-        AccountReference: orderId.replace(/[^a-zA-Z0-9]/g, "").slice(0, 12),
+        AccountReference: orderId.replace(/[^a-zA-Z0-9]/g, "").slice(0, 12) || "Order",
         TransactionDesc: "Payment",
       };
 
-      console.log(`Initiating STK Push to: ${pushUrl} (${env} mode)`);
-      console.log("STK Push Data:", { ...stkPushData, Password: "REDACTED" });
-
+      console.log(`[M-Pesa] Initiating STK Push to: ${pushUrl} (${env} mode)`);
+      console.log(`[M-Pesa] Request Params: { ShortCode: ${shortCode}, Type: ${transactionType}, Phone: ${formattedPhone}, Timestamp: ${timestamp} }`);
+      
       const pushResponse = await axios.post(
         pushUrl,
         stkPushData,
@@ -219,7 +268,7 @@ async function startServer() {
         }
       );
 
-      console.log("Safaricom STK Push Response:", pushResponse.data);
+      console.log("[M-Pesa] Safaricom STK Push Response:", pushResponse.data);
 
       // Map the CheckoutRequestID to the orderId so we can find it in the callback
       if (pushResponse.data.CheckoutRequestID) {
@@ -257,24 +306,34 @@ async function startServer() {
       if (orderId) {
         const order = orders.get(orderId);
         if (order) {
-          console.log(`SUCCESS: Payment verified for Order ${orderId}. Notifying staff...`);
+          console.log(`[M-Pesa] SUCCESS: Payment verified for Order ${orderId}. Notifying staff...`);
+          order.paymentStatus = 'paid';
+          order.mpesaReceiptNumber = Body.stkCallback.CallbackMetadata?.Item?.find((i: any) => i.Name === 'MpesaReceiptNumber')?.Value;
+          
           await sendOrderEmail(order);
-          // Clean up
-          orders.delete(orderId);
-          paymentToOrder.delete(CheckoutRequestID);
+          // We keep the order for a bit so the frontend can query it
+          setTimeout(() => {
+            orders.delete(orderId);
+            paymentToOrder.delete(CheckoutRequestID);
+          }, 1000 * 60 * 5); // Delete after 5 minutes
         } else {
-          console.error(`Order ${orderId} not found in memory for successful payment`);
+          console.error(`[M-Pesa] Order ${orderId} not found in memory for successful payment`);
         }
       } else {
-        console.error(`CheckoutRequestID ${CheckoutRequestID} not found in mapping`);
+        console.error(`[M-Pesa] CheckoutRequestID ${CheckoutRequestID} not found in mapping`);
       }
     } else {
       // Payment Failed or Cancelled
-      console.log(`FAILED: ${ResultDesc}`);
+      console.log(`[M-Pesa] FAILED: ${ResultDesc}`);
       const orderId = paymentToOrder.get(CheckoutRequestID);
       if (orderId) {
-        paymentToOrder.delete(CheckoutRequestID);
-        // We might want to keep the order in memory for a retry, or delete it
+        const order = orders.get(orderId);
+        if (order) {
+          order.paymentStatus = 'failed';
+          order.paymentError = ResultDesc;
+        }
+        // Clean up mapping but keep order for status check
+        setTimeout(() => paymentToOrder.delete(CheckoutRequestID), 1000 * 60);
       }
     }
 
@@ -438,6 +497,58 @@ async function startServer() {
     }
     
     return res.status(200).json(order);
+  });
+
+  // M-Pesa Status Query Route (Manual Query to Safaricom)
+  app.get("/api/mpesa/query/:checkoutRequestId", async (req, res) => {
+    const { checkoutRequestId } = req.params;
+    
+    try {
+      const accessToken = await getMpesaAccessToken();
+      const shortCode = process.env.MPESA_SHORTCODE?.trim() || "174379";
+      const passKey = process.env.MPESA_PASSKEY?.trim();
+      
+      let env = process.env.MPESA_ENVIRONMENT?.trim().toLowerCase();
+      if (!env) {
+        env = shortCode === "174379" ? "sandbox" : "production";
+      }
+
+      const date = new Date();
+      const timestamp = 
+        date.getFullYear().toString() +
+        (date.getMonth() + 1).toString().padStart(2, '0') +
+        date.getDate().toString().padStart(2, '0') +
+        date.getHours().toString().padStart(2, '0') +
+        date.getMinutes().toString().padStart(2, '0') +
+        date.getSeconds().toString().padStart(2, '0');
+
+      const password = Buffer.from(`${shortCode}${passKey}${timestamp}`).toString("base64");
+
+      const queryUrl = env === "production"
+        ? "https://api.safaricom.co.ke/mpesa/stkpushquery/v1/query"
+        : "https://sandbox.safaricom.co.ke/mpesa/stkpushquery/v1/query";
+
+      const queryResponse = await axios.post(
+        queryUrl,
+        {
+          BusinessShortCode: shortCode,
+          Password: password,
+          Timestamp: timestamp,
+          CheckoutRequestID: checkoutRequestId,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      return res.status(200).json(queryResponse.data);
+    } catch (error: any) {
+      const errorData = error.response?.data || error.message;
+      return res.status(500).json({ error: "Failed to query M-Pesa status", details: errorData });
+    }
   });
 
   // Vite middleware for development

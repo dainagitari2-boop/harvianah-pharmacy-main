@@ -487,24 +487,83 @@ const CartModal = ({
       if (response.ok) {
         // The push was successfully initiated
         console.log('M-Pesa Push Response:', data);
+        const checkoutRequestId = data.CheckoutRequestID;
         
-        // In a real production app, we would poll an endpoint here to check the status 
-        // of CheckoutRequestID. For this demo, we'll wait and then show success 
-        // to simulate the flow, but the real push was triggered!
+        if (!checkoutRequestId) {
+          throw new Error('No CheckoutRequestID received');
+        }
+
+        // Poll for status
+        let attempts = 0;
+        const maxAttempts = 15; // 30 seconds total (2s interval)
         
-        setTimeout(() => {
-          setMpesaPushStatus('success');
-          setPaymentStep('received');
-          
-          onPaymentSubmitted({
-            ...checkoutData,
-            transactionCode: data.CheckoutRequestID || `PUSH-${Math.floor(100000 + Math.random() * 900000)}`,
-            total,
-            date: new Date().toISOString(),
-            method: 'STK_PUSH',
-            orderId: finalOrderId
-          });
-        }, 10000);
+        const pollStatus = setInterval(async () => {
+          attempts++;
+          try {
+            // First check our internal order status (which is updated by callback)
+            const orderResponse = await fetch(`/api/order/${finalOrderId}`);
+            const orderData = await orderResponse.json();
+            
+            if (orderData.paymentStatus === 'paid') {
+              clearInterval(pollStatus);
+              setMpesaPushStatus('success');
+              setPaymentStep('received');
+              onPaymentSubmitted({
+                ...checkoutData,
+                transactionCode: orderData.mpesaReceiptNumber || checkoutRequestId,
+                total,
+                date: new Date().toISOString(),
+                method: 'STK_PUSH',
+                orderId: finalOrderId
+              });
+              return;
+            }
+
+            if (orderData.paymentStatus === 'failed') {
+              clearInterval(pollStatus);
+              setMpesaPushStatus('failed');
+              setPaymentStep('idle');
+              alert(`Payment failed: ${orderData.paymentError || 'Unknown error'}`);
+              return;
+            }
+
+            // If callback hasn't hit yet, we can optionally query Safaricom directly
+            if (attempts % 5 === 0) { // Every 10 seconds
+              const queryResponse = await fetch(`/api/mpesa/query/${checkoutRequestId}`);
+              const queryData = await queryResponse.json();
+              
+              if (queryData.ResultCode === "0") {
+                // Success from Safaricom query
+                clearInterval(pollStatus);
+                setMpesaPushStatus('success');
+                setPaymentStep('received');
+                onPaymentSubmitted({
+                  ...checkoutData,
+                  transactionCode: checkoutRequestId,
+                  total,
+                  date: new Date().toISOString(),
+                  method: 'STK_PUSH',
+                  orderId: finalOrderId
+                });
+              } else if (queryData.ResultCode && queryData.ResultCode !== "0") {
+                // Error from Safaricom query
+                clearInterval(pollStatus);
+                setMpesaPushStatus('failed');
+                setPaymentStep('idle');
+                alert(`Payment failed: ${queryData.ResultDesc || 'Transaction cancelled'}`);
+              }
+            }
+
+            if (attempts >= maxAttempts) {
+              clearInterval(pollStatus);
+              setMpesaPushStatus('failed');
+              setPaymentStep('idle');
+              alert('Payment verification timed out. If you paid, please enter the code manually.');
+            }
+          } catch (err) {
+            console.error('Polling error:', err);
+          }
+        }, 2000);
       } else {
         throw new Error(data.error || 'Failed to initiate push');
       }
